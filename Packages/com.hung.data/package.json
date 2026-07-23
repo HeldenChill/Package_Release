@@ -1,0 +1,15 @@
+{
+  "name": "com.hung.data",
+  "version": "0.9.0",
+  "displayName": "Hung Data",
+  "description": "Data framework: SO definitions, save, DataManager. Includes Hung.Common assembly.",
+  "unity": "2022.3",
+  "keywords": [
+    "layer:2"
+  ],
+  "dependencies": {
+    "com.hung.designpattern": "0.4.2",
+    "com.hung.utilities": "0.2.1",
+    "com.hung.base": "0.15.0"
+  }
+}

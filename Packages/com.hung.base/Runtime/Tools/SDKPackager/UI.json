@@ -1,0 +1,26 @@
+{
+    "packageName": "Tutorial",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "",
+    "sdkFolderNames": [],
+    "sdkFolderPaths": [
+        "Assets/_Game/_UI",
+        "Assets/_Game/_Tutorial/UI",
+        "Assets/_Game/Resources/UI",
+        "Assets/_Game/_SubSystem/DailyGift/UI",
+        "Assets/_Game/_SubSystem/PiggyBank/UI",
+        "Assets/_Game/_SubSystem/SpinWheel/UI",
+        "Assets/_Game/_SubSystem/DailyReward/UI"
+    ],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}

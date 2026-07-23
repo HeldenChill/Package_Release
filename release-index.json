@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-07-23T04:35:30Z",
+  "packages": {
+    "com.hung.base": "0.15.0",
+    "com.hung.data": "0.9.0",
+    "com.hung.designpattern": "0.4.2",
+    "com.hung.liveops.energy": "0.1.0",
+    "com.hung.ui": "0.5.1",
+    "com.hung.utilities": "0.2.1"
+  },
+  "publicRoots": [
+    "com.hung.base",
+    "com.hung.data",
+    "com.hung.designpattern",
+    "com.hung.liveops.energy",
+    "com.hung.ui",
+    "com.hung.utilities"
+  ],
+  "releaseTag": "release-2026.07.23.1",
+  "schemaVersion": 1,
+  "sourceCommit": "ef937e779180128f4b00b38e6b47018cb97690bc"
+}

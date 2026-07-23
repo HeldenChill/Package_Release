@@ -1,0 +1,14 @@
+{
+    "name": "Hung.LiveOps.Energy",
+    "rootNamespace": "Hung.LiveOps.Energy",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
