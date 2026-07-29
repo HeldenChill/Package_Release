@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.0] - 2026-07-23
+### Added
+- Added versioned save envelopes, ordered JSON migrations, beneficial GZip encoding, SHA-256/HMAC integrity protection, separate local key storage, file-backed primary/backup/quarantine mechanics, and legacy PlayerPrefs import.
+- Added stable production definitions for `GameData`, DailyGift, Heart, DailyReward, PiggyBank, and SpinWheel.
+- Added EditMode fixtures, recovery tests, PlayMode flows, and 10 KB/100 KB/1 MB persistence benchmarks.
+
+### Changed
+- Installs the default file-backed persistence service before scene load while retaining legacy PlayerPrefs values as read-only migration evidence.
+
 ## [0.9.0] - 2026-07-21
 ### Changed (BREAKING)
 - Removed the legacy `GameplayData.Items` catalog and item migration editor tools after serialized assets moved to `ItemId`.

@@ -1,7 +1,9 @@
 {
     "name": "Hung.LiveOps.Energy",
     "rootNamespace": "Hung.LiveOps.Energy",
-    "references": [],
+    "references": [
+        "Hung.Base"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

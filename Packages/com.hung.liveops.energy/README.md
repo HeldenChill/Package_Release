@@ -27,7 +27,7 @@ See `.cursor/plans/LiveOps_Energy_Safety_Design_2026-07-21.md` and the implement
 | `EnergyRunCompletionResult` | readonly struct | Result of `CompleteRun`: outcome, recorded `RunOutcome?`, resulting snapshot. |
 | `EnergyRunCancellationResult` | readonly struct | Result of `CancelFailedStart`: outcome, resulting snapshot. |
 | `EnergyGrantResult` | readonly struct | Result of `AddRenewable` / `AddBonus` / `GrantUnlimited`: outcome, resulting snapshot. |
-| `EnergyServiceFactory` | static class | Public composition entry point. `CreateLocal(EnergyConfigSO, string stateFilePath, IClock)` validates config, builds a local store, and returns a ready service or a creation failure — never a permissive fallback. |
+| `EnergyServiceFactory` | static class | Public composition entry point. `CreateLocal(EnergyConfigSO, string stateFilePath, Hung.Base.IClock)` validates config, builds a local store, and returns a ready service or a creation failure — never a permissive fallback. |
 | `EnergyCreationResult` | readonly struct | Result of `EnergyServiceFactory.CreateLocal`: either a ready `IEnergyService` or an actionable `ErrorMessage`, never both. |
 
 ## Configuration
@@ -63,7 +63,7 @@ if (!result.Success)
 IEnergyService energy = result.Service;
 ```
 
-`clock` is optional and defaults to `SystemClock` (wall-clock UTC); pass a fake `IClock` only in tests.
+`clock` is optional and defaults to `Hung.Base.SystemClock` (wall-clock UTC); pass a fake `Hung.Base.IClock` only in tests.
 
 ## Command IDs (idempotency contract)
 

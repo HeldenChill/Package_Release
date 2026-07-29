@@ -1,23 +1,30 @@
 using NUnit.Framework;
 using UnityEngine;
+using Hung.Data.Tests.Persistence;
 
 namespace Hung.Data.Tests
 {
-    // Database lives in com.hung.base (global namespace), not com.hung.data itself -
-    // adjusted from the plan's assumed package location during Ph5 execution.
-    // Database.Save/Load persists to PlayerPrefs keyed by typeof(T).Name - tests must
-    // clean up PlayerPrefs in TearDown to avoid cross-run pollution on the same machine.
     public class SaveRoundTripTests
     {
+        private DatabaseFacadeTestScope scope;
+
         private class SaveRoundTripTestData
         {
             public int Value;
             public string Name;
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            PlayerPrefs.DeleteKey(nameof(SaveRoundTripTestData));
+            scope = new DatabaseFacadeTestScope();
+        }
+
         [TearDown]
         public void TearDown()
         {
+            scope.Dispose();
             PlayerPrefs.DeleteKey(nameof(SaveRoundTripTestData));
         }
 
@@ -36,15 +43,12 @@ namespace Hung.Data.Tests
         [Test]
         public void Load_MissingKey_ReturnsNewDefaultAndPersistsIt()
         {
-            // Characterizing the actual self-healing behavior: a miss does not throw or
-            // return null, it constructs a default instance, saves it, and returns it.
-            PlayerPrefs.DeleteKey(nameof(SaveRoundTripTestData));
-
             var loaded = Database.Load<SaveRoundTripTestData>();
 
             Assert.IsNotNull(loaded);
             Assert.AreEqual(0, loaded.Value);
-            Assert.IsTrue(PlayerPrefs.HasKey(nameof(SaveRoundTripTestData)), "Load on a miss must persist the default it created");
+            Assert.That(scope.Store.Primary.ContainsKey(nameof(SaveRoundTripTestData)), Is.True);
+            Assert.That(PlayerPrefs.HasKey(nameof(SaveRoundTripTestData)), Is.False);
         }
 
         [Test]

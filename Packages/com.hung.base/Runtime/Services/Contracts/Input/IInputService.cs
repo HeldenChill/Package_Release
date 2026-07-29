@@ -10,5 +10,9 @@ namespace Hung.Base
 
         /// <summary>Disable every action map.</summary>
         void DisableAllInput();
+
+        /// <summary>Shared InputActionAsset instance, so package-side BrainModules (e.g. Hung.Character's
+        /// PlayerInput) enable/disable the SAME asset this service controls instead of their own clone.</summary>
+        UnityEngine.InputSystem.InputActionAsset Asset { get; }
     }
 }

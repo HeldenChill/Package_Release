@@ -1,6 +1,9 @@
 using NUnit.Framework;
 using UnityEngine;
 using Hung.Base;
+using Hung.Data.Tests.Persistence;
+using System;
+using System.Collections.Generic;
 
 namespace Hung.Data.Tests
 {
@@ -11,9 +14,18 @@ namespace Hung.Data.Tests
     // rename/removal on GameData is caught here rather than silently.
     public class GameDataGoldenTests
     {
+        private DatabaseFacadeTestScope scope;
+
+        [SetUp]
+        public void SetUp()
+        {
+            scope = new DatabaseFacadeTestScope();
+        }
+
         [TearDown]
         public void TearDown()
         {
+            scope.Dispose();
             PlayerPrefs.DeleteKey(GameData.SaveKey);
         }
 
@@ -24,6 +36,8 @@ namespace Hung.Data.Tests
             {
                 IsFirstTimeUser = false
             };
+            data.user.ItemDatas = Array.Empty<GameData.ItemData>();
+            data.user.PurchasedItems = new List<IAP_ITEM>();
             data.level.LevelStars.Add(3);
 
             Database.Save(data, GameData.SaveKey);

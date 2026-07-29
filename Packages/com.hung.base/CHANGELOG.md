@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.19.0] - 2026-07-28
+### Added
+- Added vendor-neutral Ads request contracts: `AdsRequestId`, `AdsRequestKind`, `AdsRequestOutcome`, `AdsShowRequest`, `AdsShowResult`, and `IAdsRequestService`.
+- Added pause lease contracts and default `PauseService` with `Locator.Pause` compatibility slot.
+
+## [0.18.0] - 2026-07-27
+### Added
+- Added neutral UTC time contracts: `IClock`, `SystemClock`, `RewardDayKey`, and `RewardDayPolicy`.
+- Added vendor-neutral reward integrity contracts: deterministic `RewardClaimId`, reward grant items/results, `IRewardGrantService`, `RewardAuthorization`, `RewardClaimRequest`, `RewardClaimResult`, `RewardRecoveryReport`, and `IRewardClaimCoordinator`.
+
+### Notes
+- `SystemClock` is the only affected-domain production type that reads `DateTime.UtcNow` directly.
+- Reward claim coordination is a recoverable protocol boundary, not a physical cross-store transaction.
+
+## [0.17.0] - 2026-07-24
+### Added
+- Added vendor-neutral purchase integrity contracts: logical product IDs, availability/results, transaction snapshots, restore/reconcile aggregates, `IPurchaseIntegrityService`, and `IPurchaseGrantHandler`.
+- Added `UnsupportedPurchaseIntegrityService` for DesktopPremium/Base-only compositions that intentionally omit purchasing.
+
+### Changed
+- Existing `IIAPService` callback contract is now obsolete in favor of `IPurchaseIntegrityService`; source compatibility is preserved for legacy callers.
+
+## [0.16.0] - 2026-07-23
+### Added
+- Added DI-neutral persistence contracts, typed save definitions, structured results, migrations, codecs, protectors, diagnostics, and compatibility-definition composition.
+
+### Changed
+- `Database.Save<T>` and `Database.Load<T>` remain synchronous and source-compatible but now delegate to a configured `IPersistenceService` instead of writing raw PlayerPrefs JSON.
+- Projects without `com.hung.data` now receive an actionable configuration error instead of silently falling back to unsafe persistence.
+
 ## [0.15.0] - 2026-07-21
 ### Changed (BREAKING)
 - Removed the legacy numeric item enum and runtime migration adapters. Item service APIs, save data, and reward contracts now use `ItemId`.

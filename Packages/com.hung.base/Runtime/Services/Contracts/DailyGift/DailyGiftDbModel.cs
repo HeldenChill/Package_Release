@@ -12,6 +12,10 @@ namespace Hung.Base
         public List<bool> listDailyGiftStatus;
         public int streakDay;
         public List<bool> listStreakDailyGiftStatus;
+        public int rewardDayKey;
+        public int cycleStartDayKey;
+        public int currentSlot;
+        public int lastStreakDayKey;
 
         public static DailyGiftDbModel Load() { return Database.Load<DailyGiftDbModel>(); }
         public void Save() { Database.Save<DailyGiftDbModel>(this); }

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Hung.Base;
 
 namespace Hung.LiveOps.Energy
 {
@@ -10,6 +11,7 @@ namespace Hung.LiveOps.Energy
     /// </summary>
     internal sealed class LocalEnergyStateStore : IEnergyStateStore
     {
+        private static readonly IClock EvidenceClock = new SystemClock();
         private readonly string _filePath;
         private readonly string _tempFilePath;
 
@@ -85,7 +87,7 @@ namespace Hung.LiveOps.Energy
 
         private void Quarantine(string rawContent)
         {
-            string evidencePath = $"{_filePath}.corrupt-{DateTime.UtcNow.Ticks}-{Guid.NewGuid():N}.json";
+            string evidencePath = $"{_filePath}.corrupt-{EvidenceClock.UtcNow.Ticks}-{Guid.NewGuid():N}.json";
             try
             {
                 File.WriteAllText(evidencePath, rawContent);

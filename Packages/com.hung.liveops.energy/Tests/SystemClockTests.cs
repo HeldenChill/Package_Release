@@ -1,4 +1,5 @@
 using System;
+using Hung.Base;
 using NUnit.Framework;
 
 namespace Hung.LiveOps.Energy.Tests

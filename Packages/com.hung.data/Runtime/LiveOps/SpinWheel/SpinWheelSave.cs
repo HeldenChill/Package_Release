@@ -6,15 +6,17 @@ public class SpinWheelSaveData
 {
     public bool isDoneSpinFreeToday;
     public int adsSpinToday;
-    public int dayOfYear = DateTime.Now.DayOfYear;
+    public int dayOfYear;
+    public int rewardDayKey;
+    public int spinOrdinal;
+    public string pendingSpinId;
+    public int pendingSelectedIndex;
+    public bool pendingIsAds;
+    public string pendingPayloadFingerprint;
 
     public bool IsVerifyNewDay()
     {
-        if (dayOfYear == DateTime.Now.DayOfYear) return false;
-        isDoneSpinFreeToday = false;
-        adsSpinToday = 0;
-        dayOfYear = DateTime.Now.DayOfYear;
-        return true;
+        return false;
     }
 }
 

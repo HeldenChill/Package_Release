@@ -10,10 +10,12 @@ public class SpinWheelDataSO : ScriptableObject
     [SerializeField] private List<SpinItem> spinFreeItems;
     [SerializeField] private int adsSpinPerDay = 2;
     [SerializeField] private List<SpinItem> spinAdsItems;
+    [SerializeField] private int resetOffsetMinutes;
 
     public List<SpinItem> SpinFreeItems => spinFreeItems;
     public int AdsSpinPerDay => adsSpinPerDay;
     public List<SpinItem> SpinAdsItems => spinAdsItems;
+    public int ResetOffsetMinutes => resetOffsetMinutes;
 
     public SpinItem FreeItem(int index)
     {

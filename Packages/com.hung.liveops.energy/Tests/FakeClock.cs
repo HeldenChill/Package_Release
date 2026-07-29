@@ -1,4 +1,5 @@
 using System;
+using Hung.Base;
 
 namespace Hung.LiveOps.Energy.Tests
 {

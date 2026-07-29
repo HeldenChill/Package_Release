@@ -1,3 +1,5 @@
+using Hung.Base;
+
 namespace Hung.LiveOps.Energy
 {
     /// <summary>

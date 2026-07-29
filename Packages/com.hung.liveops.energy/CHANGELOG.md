@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0] - 2026-07-27
+### Changed
+- Replaced the package-local `IClock` / `SystemClock` contracts with shared `Hung.Base.IClock` / `Hung.Base.SystemClock`.
+- Added truthful `com.hung.base` dependency. Energy state and behavior are unchanged.
+
 ## [0.1.0] - 2026-07-21
 
 **This is a new package identity, not a continuation of `com.hung.liveops.heart`'s version

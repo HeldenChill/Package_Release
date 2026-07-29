@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Hung.Base
 {
-    public interface IAdsService
+    public interface IAdsService : IAdsRequestService
     {
         IAds AppOpen { get; }
         IAds Banner { get; }

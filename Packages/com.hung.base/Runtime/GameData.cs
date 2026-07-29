@@ -1,5 +1,5 @@
 using Hung.Base;
-using Newtonsoft.Json;
+using Hung.Base.Persistence;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -8,28 +8,64 @@ using UnityEngine;
 
 public static class Database
 {
+    private static IPersistenceService _service;
+    private static Func<IPersistenceService> _serviceFactory;
+
+    public static Func<IPersistenceService> ServiceFactory
+    {
+        get => _serviceFactory;
+        set
+        {
+            _serviceFactory = value;
+            _service = null;
+        }
+    }
+
+    public static ICompatibilitySaveDefinitionFactory CompatibilityDefinitionFactory { get; set; }
+
+    public static IPersistenceService Service
+    {
+        get
+        {
+            if (_service != null)
+                return _service;
+            if (_serviceFactory == null)
+                throw new InvalidOperationException(
+                    "Database persistence is not configured. Install com.hung.data or assign Database.ServiceFactory.");
+            return _service = _serviceFactory() ?? throw new InvalidOperationException("Database service factory returned null.");
+        }
+        set => _service = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
     public static void Save<T>(T data, string key = null) where T : new()
     {
-        string dataString = JsonConvert.SerializeObject(data);
-        PlayerPrefs.SetString(ResolveKey<T>(key), dataString);
-        PlayerPrefs.Save();
+        SaveResult result = Service.Save(ResolveDefinition<T>(key), data);
+        if (!result.Success)
+            throw new PersistenceException(result.DiagnosticCode);
     }
 
     public static T Load<T>(string key = null) where T : new()
     {
-        string resolvedKey = ResolveKey<T>(key);
-        if (PlayerPrefs.HasKey(resolvedKey))
-        {
-            return JsonConvert.DeserializeObject<T>(PlayerPrefs.GetString(resolvedKey));
-        }
-        T data = new();
-        Save(data, resolvedKey);
-        return data;
+        LoadResult<T> result = Service.Load(ResolveDefinition<T>(key));
+        if (!result.Success)
+            throw new PersistenceException(result.DiagnosticCode);
+        return result.Value;
     }
 
-    private static string ResolveKey<T>(string key)
+    private static SaveDefinition<T> ResolveDefinition<T>(string key) where T : new()
     {
-        return string.IsNullOrEmpty(key) ? typeof(T).Name : key;
+        IPersistenceService service = Service;
+        if (service.TryGetDefinition(key, out SaveDefinition<T> registered))
+            return registered;
+
+        if (service.TryGetDefinition<T>(null, out _))
+            throw new PersistenceException("SAVE_DEFINITION_KEY_MISMATCH");
+
+        if (CompatibilityDefinitionFactory == null)
+            throw new InvalidOperationException(
+                "Database compatibility definitions are not configured. Install com.hung.data or assign Database.CompatibilityDefinitionFactory.");
+
+        return CompatibilityDefinitionFactory.Create<T>(string.IsNullOrEmpty(key) ? typeof(T).Name : key);
     }
 }
 
@@ -74,6 +110,10 @@ namespace Hung.Base
             if (user.PurchasedItems == null)
             {
                 user.PurchasedItems = new List<IAP_ITEM>();
+            }
+            if (user.RewardGrantReceipts == null)
+            {
+                user.RewardGrantReceipts = new List<RewardGrantReceiptData>();
             }
             if (user.ItemDatas == null)
             {
@@ -204,6 +244,15 @@ namespace Hung.Base
             // Item Data
             public ItemData[] ItemDatas;
             public List<IAP_ITEM> PurchasedItems;
+            public List<RewardGrantReceiptData> RewardGrantReceipts = new();
+        }
+
+        [Serializable]
+        public sealed class RewardGrantReceiptData
+        {
+            public string ClaimId;
+            public string PayloadFingerprint;
+            public long GrantedUtcTicks;
         }
 
         [Serializable]

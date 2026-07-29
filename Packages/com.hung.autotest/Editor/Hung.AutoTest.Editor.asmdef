@@ -1,0 +1,17 @@
+{
+    "name": "Hung.AutoTest.Editor",
+    "rootNamespace": "Hung.AutoTest.Editor",
+    "references": [
+        "Hung.AutoTest",
+        "Hung.Base"
+    ],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

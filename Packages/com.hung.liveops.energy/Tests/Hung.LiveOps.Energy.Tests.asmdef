@@ -2,6 +2,7 @@
   "name": "Hung.LiveOps.Energy.Tests",
   "references": [
     "Hung.LiveOps.Energy",
+    "Hung.Base",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

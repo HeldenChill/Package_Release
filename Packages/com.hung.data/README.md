@@ -12,5 +12,32 @@ Run the ItemId code generator after catalog changes. It writes deterministic gam
 
 Odin item selectors read available catalog entries for fields and dictionary keys. If an asset contains an unknown raw ID, fix the catalog or migrate the asset before shipping.
 
+## Persistence Composition
+
+The default bootstrap writes canonical saves beneath `Application.persistentDataPath/ComHung/Saves` and keeps the HMAC key separately beneath `Application.persistentDataPath/ComHung/Keys`:
+
+```csharp
+// Installed automatically before scene load. Call explicitly only when code
+// must use Database earlier than Unity runtime initialization.
+PersistenceBootstrap.InstallDefault();
+```
+
+Manual and test composition stays explicit:
+
+```csharp
+var codec = new PlainJsonSaveCodec();
+var protector = new Sha256SaveProtector(); // deterministic corruption check for tests
+var service = new PersistenceService(testStore, testLegacySource, testDiagnostics);
+PackageSaveDefinitions.RegisterAll(service, codec, protector);
+
+Database.CompatibilityDefinitionFactory =
+    new CompatibilitySaveDefinitionFactory(codec, protector, testDiagnostics);
+Database.ServiceFactory = () => service;
+```
+
+Production composition uses `BeneficialCompressionCodec`, `HmacSha256SaveProtector`, `LocalSecretKeyProvider`, `FileSaveStore`, and `PlayerPrefsLegacySaveSource`. Package internals should depend directly on `IPersistenceService`; static `Database` remains for existing callers.
+
+See `Docs/PERSISTENCE_MIGRATION.md` for key mappings, recovery evidence, and rollback.
+
 Known debt:
 - Runtime/ contains a Hung.Base.asmref (asmref-injection pattern) - retirement planned per master-project vision.

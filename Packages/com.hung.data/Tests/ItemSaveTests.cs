@@ -1,4 +1,6 @@
 using Hung.Base;
+using Hung.Data.Tests.Persistence;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -6,16 +8,20 @@ namespace Hung.Data.Tests
 {
     public class ItemSaveTests
     {
+        private DatabaseFacadeTestScope scope;
+
         [SetUp]
         public void SetUp()
         {
             PlayerPrefs.DeleteKey(nameof(GameData));
             PlayerPrefs.DeleteKey(GameData.SaveKey);
+            scope = new DatabaseFacadeTestScope();
         }
 
         [TearDown]
         public void TearDown()
         {
+            scope.Dispose();
             PlayerPrefs.DeleteKey(nameof(GameData));
             PlayerPrefs.DeleteKey(GameData.SaveKey);
         }
@@ -60,7 +66,7 @@ namespace Hung.Data.Tests
         }
 
         [Test]
-        public void ExplicitSaveKey_DoesNotReadOldGameDataKey()
+        public void RegisteredGameData_LegacyKeyResolvesCanonicalDefinition()
         {
             var oldData = new GameData();
             oldData.InitData(new[] { BaseItemIds.Gold });
@@ -69,9 +75,26 @@ namespace Hung.Data.Tests
 
             GameData loaded = Database.Load<GameData>(GameData.SaveKey);
 
-            Assert.IsTrue(loaded.IsFirstTimeUser);
-            loaded.InitData(new[] { BaseItemIds.Gold });
-            Assert.AreEqual(0, loaded.GetItemData(BaseItemIds.Gold).Quantity);
+            Assert.AreEqual(99, loaded.GetItemData(BaseItemIds.Gold).Quantity);
+            Assert.That(scope.Store.Primary.ContainsKey(Hung.Data.Persistence.PackageSaveDefinitions.GameDataKey), Is.True);
+        }
+
+        [Test]
+        public void GameData_PlayerPrefsLegacyImport_RetainsOriginalValue()
+        {
+            scope.Dispose();
+            var legacyData = new GameData();
+            legacyData.InitData(new[] { BaseItemIds.Gold });
+            legacyData.ClaimItem(BaseItemIds.Gold, 27);
+            string legacyJson = JsonConvert.SerializeObject(legacyData);
+            PlayerPrefs.SetString(GameData.SaveKey, legacyJson);
+            scope = new DatabaseFacadeTestScope(new Hung.Data.Persistence.PlayerPrefsLegacySaveSource());
+
+            GameData loaded = Database.Load<GameData>(GameData.SaveKey);
+
+            Assert.That(loaded.GetItemData(BaseItemIds.Gold).Quantity, Is.EqualTo(27));
+            Assert.That(PlayerPrefs.GetString(GameData.SaveKey), Is.EqualTo(legacyJson));
+            Assert.That(scope.Store.Primary.ContainsKey(Hung.Data.Persistence.PackageSaveDefinitions.GameDataKey), Is.True);
         }
     }
 }
