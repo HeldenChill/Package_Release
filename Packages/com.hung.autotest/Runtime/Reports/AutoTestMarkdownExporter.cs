@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -70,6 +72,27 @@ namespace Hung.AutoTest
                     sb.AppendLine("| DamageStat Ignored No Manager | " + c.finalSnapshot.damageStatistics.totalIgnoredCallsNoManager + " |");
                     sb.AppendLine("| DamageStat Ignored No Session | " + c.finalSnapshot.damageStatistics.totalIgnoredCallsNoSession + " |");
                     sb.AppendLine();
+
+                    List<RuntimeSnapshotExtension> extensions = c.finalSnapshot.extensions;
+                    if (extensions != null && extensions.Count > 0)
+                    {
+                        var ordered = new List<RuntimeSnapshotExtension>(extensions);
+                        ordered.Sort((left, right) => StringComparer.Ordinal.Compare(left != null ? left.id : null, right != null ? right.id : null));
+                        sb.AppendLine("### Extensions");
+                        sb.AppendLine();
+                        for (int e = 0; e < ordered.Count; e++)
+                        {
+                            RuntimeSnapshotExtension extension = ordered[e];
+                            if (extension == null)
+                                continue;
+                            sb.AppendLine("- `" + extension.id + "`");
+                            sb.AppendLine();
+                            sb.AppendLine("```json");
+                            sb.AppendLine(extension.json ?? string.Empty);
+                            sb.AppendLine("```");
+                            sb.AppendLine();
+                        }
+                    }
                 }
 
                 if (c.failures.Count > 0)

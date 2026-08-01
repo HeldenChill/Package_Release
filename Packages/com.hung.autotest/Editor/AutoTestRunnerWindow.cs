@@ -60,10 +60,49 @@ namespace Hung.AutoTest.Editor
             GetWindow<AutoTestRunnerWindow>("Auto Test Runner");
         }
 
+        /// <summary>
+        /// Repaint budget while a run is in flight. <see cref="Update"/> ticks at roughly 10fps,
+        /// which makes a live run look stuttery, so an EditorApplication.update hook drives the
+        /// extra repaints and this interval throttles them.
+        /// </summary>
+        public const double RepaintIntervalSeconds = 1.0 / 30.0;
+
+        private double lastRepaintTime;
+
+        /// <summary>
+        /// Pure throttle decision, split out from the window so it is testable without an
+        /// EditorWindow instance. Returns true when a repaint is due at <paramref name="now"/>.
+        /// </summary>
+        public static bool ShouldRepaint(bool isPlaying, bool isRunning, double now, double lastRepaint)
+        {
+            if (!isPlaying || !isRunning)
+                return false;
+            // Epsilon: lastRepaint + Interval is not exactly representable, so an exact-boundary
+            // tick would otherwise be dropped and cost a whole frame of the budget.
+            const double Epsilon = 1e-9;
+            return now - lastRepaint >= RepaintIntervalSeconds - Epsilon;
+        }
+
         private void OnEnable()
         {
             // Must fit MinPanelWidth * 2 + MinCenterWidth + both splitters.
             minSize = new Vector2(MinPanelWidth * 2 + MinCenterWidth + SplitterW * 2, 440f);
+            EditorApplication.update += OnEditorUpdate;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.update -= OnEditorUpdate;
+        }
+
+        private void OnEditorUpdate()
+        {
+            bool isRunning = runner != null && runner.Status == AutoTestStatus.Running;
+            double now = EditorApplication.timeSinceStartup;
+            if (!ShouldRepaint(Application.isPlaying, isRunning, now, lastRepaintTime))
+                return;
+            lastRepaintTime = now;
+            Repaint();
         }
 
         private void Update()

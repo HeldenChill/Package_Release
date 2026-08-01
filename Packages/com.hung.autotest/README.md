@@ -2,11 +2,30 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
+Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
 ## Package dependencies
 
 AutoTest has no `com.hung.*` package dependency. Host-game integrations belong in a separate glue assembly that references `Hung.AutoTest` and the host's own gameplay assemblies.
+
+## Snapshot extensions
+
+`RuntimeSnapshot` carries only game-neutral data. A host game attaches its own payload through the extension envelope:
+
+```csharp
+snapshot.SetExtension("mygame.snapshot.v1", myDto);          // write, once per capture
+snapshot.TryGetExtension("mygame.snapshot.v1", out MyDto d); // read, in an assertion
+```
+
+Contract:
+
+- The payload DTO must be `[Serializable]` and `JsonUtility`-round-trippable. It lives in the host's glue assembly; the package never names a product type.
+- IDs are compared with `StringComparer.Ordinal` and must be unique. `SetExtension` replaces an existing ID and keeps `extensions` sorted by ID.
+- A blank ID throws `ArgumentException`; a null value throws `ArgumentNullException`.
+- Reads return `false` — never throw — when the ID is missing, duplicated, or the payload is malformed.
+- Reports include the payload: JSON directly, Markdown as an ordinal-ordered `### Extensions` subsection of fenced JSON blocks. An empty list emits no heading.
+
+Serialized-data decision and rollback contract: `Docs/adr/ADR-E5-autotest-runtime-snapshot-extensions.md`.
 
 ## Game glue contract (each game implements)
 - `IAutoTestScenarioExecutor` — prepares/runs/cleans up a scenario; casts `AutoTestCaseData.scenario` (ScriptableObject) to its own scenario type.

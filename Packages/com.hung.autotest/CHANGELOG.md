@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.6] - 2026-08-01
+- Added `RuntimeSnapshot.extensions`, a serialized envelope of `{ id, json }` entries with `SetExtension`/`TryGetExtension` helpers, so host games attach product snapshot data without adding product types to the package. See `ADR-E5-autotest-runtime-snapshot-extensions`.
+- Markdown reports emit an ordinal-ordered `### Extensions` subsection; JSON reports carry the payload directly.
+- Runner window repaints on a ~30fps budget while a run is in flight instead of relying on the ~10fps editor `Update` tick.
+
 ## [0.2.5] - 2026-08-01
 - Removed unused Base, Data, and DesignPattern dependencies so host games can adopt AutoTest without importing unrelated package owners.
 
