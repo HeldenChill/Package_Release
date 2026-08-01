@@ -17,12 +17,22 @@ namespace Hung.AutoTest
         public string evidenceId;
         public string scenarioId;
         public string runId;
+        public string phase;
+        public string schemaVersion;
+        public string scenarioVersion;
         public string sourceRevision;
         public string dirtyState;
         public string unityVersion;
         public string buildTarget;
         public string scriptingBackend;
         public string runtimeEnvironment;
+        public string packageIdentity;
+        public string manifestSha256;
+        public string lockSha256;
+        public string playerSha256;
+        public string stateFixtureId;
+        public string stateBeforeSha256;
+        public string stateAfterSha256;
         public RuntimeEvidenceAdapter adapter;
         public RuntimeEvidenceResult result;
         public string startedUtc;
@@ -72,7 +82,8 @@ namespace Hung.AutoTest
             {
                 kind = kind,
                 path = path,
-                sha256 = RuntimeEvidenceWriter.ComputeSha256(bytes)
+                sha256 = RuntimeEvidenceWriter.ComputeSha256(bytes),
+                byteLength = bytes.Length
             };
             artifacts.Add(artifact);
             return artifact;
@@ -80,6 +91,15 @@ namespace Hung.AutoTest
 
         public void Complete(RuntimeEvidenceResult result, string diagnosticCode)
         {
+            if (result == RuntimeEvidenceResult.Passed)
+            {
+                foreach (RuntimeEvidenceAssertion assertion in assertions)
+                {
+                    if (!assertion.passed)
+                        throw new InvalidOperationException("Cannot complete as Passed with a failed assertion: " + assertion.name);
+                }
+            }
+
             this.result = result;
             this.diagnosticCode = diagnosticCode;
             finishedUtc = ToUtcString(DateTime.UtcNow);
@@ -106,5 +126,6 @@ namespace Hung.AutoTest
         public string kind;
         public string path;
         public string sha256;
+        public long byteLength;
     }
 }

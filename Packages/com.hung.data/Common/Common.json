@@ -1,0 +1,20 @@
+{
+    "packageName": "Common",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "",
+    "sdkFolderNames": [],
+    "sdkFolderPaths": [
+        "Assets/_Game/_Common"
+    ],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}

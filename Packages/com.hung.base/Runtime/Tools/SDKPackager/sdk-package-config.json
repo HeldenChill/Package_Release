@@ -1,0 +1,25 @@
+{
+    "packageName": "ThirdPartySDKs",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "Assets",
+    "sdkFolderNames": [
+        "LevelPlay",
+        "MaxSdk",
+        "IronSource",
+        "AppsFlyer",
+        "Firebase",
+        "ExternalDependencyManager"
+    ],
+    "sdkFolderPaths": [],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}

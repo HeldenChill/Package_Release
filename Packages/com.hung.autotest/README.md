@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
+Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
 ## Package dependencies
 

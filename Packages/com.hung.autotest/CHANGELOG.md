@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.7] - 2026-08-02
+- Added `-rcState` command-line flag and strict recognized-flag validation: duplicate Stage B flags record `RC_CLI_DUPLICATE_FLAG`, a recognized flag missing its value records `RC_CLI_VALUE_MISSING`. Parsing never throws; unrecognized/Unity-native arguments are ignored as before.
+- Added product-neutral evidence identity fields to `RuntimeEvidenceRecord`: `phase`, `schemaVersion`, `scenarioVersion`, `packageIdentity`, `manifestSha256`, `lockSha256`, `playerSha256`, `stateFixtureId`, `stateBeforeSha256`, `stateAfterSha256`, and `byteLength` on `RuntimeEvidenceArtifact`.
+- `Complete(Passed, ...)` now throws `InvalidOperationException` if any recorded assertion has `passed == false`, preventing a false-pass record. `Failed`/`Blocked` completion is unaffected.
+- Backward compatible: all existing `AutoTestCommandLine`/`RuntimeEvidenceRecord` members and behavior for non-Stage-B callers are unchanged.
+
 ## [0.2.6] - 2026-08-01
 - Added `RuntimeSnapshot.extensions`, a serialized envelope of `{ id, json }` entries with `SetExtension`/`TryGetExtension` helpers, so host games attach product snapshot data without adding product types to the package. See `ADR-E5-autotest-runtime-snapshot-extensions`.
 - Markdown reports emit an ordinal-ordered `### Extensions` subsection; JSON reports carry the payload directly.

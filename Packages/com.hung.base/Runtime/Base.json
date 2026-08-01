@@ -1,0 +1,34 @@
+{
+    "packageName": "Base",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "",
+    "sdkFolderNames": [],
+    "sdkFolderPaths": [
+        "Assets/_Game/_Base",
+        "Assets/_Game/_UI/Base",
+        "Assets/_Game/_Ads/Base",
+        "Assets/_Game/_IAP/Base",
+        "Assets/_Game/_Data/Base",
+        "Assets/_Game/_Audio/Base",
+        "Assets/_Game/_Items/Base",
+        "Assets/_Game/_Tutorial/Base",
+        "Assets/_Game/_Analytics/Base",
+        "Assets/_Game/_Gameplay/_Character/Base",
+        "Assets/_Game/_SubSystem/DailyGift/Base",
+        "Assets/_Game/_SubSystem/PiggyBank/Base",
+        "Assets/_Game/_SubSystem/SpinWheel/Base",
+        "Assets/_Game/_SubSystem/DailyReward/Base",
+        "Assets/_Game/_SubSystem/HeartSystem/Base"
+    ],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}
