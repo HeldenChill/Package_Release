@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.3] - 2026-08-01
+- Removed the remaining concrete locator diagnostics from the batchmode CLI readiness timeout path.
+
 ## [0.2.2] - 2026-08-01
 - Removed the concrete Base/Data locator readiness dependency; host games now supply readiness solely through `AutoTestBootstrapper.ExtraReadyCheck`.
 

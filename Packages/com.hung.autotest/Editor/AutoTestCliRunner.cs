@@ -90,9 +90,7 @@ namespace Hung.AutoTest.Editor
 
             EditorApplication.update -= WaitForGameplayReady;
             Debug.LogError("[AutoTestCli] Gameplay readiness timeout. Scene=" + SceneManager.GetActiveScene().name
-                + ", ExtraReadyCheck=" + AutoTestBootstrapper.ExtraReadyCheck()
-                + ", Locator.Gameplay=" + (Hung.Base.Locator.Gameplay != null)
-                + ", Locator.Data=" + (Hung.Base.Locator.Data != null));
+                + ", ExtraReadyCheck=" + AutoTestBootstrapper.ExtraReadyCheck());
             EditorApplication.Exit(3);
         }
 
