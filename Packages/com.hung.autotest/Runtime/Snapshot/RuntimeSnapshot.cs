@@ -20,6 +20,7 @@ namespace Hung.AutoTest
         public List<PetSnapshot> pets = new List<PetSnapshot>();
         public List<EnemyStatusSnapshot> enemies = new List<EnemyStatusSnapshot>();
         public List<SupportSnapshot> supports = new List<SupportSnapshot>();
+        public List<ProjectileSnapshot> projectiles = new List<ProjectileSnapshot>();
         public EventCountSnapshot events = new EventCountSnapshot();
     }
 
@@ -112,9 +113,23 @@ namespace Hung.AutoTest
     }
 
     [Serializable]
+    public sealed class ProjectileSnapshot
+    {
+        public string prefabId;
+        public bool hasBounce;
+        public bool hasChain;
+        public bool hasPierce;
+        public bool hasAoE;
+        public int activeCount;
+    }
+
+    [Serializable]
     public sealed class EventCountSnapshot
     {
         public List<string> statusTagCounts = new List<string>();
         public List<string> synergyTriggerCounts = new List<string>();
+        public List<string> bounceCounts = new List<string>();
+        public List<string> chainHopCounts = new List<string>();
+        public List<string> aoeApplyCounts = new List<string>();
     }
 }

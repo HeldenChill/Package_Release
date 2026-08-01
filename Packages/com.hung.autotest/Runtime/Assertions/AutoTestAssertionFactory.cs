@@ -27,7 +27,7 @@ namespace Hung.AutoTest
         {
             // Game-agnostic assertions live here; everything game-specific is
             // registered by the game's glue (see AutoTestAssertionRegistry and
-            // PetVsMonsterAutoTestGlue).
+            // game glue).
             switch (config.type)
             {
                 case AutoTestAssertionType.NoExceptionLog:

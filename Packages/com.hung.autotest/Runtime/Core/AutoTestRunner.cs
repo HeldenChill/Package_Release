@@ -14,11 +14,15 @@ namespace Hung.AutoTest
         [Header("Runtime")]
         [SerializeField] private bool runSuiteOnStart;
         [SerializeField] private bool logVerbose;
+        [Tooltip("When true, exit play mode automatically after a suite or single-case run finishes (Editor only).")]
+        [SerializeField] private bool autoStopPlayModeOnFinish = true;
+        [Tooltip("Seconds to wait after a run finishes before auto-stopping play mode.")]
+        [SerializeField] private float autoStopDelaySeconds = 5f;
 
         private readonly AutoTestContext context = new AutoTestContext();
         private readonly AutoTestLogCollector logCollector = new AutoTestLogCollector();
         private readonly AutoTestEventCollector eventCollector = new AutoTestEventCollector();
-        /// <summary>Game glue must assign these before a run (see PetVsMonsterAutoTestGlue).
+        /// <summary>Game glue must assign these before a run.
         /// Keeps the core runner free of game types.</summary>
         public static Func<IAutoTestScenarioExecutor> ExecutorFactory;
         public static Func<IRuntimeSnapshotBuilder> SnapshotBuilderFactory;
@@ -207,6 +211,7 @@ namespace Hung.AutoTest
                 runRoutine = null;
                 CurrentSuite = null;
                 Debug.LogError("[AutoTestRunner] Aborting run: gameplay never became ready.");
+                MaybeStopPlayMode();
                 yield break;
             }
 
@@ -254,7 +259,29 @@ namespace Hung.AutoTest
 
             if (logVerbose)
                 Debug.Log("[AutoTestRunner] Suite completed: " + lastReport.status);
+
+            MaybeStopPlayMode();
         }
+
+        private void MaybeStopPlayMode()
+        {
+            if (!autoStopPlayModeOnFinish)
+                return;
+#if UNITY_EDITOR
+            if (autoStopDelaySeconds > 0f)
+                StartCoroutine(StopPlayModeAfterDelay(autoStopDelaySeconds));
+            else
+                UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        }
+
+#if UNITY_EDITOR
+        private IEnumerator StopPlayModeAfterDelay(float delaySeconds)
+        {
+            yield return new WaitForSecondsRealtime(delaySeconds);
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
+#endif
 
         private IEnumerator RunCaseRoutine(
             AutoTestSuiteData targetSuite,
@@ -284,7 +311,7 @@ namespace Hung.AutoTest
                 context.AddFailure(AutoTestFailure.Create(
                     "Setup",
                     "AutoTestRunner",
-                    "ExecutorFactory/SnapshotBuilderFactory not assigned — game glue must register them (see PetVsMonsterAutoTestGlue).",
+                    "ExecutorFactory/SnapshotBuilderFactory not assigned — game glue must register them.",
                     AutoTestAssertionSeverity.Fatal,
                     context));
                 yield break;

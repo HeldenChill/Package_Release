@@ -22,8 +22,13 @@ namespace Hung.AutoTest
     {
         public const string StatusChannel = "status";
         public const string SynergyChannel = "synergy";
+        public const string BounceChannel = "bounce";
+        public const string ChainChannel = "chain";
+        public const string AoEChannel = "aoe";
+        public const string SpellCastChannel = "spellcast";
+        public const string RiotDashStepChannel = "riotdashstep";
 
-        /// <summary>Assigned by game glue (see PetVsMonsterAutoTestGlue). Null = no events collected.</summary>
+        /// <summary>Assigned by game glue. Null means no events are collected.</summary>
         public static Func<IAutoTestEventSource> EventSourceFactory;
 
         readonly Dictionary<string, Dictionary<string, int>> counts = new Dictionary<string, Dictionary<string, int>>();
@@ -37,6 +42,26 @@ namespace Hung.AutoTest
         public IReadOnlyDictionary<string, int> SynergyTriggersById
         {
             get { return GetChannel(SynergyChannel); }
+        }
+
+        public IReadOnlyDictionary<string, int> BouncesByPrefab
+        {
+            get { return GetChannel(BounceChannel); }
+        }
+
+        public IReadOnlyDictionary<string, int> ChainHopsByPrefab
+        {
+            get { return GetChannel(ChainChannel); }
+        }
+
+        public IReadOnlyDictionary<string, int> AoEAppliesByPrefab
+        {
+            get { return GetChannel(AoEChannel); }
+        }
+
+        public IReadOnlyDictionary<string, int> SpellCastsByIndex
+        {
+            get { return GetChannel(SpellCastChannel); }
         }
 
         public void Start()
@@ -76,6 +101,21 @@ namespace Hung.AutoTest
             return !string.IsNullOrEmpty(key) && GetChannel(channel).TryGetValue(key, out int count)
                 ? count
                 : 0;
+        }
+
+        /// <summary>
+        /// Returns a specific key's count when supplied, or the complete channel total.
+        /// This keeps consumers independent of the game-specific event key vocabulary.
+        /// </summary>
+        public int GetCountOrTotal(string channel, string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+                return GetCount(channel, key);
+
+            int total = 0;
+            foreach (KeyValuePair<string, int> pair in GetChannel(channel))
+                total += pair.Value;
+            return total;
         }
 
         public int GetStatusAppliedCount(string tag)

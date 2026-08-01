@@ -33,7 +33,22 @@ namespace Hung.AutoTest
         EnemyOverloadTriggered,
         TotalDamageAtLeast,
         GameplayPhaseReached,
-        SupportAlive
+        SupportAlive,
+        // Reserved serialized extension slots. Host games define their semantic labels in glue.
+        Extension29 = 29,
+        Extension30 = 30,
+        Extension31 = 31,
+        Extension32 = 32,
+        Extension33 = 33,
+        Extension34 = 34,
+        Extension35 = 35,
+        Extension36 = 36,
+        Extension37 = 37,
+        Extension38 = 38,
+        Extension39 = 39,
+        Extension40 = 40,
+        Extension41 = 41,
+        Extension42 = 42
     }
 
     public enum AutoTestAssertionSeverity

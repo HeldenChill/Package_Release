@@ -8,7 +8,7 @@ namespace Hung.AutoTest
     public sealed class AutoTestCaseData : ScriptableObject
     {
         [ReadOnly] public string testId = "pvm_case";
-        [ReadOnly] public string displayName = "PetVsMonster Auto Test Case";
+        [ReadOnly] public string displayName = "Auto Test Case";
         [TextArea(2, 5)] public string description;
 
         [Header("Scenario")]

@@ -4,6 +4,7 @@
     "Hung.Data",
     "Hung.Data.Editor",
     "Hung.Base",
+    "Sirenix.OdinInspector.Editor",
     "Sirenix.Serialization",
     "Sirenix.OdinInspector.Attributes",
     "UnityEngine.TestRunner",
@@ -15,6 +16,7 @@
   "overrideReferences": true,
   "precompiledReferences": [
     "nunit.framework.dll",
+    "Sirenix.OdinInspector.Editor.dll",
     "Sirenix.Serialization.dll",
     "Sirenix.OdinInspector.Attributes.dll"
   ],

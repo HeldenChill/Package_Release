@@ -1,6 +1,8 @@
 # Hung AutoTest (L6 dev tooling)
 
-Game-agnostic automated-test core extracted from PetVsMonster.
+Game-agnostic automated-test core for scenario-driven game validation.
+
+Version 0.2.1 adds generic event-channel aggregation, projectile snapshot evidence, and optional editor play-mode auto-stop.
 
 ## Game glue contract (each game implements)
 - `IAutoTestScenarioExecutor` — prepares/runs/cleans up a scenario; casts `AutoTestCaseData.scenario` (ScriptableObject) to its own scenario type.
@@ -9,7 +11,7 @@ Game-agnostic automated-test core extracted from PetVsMonster.
 - `AutoTestRunner.ExecutorFactory` / `SnapshotBuilderFactory` — assign in a `[RuntimeInitializeOnLoadMethod]` bootstrap.
 - `AutoTestBootstrapper.ExtraReadyCheck` — game readiness condition (e.g. composition-root manager exists).
 
-Reference glue implementation: PetVsMonster `Assets/_Game/_AutoTest/` (PetVsMonsterAutoTestGlue, executor, snapshot builder, domain assertions).
+Each host game supplies its own glue assembly, executor, snapshot builder, and domain assertions.
 
 ## Runtime confidence player contract
 

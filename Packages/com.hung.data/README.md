@@ -10,7 +10,9 @@ Run item catalog validation before release. Duplicate IDs, duplicate code names,
 
 Run the ItemId code generator after catalog changes. It writes deterministic game constants, skipping `base.` entries. Generated constants are convenience wrappers; runtime lookup still uses catalog data.
 
-Odin item selectors read available catalog entries for fields and dictionary keys. If an asset contains an unknown raw ID, fix the catalog or migrate the asset before shipping.
+ItemId Inspector fields use a cached, namespace-grouped Unity dropdown with built-in search and keyboard navigation. Search matches the complete raw ID. Unknown IDs remain visible with a warning instead of being cleared; when no catalogs are available, the field falls back to validated text entry.
+
+Unity 6 enum fields inspected through Odin use a local Unity-native compatibility drawer for ordinary and flags enums. Keep this bridge until an Odin upgrade is verified against the project's Unity version and passes the enum popup regression checks.
 
 ## Persistence Composition
 

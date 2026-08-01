@@ -7,7 +7,7 @@ namespace Hung.AutoTest
     /// Registry for game-specific assertion creators. The core factory handles
     /// game-agnostic assertions and falls through to this registry for everything
     /// else; game glue registers its creators at startup (see
-    /// PetVsMonsterAutoTestGlue). Keeps the AutoTest core free of domain types.
+    /// game glue). Keeps the AutoTest core free of domain types.
     /// </summary>
     public static class AutoTestAssertionRegistry
     {
