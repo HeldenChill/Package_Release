@@ -2,8 +2,7 @@
     "name": "Hung.AutoTest.Editor",
     "rootNamespace": "Hung.AutoTest.Editor",
     "references": [
-        "Hung.AutoTest",
-        "Hung.Base"
+        "Hung.AutoTest"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],

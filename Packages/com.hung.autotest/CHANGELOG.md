@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.5] - 2026-08-01
+- Removed unused Base, Data, and DesignPattern dependencies so host games can adopt AutoTest without importing unrelated package owners.
+
 ## [0.2.4] - 2026-08-01
 - Added a game-neutral legacy integer extension seam for serialized host-game case compatibility.
 

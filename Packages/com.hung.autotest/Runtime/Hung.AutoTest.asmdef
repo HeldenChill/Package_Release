@@ -1,11 +1,7 @@
 {
     "name": "Hung.AutoTest",
     "rootNamespace": "Hung.AutoTest",
-    "references": [
-        "Hung.DesignPattern",
-        "Hung.Base",
-        "Hung.Data"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
