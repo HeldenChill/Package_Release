@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Hung.AutoTest
 {
@@ -20,6 +21,9 @@ namespace Hung.AutoTest
         public bool startWaveIfScenarioDoesNot = true;
         public float delayAfterScenarioRunSeconds = 0.25f;
         public float delayBeforeStartWaveSeconds = 0.25f;
+
+        [FormerlySerializedAs("heroSpellIndexOverride")]
+        public int extensionInt = -1;
 
         [Header("Damage Statistics")]
         public bool enableDamageStatistics = true;

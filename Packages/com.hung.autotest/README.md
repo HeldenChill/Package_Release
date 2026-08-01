@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.2.3 uses the host-game readiness seam without requiring a concrete locator implementation, including batchmode diagnostics.
+Version 0.2.4 includes a legacy integer extension seam for serialized host-game case compatibility.
 
 ## Game glue contract (each game implements)
 - `IAutoTestScenarioExecutor` — prepares/runs/cleans up a scenario; casts `AutoTestCaseData.scenario` (ScriptableObject) to its own scenario type.

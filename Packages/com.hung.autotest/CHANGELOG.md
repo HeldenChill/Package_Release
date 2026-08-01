@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.4] - 2026-08-01
+- Added a game-neutral legacy integer extension seam for serialized host-game case compatibility.
+
 ## [0.2.3] - 2026-08-01
 - Removed the remaining concrete locator diagnostics from the batchmode CLI readiness timeout path.
 
