@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-01T13:14:59Z",
+  "generatedAt": "2026-08-01T13:36:33Z",
   "packages": {
-    "com.hung.autotest": "0.2.1",
+    "com.hung.autotest": "0.2.2",
     "com.hung.base": "0.19.0",
     "com.hung.data": "0.10.0",
     "com.hung.designpattern": "0.4.2",
@@ -18,7 +18,7 @@
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.08.01.1",
+  "releaseTag": "release-2026.08.01.2",
   "schemaVersion": 1,
-  "sourceCommit": "8be1db297a4cce649368701c5352da41272a399a"
+  "sourceCommit": "09127060ca5d30a79e333bf73fb91813b51ddaa0"
 }

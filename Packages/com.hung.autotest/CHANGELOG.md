@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.2] - 2026-08-01
+- Removed the concrete Base/Data locator readiness dependency; host games now supply readiness solely through `AutoTestBootstrapper.ExtraReadyCheck`.
+
 ## [0.2.1] - 2026-08-01
 - Added generic event-channel aggregation, projectile snapshot evidence, and optional editor play-mode auto-stop after a run.
 - Replaced game-specific package defaults and documentation with game-neutral contracts.

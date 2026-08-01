@@ -29,12 +29,10 @@ namespace Hung.AutoTest
 
         public static bool IsGameplayReady
         {
-            // Locator.Data/Gameplay confirm DataManager (LoadStart scene) + gameplay service ran.
+            // The host game supplies its own readiness condition through this seam.
             get
             {
-                return ExtraReadyCheck()
-                    && Hung.Base.Locator.Gameplay != null
-                    && Hung.Base.Locator.Data != null;
+                return ExtraReadyCheck();
             }
         }
 

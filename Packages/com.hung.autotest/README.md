@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.2.1 adds generic event-channel aggregation, projectile snapshot evidence, and optional editor play-mode auto-stop.
+Version 0.2.2 uses the host-game readiness seam without requiring a concrete locator implementation.
 
 ## Game glue contract (each game implements)
 - `IAutoTestScenarioExecutor` — prepares/runs/cleans up a scenario; casts `AutoTestCaseData.scenario` (ScriptableObject) to its own scenario type.
