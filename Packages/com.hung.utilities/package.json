@@ -1,6 +1,6 @@
 {
   "name": "com.hung.utilities",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "displayName": "Hung Utilities",
   "description": "Low-level helpers: general utilities, LitJson wrapper (Hung.Utilities.Json), timers (Hung.Utilities.STimer).",
   "unity": "2022.3",
@@ -8,6 +8,6 @@
     "layer:0"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.4.2"
+    "com.hung.designpattern": "0.4.3"
   }
 }

@@ -59,6 +59,7 @@ namespace SStats
 		{
 			_value = BaseValue;
 			statModifiers.Clear();
+			isDirty = true;
 		}
 		public virtual void AddModifier(StatModifier mod)
 		{
@@ -99,6 +100,11 @@ namespace SStats
                 return true;
             }
             return false;
+        }
+
+        public virtual List<StatModifier> GetModifiersExceptMergeFromSource(object source)
+        {
+            return statModifiers.FindAll(mod => mod.Source != source);
         }
 
         protected virtual int CompareModifierOrder(StatModifier a, StatModifier b)

@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.3] - 2026-08-09
+- Fix: MiniPool now reuses inactive slots after out-of-order despawn and Collect sweeps every active object.
+
 ## [0.4.2] - 2026-07-21
 - Patch release aligned with the ItemId migration package set; no design-pattern API or runtime behavior changed.
 

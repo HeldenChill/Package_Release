@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2026-08-09
+- Dependency-only patch: align exact package constraints for the approved F3B propagation; no runtime or API behavior changed.
+- Dependency alignment: com.hung.base 0.19.0 -> 0.19.1.
+
 ## [0.2.0] - 2026-07-27
 ### Changed
 - Replaced the package-local `IClock` / `SystemClock` contracts with shared `Hung.Base.IClock` / `Hung.Base.SystemClock`.

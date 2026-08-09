@@ -10,6 +10,7 @@ namespace Hung.DesignPattern.Tests
     public class PoolTests
     {
         private class TestGameUnit : global::Hung.DesignPattern.GameUnit { }
+        private class TestComponent : MonoBehaviour { }
 
         private GameObject prefabGO;
         private TestGameUnit prefab;
@@ -77,6 +78,59 @@ namespace Hung.DesignPattern.Tests
             finally
             {
                 Object.DestroyImmediate(parentGO);
+            }
+        }
+
+        [Test]
+        public void MiniPool_SpawnAfterOutOfOrderDespawn_ReusesInactiveSlot()
+        {
+            var prefabObject = new GameObject("MiniPoolPrefab");
+            var prefabComponent = prefabObject.AddComponent<TestComponent>();
+            var pool = new MiniPool<TestComponent>();
+
+            try
+            {
+                pool.OnInit(prefabComponent, amount: 2);
+                var first = pool.Spawn();
+                var second = pool.Spawn();
+                pool.Despawn(first);
+
+                var replacement = pool.Spawn();
+
+                Assert.AreEqual(first.GetInstanceID(), replacement.GetInstanceID());
+                Assert.AreNotEqual(second.GetInstanceID(), replacement.GetInstanceID());
+            }
+            finally
+            {
+                foreach (var pooled in pool.GetActiveList()) Object.DestroyImmediate(pooled.gameObject);
+                Object.DestroyImmediate(prefabObject);
+            }
+        }
+
+        [Test]
+        public void MiniPool_Collect_DeactivatesEveryActiveObject()
+        {
+            var prefabObject = new GameObject("MiniPoolPrefab");
+            var prefabComponent = prefabObject.AddComponent<TestComponent>();
+            var pool = new MiniPool<TestComponent>();
+
+            try
+            {
+                pool.OnInit(prefabComponent, amount: 3);
+                pool.Spawn();
+                pool.Spawn();
+                var third = pool.Spawn();
+                pool.Despawn(pool.GetActiveList()[0]);
+                pool.Despawn(pool.GetActiveList()[1]);
+
+                pool.Collect();
+
+                Assert.IsFalse(third.gameObject.activeSelf);
+            }
+            finally
+            {
+                foreach (var pooled in pool.GetActiveList()) Object.DestroyImmediate(pooled.gameObject);
+                Object.DestroyImmediate(prefabObject);
             }
         }
     }

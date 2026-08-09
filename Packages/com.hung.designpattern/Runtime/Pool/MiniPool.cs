@@ -42,6 +42,17 @@ namespace Hung.DesignPattern
         {
             T go = _index < _listActives.Count ? _listActives[_index] : null;
 
+            if (go != null && go.gameObject.activeSelf)
+            {
+                go = null;
+                for (int i = 0; i < _listActives.Count; i++)
+                {
+                    if (_listActives[i].gameObject.activeSelf) continue;
+                    go = _listActives[i];
+                    break;
+                }
+            }
+
             if (go == null)
             {
                 go = Object.Instantiate(_prefab, _parent);
@@ -63,7 +74,7 @@ namespace Hung.DesignPattern
 
         public void Collect()
         {
-            for (int i = 0; i < _index; i++) Despawn(_listActives[i], true);
+            for (int i = 0; i < _listActives.Count; i++) Despawn(_listActives[i], true);
             _index = 0;
         }
 

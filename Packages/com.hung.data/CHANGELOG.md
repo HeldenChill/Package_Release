@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.1] - 2026-08-09
+- Add: IDataService optional GetSOData<T>(string id = null) with default delegation to the legacy parameterless method.
+- Dependency alignment: com.hung.base 0.19.0 -> 0.19.1; com.hung.designpattern 0.4.2 -> 0.4.3; com.hung.utilities 0.2.1 -> 0.2.2.
+
 ## [0.10.0] - 2026-07-23
 ### Added
 - Added versioned save envelopes, ordered JSON migrations, beneficial GZip encoding, SHA-256/HMAC integrity protection, separate local key storage, file-backed primary/backup/quarantine mechanics, and legacy PlayerPrefs import.

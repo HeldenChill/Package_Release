@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.19.1] - 2026-08-09
+- Fix: Stat Reset invalidates its cached final value; add the generic modifier-filter API.
+- Dependency alignment: com.hung.designpattern 0.4.2 -> 0.4.3; com.hung.utilities 0.2.1 -> 0.2.2.
+
 ## [0.19.0] - 2026-07-28
 ### Added
 - Added vendor-neutral Ads request contracts: `AdsRequestId`, `AdsRequestKind`, `AdsRequestOutcome`, `AdsShowRequest`, `AdsShowResult`, and `IAdsRequestService`.

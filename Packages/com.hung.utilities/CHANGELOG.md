@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2026-08-09
+- Dependency-only patch: align exact package constraints for the approved F3B propagation; no runtime or API behavior changed.
+- Dependency alignment: com.hung.designpattern 0.4.2 -> 0.4.3.
+
 ## [0.2.1] - 2026-07-21
 - Patch release aligned with the ItemId migration package set; no utilities API or runtime behavior changed.
 
