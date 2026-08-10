@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.10.2] - 2026-08-11
+- Added the optional ItemCatalog ItemId editor provider in Hung.Data.Editor.
+
 ## [0.10.1] - 2026-08-09
 - Add: IDataService optional GetSOData<T>(string id = null) with default delegation to the legacy parameterless method.
 - Dependency alignment: com.hung.base 0.19.0 -> 0.19.1; com.hung.designpattern 0.4.2 -> 0.4.3; com.hung.utilities 0.2.1 -> 0.2.2.

@@ -1,12 +1,9 @@
 {
-  "name": "Hung.Data.Editor.Tests",
+  "name": "Hung.Base.Editor.Tests",
   "references": [
-    "Hung.Data",
-    "Hung.Data.Editor",
     "Hung.Base",
     "Hung.Base.Editor",
     "Sirenix.OdinInspector.Editor",
-    "Sirenix.Serialization",
     "Sirenix.OdinInspector.Attributes",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
@@ -18,7 +15,6 @@
   "precompiledReferences": [
     "nunit.framework.dll",
     "Sirenix.OdinInspector.Editor.dll",
-    "Sirenix.Serialization.dll",
     "Sirenix.OdinInspector.Attributes.dll"
   ],
   "autoReferenced": false,

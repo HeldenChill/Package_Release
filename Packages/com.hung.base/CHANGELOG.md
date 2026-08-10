@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.19.2] - 2026-08-11
+- Added provider-neutral extensible ItemId editor registry, Base definitions, searchable Odin drawer, and unknown-ID validation UI.
+
 ## [0.19.1] - 2026-08-09
 - Fix: Stat Reset invalidates its cached final value; add the generic modifier-filter API.
 - Dependency alignment: com.hung.designpattern 0.4.2 -> 0.4.3; com.hung.utilities 0.2.1 -> 0.2.2.

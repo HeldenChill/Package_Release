@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.5.3] - 2026-08-11
+- Dependency-only patch: align Base 0.19.2 for the F4-IE editor prerequisite.
+
 ## [0.5.2] - 2026-08-09
 - Dependency-only patch: align exact package constraints for the approved F3B propagation; no runtime or API behavior changed.
 - Dependency alignment: com.hung.base 0.19.0 -> 0.19.1; com.hung.designpattern 0.4.2 -> 0.4.3; com.hung.utilities 0.2.1 -> 0.2.2.

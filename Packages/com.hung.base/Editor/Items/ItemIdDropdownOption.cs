@@ -1,17 +1,19 @@
 using Hung.Base;
 
-namespace Hung.Data.Editor
+namespace Hung.Base.Editor
 {
     public readonly struct ItemIdDropdownOption
     {
-        public ItemIdDropdownOption(ItemId id, string groupPath)
+        public ItemIdDropdownOption(ItemId id, string label, string groupPath)
         {
             Id = id;
-            GroupPath = groupPath;
+            Label = string.IsNullOrEmpty(label) ? id.Value : label;
+            GroupPath = groupPath ?? string.Empty;
             SearchText = id.Value;
         }
 
         public ItemId Id { get; }
+        public string Label { get; }
         public string GroupPath { get; }
         public string SearchText { get; }
     }

@@ -1,6 +1,6 @@
 {
   "name": "com.hung.data",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "displayName": "Hung Data",
   "description": "Data framework: SO definitions, save, DataManager. Includes Hung.Common assembly.",
   "unity": "2022.3",
@@ -10,7 +10,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.4.3",
     "com.hung.utilities": "0.2.2",
-    "com.hung.base": "0.19.1",
+    "com.hung.base": "0.19.2",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }

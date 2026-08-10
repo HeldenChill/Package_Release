@@ -3,6 +3,7 @@
   "references": [
     "Hung.Data",
     "Hung.Base",
+    "Hung.Base.Editor",
     "Sirenix.OdinInspector.Editor",
     "Sirenix.OdinInspector.Attributes",
     "Sirenix.Utilities.Editor",

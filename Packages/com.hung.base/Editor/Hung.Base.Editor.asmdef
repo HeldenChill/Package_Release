@@ -1,7 +1,13 @@
 {
   "name": "Hung.Base.Editor",
   "rootNamespace": "Hung.Base.Editor",
-  "references": [],
+  "references": [
+    "Hung.Base",
+    "Sirenix.OdinInspector.Editor",
+    "Sirenix.OdinInspector.Attributes",
+    "Sirenix.Utilities.Editor",
+    "Sirenix.Utilities"
+  ],
   "includePlatforms": [
     "Editor"
   ],
