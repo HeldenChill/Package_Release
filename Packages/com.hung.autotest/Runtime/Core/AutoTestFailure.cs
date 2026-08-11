@@ -18,13 +18,17 @@ namespace Hung.AutoTest
         /// <summary>Game-state snapshot summary captured the moment the failure was recorded — root-cause triage context.</summary>
         public string contextSummary;
 
+        /// <summary>Optional assertion-supplied evidence (e.g. compact JSON of observed vs expected state).</summary>
+        public string evidence;
+
         public static AutoTestFailure Create(
             string category,
             string assertionId,
             string message,
             AutoTestAssertionSeverity severity,
             AutoTestContext context,
-            string stackTrace = null)
+            string stackTrace = null,
+            string evidence = null)
         {
             return new AutoTestFailure
             {
@@ -35,7 +39,8 @@ namespace Hung.AutoTest
                 severity = severity,
                 realtime = Time.realtimeSinceStartup,
                 elapsed = context != null ? context.ElapsedSeconds : 0f,
-                frame = Time.frameCount
+                frame = Time.frameCount,
+                evidence = evidence ?? string.Empty
             };
         }
     }

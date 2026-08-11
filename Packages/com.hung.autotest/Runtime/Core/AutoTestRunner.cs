@@ -402,7 +402,8 @@ namespace Hung.AutoTest
                     assertion.Id,
                     result.message,
                     assertion.Severity,
-                    context);
+                    context,
+                    evidence: result.evidence);
 
                 context.AddFailure(failure);
 

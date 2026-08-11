@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
+Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
 ## Package dependencies
 
@@ -30,11 +30,24 @@ Serialized-data decision and rollback contract: `Docs/adr/ADR-E5-autotest-runtim
 ## Game glue contract (each game implements)
 - `IAutoTestScenarioExecutor` — prepares/runs/cleans up a scenario; casts `AutoTestCaseData.scenario` (ScriptableObject) to its own scenario type.
 - `IRuntimeSnapshotBuilder` — builds `RuntimeSnapshot` from live game state.
-- `AutoTestAssertionRegistry.Register(...)` — game-specific assertion creators (core handles NoExceptionLog, ScenarioStarted, ScenarioTimeout, NoNaNTransform).
+- `AutoTestAssertionRegistry.Register(...)` — game-specific assertion creators (core handles NoExceptionLog, ScenarioStarted, ScenarioTimeout, NoNaNTransform). Two overloads: `Register(AutoTestAssertionType, creator)` for the reserved enum extension slots, and `Register(string id, creator, descriptor)` for string-keyed assertions once those slots are exhausted.
 - `AutoTestRunner.ExecutorFactory` / `SnapshotBuilderFactory` — assign in a `[RuntimeInitializeOnLoadMethod]` bootstrap.
 - `AutoTestBootstrapper.ExtraReadyCheck` — game readiness condition (e.g. composition-root manager exists).
 
 Each host game supplies its own glue assembly, executor, snapshot builder, and domain assertions.
+
+## String-keyed assertions
+
+For assertions beyond the reserved enum slots, register by string ID instead:
+
+```csharp
+AutoTestAssertionRegistry.Register(
+    "mygame.feature.ready",
+    config => new FeatureReadyAssertion(config),
+    new AutoTestAssertionDescriptor("mygame.feature.ready", "Feature Ready", "Waits for feature readiness."));
+```
+
+Author it on a case with `AutoTestAssertionConfig.Create("mygame.feature.ready", ...)`. Setting `assertionId` takes precedence over `type` on the same config. An unregistered ID fails explicitly with `AUTOTEST_ASSERTION_ID_UNKNOWN` rather than silently falling back to the enum path or a different assertion. IDs are compared with `StringComparer.Ordinal`; `Register` throws on a blank ID, a null creator, or a duplicate ID. See `Docs/adr/ADR-E5-autotest-string-keyed-assertions.md`.
 
 ## Runtime confidence player contract
 

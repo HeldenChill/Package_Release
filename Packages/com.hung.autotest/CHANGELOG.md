@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0] - 2026-08-11
+- Added `AutoTestAssertionConfig.assertionId` (string, additive) and a parallel ordinal-keyed string registry (`AutoTestAssertionRegistry.Register(string, creator, descriptor)` / `TryCreate(string, config)`) for host games that have exhausted the reserved `AutoTestAssertionType` enum extension slots (29–42).
+- `AutoTestAssertionFactory` dispatches by `assertionId` first when set; an unregistered string ID fails explicitly with `AUTOTEST_ASSERTION_ID_UNKNOWN` via the new `InvalidAssertionConfigurationAssertion`, never silently falling back to enum dispatch.
+- Added optional `AutoTestAssertionResult.evidence` / `AutoTestFailure.evidence`; Markdown reports add a fenced `json` Evidence block only when nonempty.
+- Added `AutoTestAssertionConfigDrawer` (editor) to author either enum or string-ID assertions on the same config without clearing the other mode's fields.
+- Backward compatible: existing enum serialization, `AutoTestAssertionType` integer values (0–42), `Register(AutoTestAssertionType, creator)`, and all existing case/suite assets are unchanged. See `Docs/adr/ADR-E5-autotest-string-keyed-assertions.md`.
+
 ## [0.2.7] - 2026-08-02
 - Added `-rcState` command-line flag and strict recognized-flag validation: duplicate Stage B flags record `RC_CLI_DUPLICATE_FLAG`, a recognized flag missing its value records `RC_CLI_VALUE_MISSING`. Parsing never throws; unrecognized/Unity-native arguments are ignored as before.
 - Added product-neutral evidence identity fields to `RuntimeEvidenceRecord`: `phase`, `schemaVersion`, `scenarioVersion`, `packageIdentity`, `manifestSha256`, `lockSha256`, `playerSha256`, `stateFixtureId`, `stateBeforeSha256`, `stateAfterSha256`, and `byteLength` on `RuntimeEvidenceArtifact`.

@@ -64,6 +64,7 @@ namespace Hung.AutoTest
     {
         public bool enabled = true;
         public AutoTestAssertionType type;
+        public string assertionId;
         public AutoTestAssertionSeverity severity = AutoTestAssertionSeverity.Failure;
         public float timeoutSeconds = 10f;
         public float threshold = 0f;
@@ -78,6 +79,23 @@ namespace Hung.AutoTest
             {
                 enabled = true,
                 type = type,
+                severity = severity,
+                timeoutSeconds = timeoutSeconds,
+                threshold = threshold,
+                tolerance = 0.001f
+            };
+        }
+
+        public static AutoTestAssertionConfig Create(
+            string assertionId,
+            AutoTestAssertionSeverity severity = AutoTestAssertionSeverity.Failure,
+            float timeoutSeconds = 10f,
+            float threshold = 0f)
+        {
+            return new AutoTestAssertionConfig
+            {
+                enabled = true,
+                assertionId = assertionId,
                 severity = severity,
                 timeoutSeconds = timeoutSeconds,
                 threshold = threshold,

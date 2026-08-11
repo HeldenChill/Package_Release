@@ -23,8 +23,16 @@ namespace Hung.AutoTest
             }
         }
 
-        private static IAutoTestAssertion Create(AutoTestAssertionConfig config)
+        public static IAutoTestAssertion Create(AutoTestAssertionConfig config)
         {
+            string assertionId = config.assertionId?.Trim();
+            if (!string.IsNullOrEmpty(assertionId))
+            {
+                return AutoTestAssertionRegistry.TryCreate(assertionId, config)
+                    ?? new InvalidAssertionConfigurationAssertion(
+                        config, $"AUTOTEST_ASSERTION_ID_UNKNOWN: '{assertionId}' is not registered.");
+            }
+
             // Game-agnostic assertions live here; everything game-specific is
             // registered by the game's glue (see AutoTestAssertionRegistry and
             // game glue).

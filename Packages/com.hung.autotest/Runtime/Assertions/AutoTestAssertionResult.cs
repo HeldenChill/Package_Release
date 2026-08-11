@@ -16,6 +16,7 @@ namespace Hung.AutoTest
         public string assertionId;
         public AutoTestAssertionStatus status;
         public string message;
+        public string evidence;
 
         public static AutoTestAssertionResult Passed(string id)
         {

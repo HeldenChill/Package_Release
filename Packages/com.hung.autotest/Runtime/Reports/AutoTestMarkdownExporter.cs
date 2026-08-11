@@ -103,6 +103,17 @@ namespace Hung.AutoTest
                     {
                         AutoTestFailure failure = c.failures[f];
                         sb.AppendLine("- **" + failure.assertionId + "** [" + failure.severity + "]: " + failure.message);
+
+                        if (!string.IsNullOrWhiteSpace(failure.evidence))
+                        {
+                            sb.AppendLine();
+                            sb.AppendLine("  Evidence:");
+                            sb.AppendLine();
+                            sb.AppendLine("  ```json");
+                            sb.AppendLine("  " + failure.evidence);
+                            sb.AppendLine("  ```");
+                            sb.AppendLine();
+                        }
                     }
                     sb.AppendLine();
                 }
