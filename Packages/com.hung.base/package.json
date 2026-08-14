@@ -1,6 +1,6 @@
 {
   "name": "com.hung.base",
-  "version": "0.19.2",
+  "version": "0.19.3",
   "displayName": "Hung Base",
   "description": "Core runtime: Locator, service contracts, persistence contracts, purchase contracts, init flow, stats, and base app glue. Includes Hung.Utilities.Input.",
   "unity": "2022.3",

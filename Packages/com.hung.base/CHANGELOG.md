@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.19.3] - 2026-08-15
+- Removed Custom ID button/text-entry from ItemId Odin drawer; dropdown-only selection now.
+
 ## [0.19.2] - 2026-08-11
 - Added provider-neutral extensible ItemId editor registry, Base definitions, searchable Odin drawer, and unknown-ID validation UI.
 

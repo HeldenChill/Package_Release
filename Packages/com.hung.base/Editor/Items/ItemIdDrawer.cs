@@ -12,8 +12,6 @@ namespace Hung.Base.Editor
     public sealed class ItemIdDrawer : OdinValueDrawer<ItemId>
     {
         private readonly AdvancedDropdownState dropdownState = new AdvancedDropdownState();
-        private bool customEntryOpen;
-        private string customValue = string.Empty;
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
@@ -30,21 +28,6 @@ namespace Hung.Base.Editor
                 var dropdown = new ItemIdAdvancedDropdown(dropdownState, options, current,
                     selected => ValueEntry.SmartValue = selected);
                 dropdown.Show(field);
-            }
-
-            if (GUILayout.Button("Custom ID...", EditorStyles.miniButton))
-            {
-                customEntryOpen = !customEntryOpen;
-                customValue = current.Value ?? string.Empty;
-            }
-
-            if (!customEntryOpen) return;
-            customValue = EditorGUILayout.TextField("Validated ID", customValue);
-            if (GUILayout.Button("Apply Custom ID", EditorStyles.miniButton) &&
-                ItemIdEditorRegistry.Shared.TryParseCustomId(customValue, out ItemId customId))
-            {
-                ValueEntry.SmartValue = customId;
-                customEntryOpen = false;
             }
         }
     }

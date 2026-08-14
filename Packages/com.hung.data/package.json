@@ -10,7 +10,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.4.3",
     "com.hung.utilities": "0.2.2",
-    "com.hung.base": "0.19.2",
+    "com.hung.base": "0.19.3",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
