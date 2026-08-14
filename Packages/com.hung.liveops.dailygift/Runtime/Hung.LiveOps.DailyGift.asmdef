@@ -1,0 +1,20 @@
+{
+    "name": "Hung.LiveOps.DailyGift",
+    "rootNamespace": "Hung.LiveOps.DailyGift",
+    "references": [
+        "Hung.DesignPattern",
+        "Hung.Base",
+        "Hung.Data",
+        "Hung.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

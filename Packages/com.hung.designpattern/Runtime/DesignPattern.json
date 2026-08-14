@@ -1,0 +1,20 @@
+{
+    "packageName": "DesignPattern",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "",
+    "sdkFolderNames": [],
+    "sdkFolderPaths": [
+        "Assets/_Game/_DesignPattern"
+    ],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}

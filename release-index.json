@@ -1,12 +1,26 @@
 {
-  "generatedAt": "2026-08-11T10:20:20Z",
+  "generatedAt": "2026-08-14T14:58:02Z",
   "packages": {
-    "com.hung.autotest": "0.3.0"
+    "com.hung.autotest": "0.3.5",
+    "com.hung.base": "0.19.2",
+    "com.hung.data": "0.11.0",
+    "com.hung.designpattern": "0.4.3",
+    "com.hung.liveops.dailygift": "0.4.0",
+    "com.hung.liveops.energy": "0.2.2",
+    "com.hung.ui": "0.5.3",
+    "com.hung.utilities": "0.2.2"
   },
   "publicRoots": [
-    "com.hung.autotest"
+    "com.hung.autotest",
+    "com.hung.base",
+    "com.hung.data",
+    "com.hung.designpattern",
+    "com.hung.liveops.dailygift",
+    "com.hung.liveops.energy",
+    "com.hung.ui",
+    "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.08.11.2",
+  "releaseTag": "release-2026.08.14.1",
   "schemaVersion": 1,
-  "sourceCommit": "02fe0d44070784d155c3107ce97f400394056845"
+  "sourceCommit": "6dc120f409d01b9c916cafa4dfb1b7ec84645811"
 }

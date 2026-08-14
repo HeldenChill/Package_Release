@@ -88,7 +88,6 @@ namespace Hung.AutoTest
             // Survives the CryptoLoader -> LoadStart -> GameScene chain when the run
             // is started from a startup scene.
             DontDestroyOnLoad(gameObject);
-            AutoTestBootstrapper.ResetKick();
         }
 
         private void Start()
@@ -186,6 +185,7 @@ namespace Hung.AutoTest
         private void StartRun(IEnumerator routine)
         {
             StopCurrentRun();
+            AutoTestBootstrapper.ResetForRunnerStart();
             stopRequested = false;
             runRoutine = StartCoroutine(routine);
         }

@@ -10,7 +10,10 @@ namespace Hung.AutoTest
     /// </summary>
     public static class AutoTestBootstrapper
     {
+        public static System.Action HostBootReset;
+
         private static bool bootKicked;
+        private static bool runnerStartPrepared;
 
         /// <summary>
         /// Extra game-specific readiness condition ANDed with the Locator checks.
@@ -77,6 +80,34 @@ namespace Hung.AutoTest
         public static void ResetKick()
         {
             bootKicked = false;
+        }
+
+        public static void ResetForRunnerStart()
+        {
+            if (runnerStartPrepared)
+            {
+                runnerStartPrepared = false;
+                return;
+            }
+
+            ResetBootState();
+        }
+
+        public static void ResetForCliPreboot()
+        {
+            ResetBootState();
+            runnerStartPrepared = true;
+        }
+
+        public static void ClearPreparedRunnerStart()
+        {
+            runnerStartPrepared = false;
+        }
+
+        private static void ResetBootState()
+        {
+            bootKicked = false;
+            HostBootReset?.Invoke();
         }
     }
 }

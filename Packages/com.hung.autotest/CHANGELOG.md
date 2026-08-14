@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.2] - 2026-08-12
+- Persisted the editor CLI launch record in `UnityEditor.SessionState` so suite, readiness scene, and timeout survive Enter Play Mode domain reload.
+- Added an idempotent resume path for both the play-mode callback and editor load initialization; a claimed launch is cleared before side effects.
+- Preserved the public runtime API and product-neutral package boundary.
+
+## [0.3.1] - 2026-08-12
+- Added product-neutral `AutoTestBootstrapper.HostBootReset` and per-logical-run reset APIs.
+- Moved runner boot reset from `AutoTestRunner.Awake()` to the actual run boundary.
+- Added a one-shot CLI preboot handoff so runner startup does not erase host boot state.
+- Backward compatible: existing readiness, boot-kick, runner, suite, case, and serialized asset contracts are unchanged.
+
 ## [0.3.0] - 2026-08-11
 - Added `AutoTestAssertionConfig.assertionId` (string, additive) and a parallel ordinal-keyed string registry (`AutoTestAssertionRegistry.Register(string, creator, descriptor)` / `TryCreate(string, config)`) for host games that have exhausted the reserved `AutoTestAssertionType` enum extension slots (29–42).
 - `AutoTestAssertionFactory` dispatches by `assertionId` first when set; an unregistered string ID fails explicitly with `AUTOTEST_ASSERTION_ID_UNKNOWN` via the new `InvalidAssertionConfigurationAssertion`, never silently falling back to enum dispatch.

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,19 +25,52 @@ namespace Hung.AutoTest.Editor
                 return;
             }
 
-            pendingSuite = suite;
-            readyDeadline = Time.realtimeSinceStartup + GetFloatArg("-autoTestReadyTimeout", 60f);
-            requiredGameplayScene = GetArg("-autoTestGameplayScene");
+            OpenStartupSceneIfNeeded();
+            AutoTestCliSessionState.Begin(
+                suitePath,
+                GetArg("-autoTestGameplayScene"),
+                GetFloatArg("-autoTestReadyTimeout", 60f));
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             EditorApplication.EnterPlaymode();
         }
 
+        [InitializeOnLoadMethod]
+        static void ResumeAfterDomainReload()
+        {
+            EditorApplication.delayCall += TryResumePendingLaunch;
+        }
+
         static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state != PlayModeStateChange.EnteredPlayMode)
+            if (!ShouldQueuePendingLaunch(state))
+                return;
+
+            EditorApplication.delayCall += TryResumePendingLaunch;
+        }
+
+        internal static bool ShouldQueuePendingLaunch(PlayModeStateChange state)
+        {
+            return state == PlayModeStateChange.EnteredPlayMode;
+        }
+
+        static void TryResumePendingLaunch()
+        {
+            if (!EditorApplication.isPlaying)
+                return;
+            if (!AutoTestCliSessionState.TryClaim(out AutoTestCliLaunch launch))
                 return;
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            pendingSuite = AssetDatabase.LoadAssetAtPath<AutoTestSuiteData>(launch.SuitePath);
+            requiredGameplayScene = launch.RequiredGameplayScene;
+            readyDeadline = Time.realtimeSinceStartup + launch.ReadyTimeoutSeconds;
+            if (pendingSuite == null)
+            {
+                ExitCli(2, "[AutoTestCli] Suite disappeared after domain reload: " + launch.SuitePath);
+                return;
+            }
+
+            AutoTestBootstrapper.ResetForCliPreboot();
             EditorApplication.update += WaitForGameplayReady;
         }
 
@@ -65,22 +99,22 @@ namespace Hung.AutoTest.Editor
             GameObject go = new GameObject("AutoTestRunner_CLI");
             runner = go.AddComponent<AutoTestRunner>();
             runner.SetSuite(pendingSuite);
+            runner.RunCompleted += OnRunCompleted;
             runner.RunConfiguredSuite();
-            EditorApplication.update += PollCompletion;
         }
 
-        static void PollCompletion()
+        static void OnRunCompleted(AutoTestReport report)
         {
-            if (runner == null)
-                return;
+            if (runner != null)
+                runner.RunCompleted -= OnRunCompleted;
 
-            if (runner.Status == AutoTestStatus.Running)
-                return;
+            Debug.Log("[AutoTestCli] Result: " + (report != null ? report.status.ToString() : "no report"));
+            ExitCli(GetExitCode(report != null ? report.status : AutoTestStatus.Error), null);
+        }
 
-            EditorApplication.update -= PollCompletion;
-            bool passed = runner.LastReport != null && runner.LastReport.status == AutoTestStatus.Passed;
-            Debug.Log("[AutoTestCli] Result: " + (runner.LastReport != null ? runner.LastReport.status.ToString() : "no report"));
-            EditorApplication.Exit(passed ? 0 : 1);
+        internal static int GetExitCode(AutoTestStatus status)
+        {
+            return status == AutoTestStatus.Passed ? 0 : 1;
         }
 
         static void ExitIfReadyTimedOut()
@@ -88,10 +122,47 @@ namespace Hung.AutoTest.Editor
             if (Time.realtimeSinceStartup < readyDeadline)
                 return;
 
-            EditorApplication.update -= WaitForGameplayReady;
-            Debug.LogError("[AutoTestCli] Gameplay readiness timeout. Scene=" + SceneManager.GetActiveScene().name
+            ExitCli(3, "[AutoTestCli] Gameplay readiness timeout. Scene=" + SceneManager.GetActiveScene().name
                 + ", ExtraReadyCheck=" + AutoTestBootstrapper.ExtraReadyCheck());
-            EditorApplication.Exit(3);
+        }
+
+        static void ExitCli(int code, string error)
+        {
+            EditorApplication.update -= WaitForGameplayReady;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            if (runner != null)
+                runner.RunCompleted -= OnRunCompleted;
+            AutoTestCliSessionState.Clear();
+            AutoTestBootstrapper.ClearPreparedRunnerStart();
+            if (!string.IsNullOrEmpty(error))
+                Debug.LogError(error);
+            EditorApplication.Exit(code);
+        }
+
+        static void OpenStartupSceneIfNeeded()
+        {
+            string startupScenePath = ResolveStartupScenePath(
+                SceneManager.GetActiveScene().path,
+                EditorBuildSettings.scenes);
+            if (string.IsNullOrEmpty(startupScenePath))
+                return;
+
+            Debug.Log("[AutoTestCli] Opening startup Build Settings scene: " + startupScenePath);
+            EditorSceneManager.OpenScene(startupScenePath, OpenSceneMode.Single);
+        }
+
+        internal static string ResolveStartupScenePath(string activeScenePath, EditorBuildSettingsScene[] buildScenes)
+        {
+            if (!string.IsNullOrEmpty(activeScenePath) && activeScenePath.StartsWith("Assets/", StringComparison.Ordinal))
+                return string.Empty;
+
+            foreach (EditorBuildSettingsScene scene in buildScenes)
+            {
+                if (scene.enabled && !string.IsNullOrEmpty(scene.path))
+                    return scene.path;
+            }
+
+            return string.Empty;
         }
 
         static string GetArg(string name)

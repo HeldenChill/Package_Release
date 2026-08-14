@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
+Version 0.3.2 makes the editor CLI launch domain-reload safe by persisting its one-shot launch record in `UnityEditor.SessionState` and resuming it idempotently after Enter Play Mode. Version 0.3.1 adds per-logical-run host boot reset coordination: hosts register `AutoTestBootstrapper.HostBootReset` alongside `BootKick`; normal runs reset at `StartRun`; and CLI preboot resets before readiness polling without allowing runner startup to erase that host state. `AutoTestRunner.Awake()` is not the reset boundary. Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
 ## Package dependencies
 
@@ -32,6 +32,7 @@ Serialized-data decision and rollback contract: `Docs/adr/ADR-E5-autotest-runtim
 - `IRuntimeSnapshotBuilder` — builds `RuntimeSnapshot` from live game state.
 - `AutoTestAssertionRegistry.Register(...)` — game-specific assertion creators (core handles NoExceptionLog, ScenarioStarted, ScenarioTimeout, NoNaNTransform). Two overloads: `Register(AutoTestAssertionType, creator)` for the reserved enum extension slots, and `Register(string id, creator, descriptor)` for string-keyed assertions once those slots are exhausted.
 - `AutoTestRunner.ExecutorFactory` / `SnapshotBuilderFactory` — assign in a `[RuntimeInitializeOnLoadMethod]` bootstrap.
+- `AutoTestBootstrapper.BootKick` and `AutoTestBootstrapper.HostBootReset` — register both host boot hooks. Normal runs invoke the reset at `StartRun`; CLI preboot invokes it before readiness polling. `AutoTestRunner.Awake()` is not a reset boundary.
 - `AutoTestBootstrapper.ExtraReadyCheck` — game readiness condition (e.g. composition-root manager exists).
 
 Each host game supplies its own glue assembly, executor, snapshot builder, and domain assertions.

@@ -1,0 +1,24 @@
+{
+  "name": "Hung.Base.Editor.Tests",
+  "references": [
+    "Hung.Base",
+    "Hung.Base.Editor",
+    "Sirenix.OdinInspector.Editor",
+    "Sirenix.OdinInspector.Attributes",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Sirenix.OdinInspector.Editor.dll",
+    "Sirenix.OdinInspector.Attributes.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
