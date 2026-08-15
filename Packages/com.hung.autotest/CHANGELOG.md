@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.4.0] - 2026-08-15
+- Added `AutoTestRuntimeCapability` (`[Flags]` enum, `FakeInput = 1`) and
+  `AutoTestCaseData.requiredCapabilities` (additive, default `None`) so a case can declare a
+  required runtime capability.
+- Added `AutoTestCapabilityRegistry`/`AutoTestCapabilityCheck` to `Hung.AutoTest`: providers
+  register one probe per capability bit; `AutoTestRunner.RunCaseRoutine` evaluates required
+  capabilities before executor `Prepare`/`Run`/`Cleanup` and records a fatal
+  `AUTOTEST_CAPABILITY_UNAVAILABLE` setup failure (never a silent pass) when unavailable.
+- Added optional companion assembly `Hung.AutoTest.FakeInput` (version-gated on
+  `com.unity.inputsystem`/`com.unity.ugui`, `Hung.AutoTest` core stays dependency-neutral):
+  `AutoTestInputSystemDriver` (keyboard/mouse device synthesis, owns only devices it creates) and
+  `AutoTestEventSystemPointerDriver` (UGUI click/drag/cancel sequencing with EventSystem
+  resolution fallback).
+- Consumer migration note: host games that currently own a local fake-input driver (e.g. Horror's
+  `HorrorInputSystemDriver`, PVM's `EventSystemClickActionExecutor`/`EventSystemDragActionExecutor`)
+  may delegate to the official drivers and mark their fake-input cases with
+  `requiredCapabilities = AutoTestRuntimeCapability.FakeInput`; this is opt-in per case, not
+  automatic. See `Docs/adr/ADR-E5-autotest-required-capabilities.md`.
+- Backward compatible: existing case/suite assets deserialize `requiredCapabilities` to `None`;
+  no existing field renamed, reordered, or removed.
+
 ## [0.3.2] - 2026-08-12
 - Persisted the editor CLI launch record in `UnityEditor.SessionState` so suite, readiness scene, and timeout survive Enter Play Mode domain reload.
 - Added an idempotent resume path for both the play-mode callback and editor load initialization; a claimed launch is cleared before side effects.

@@ -1,6 +1,6 @@
 {
   "name": "com.hung.autotest",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "displayName": "Hung AutoTest",
   "description": "Game-agnostic automated-test core: runner, scenario lifecycle, assertion framework, log/event collectors, JSON/Markdown reports, batchmode CLI. Games plug in via IAutoTestScenarioExecutor, IRuntimeSnapshotBuilder, AutoTestAssertionRegistry and AutoTestBootstrapper.ExtraReadyCheck.",
   "unity": "2022.3",

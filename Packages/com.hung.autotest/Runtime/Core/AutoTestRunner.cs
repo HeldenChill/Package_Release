@@ -291,6 +291,25 @@ namespace Hung.AutoTest
         {
             context.Begin(runId, targetSuite != null ? targetSuite.suiteId : string.Empty, testCase);
             context.Events = eventCollector;
+
+            if (!AutoTestCapabilityRegistry.TryEvaluate(testCase.requiredCapabilities, out string capabilityDiagnostic))
+            {
+                context.AddFailure(AutoTestFailure.Create(
+                    "Setup",
+                    "AUTOTEST_CAPABILITY_UNAVAILABLE",
+                    capabilityDiagnostic,
+                    AutoTestAssertionSeverity.Fatal,
+                    context));
+                AutoTestCaseReport failedReport = AutoTestCaseReport.Create(testCase);
+                failedReport.durationSeconds = 0f;
+                failedReport.status = AutoTestStatus.Failed;
+                failedReport.failureCount = context.Failures.Count;
+                failedReport.failures.AddRange(context.Failures);
+                failedReport.logs.AddRange(context.Logs);
+                onCompleted?.Invoke(failedReport);
+                yield break;
+            }
+
             activeAssertions.Clear();
             failedAssertionIds.Clear();
             AutoTestAssertionFactory.CreateAssertions(testCase, activeAssertions);

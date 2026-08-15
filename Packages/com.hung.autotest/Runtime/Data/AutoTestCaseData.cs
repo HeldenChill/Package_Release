@@ -33,6 +33,7 @@ namespace Hung.AutoTest
         public float timeoutSeconds = 30f;
         public float snapshotIntervalSeconds = 0.25f;
         public bool failFast = false;
+        public AutoTestRuntimeCapability requiredCapabilities = AutoTestRuntimeCapability.None;
 
         [Header("Assertions")]
         public List<AutoTestAssertionConfig> assertions = AutoTestAssertionConfig.CreateDefaultList();

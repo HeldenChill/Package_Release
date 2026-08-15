@@ -1,0 +1,17 @@
+{
+  "name": "Hung.AutoTest.FakeInput",
+  "rootNamespace": "Hung.AutoTest",
+  "references": ["Hung.AutoTest", "Unity.UGUI", "Unity.InputSystem"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": ["HUNG_AUTOTEST_INPUT_SYSTEM", "HUNG_AUTOTEST_UGUI"],
+  "versionDefines": [
+    {"name": "com.unity.inputsystem", "expression": "1.0.0", "define": "HUNG_AUTOTEST_INPUT_SYSTEM"},
+    {"name": "com.unity.ugui", "expression": "1.0.0", "define": "HUNG_AUTOTEST_UGUI"}
+  ],
+  "noEngineReferences": false
+}

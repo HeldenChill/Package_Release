@@ -2,7 +2,7 @@
 
 Game-agnostic automated-test core for scenario-driven game validation.
 
-Version 0.3.2 makes the editor CLI launch domain-reload safe by persisting its one-shot launch record in `UnityEditor.SessionState` and resuming it idempotently after Enter Play Mode. Version 0.3.1 adds per-logical-run host boot reset coordination: hosts register `AutoTestBootstrapper.HostBootReset` alongside `BootKick`; normal runs reset at `StartRun`; and CLI preboot resets before readiness polling without allowing runner startup to erase that host state. `AutoTestRunner.Awake()` is not the reset boundary. Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
+Version 0.4.0 adds an enforced runtime-capability contract (`AutoTestCaseData.requiredCapabilities`) and an optional `Hung.AutoTest.FakeInput` companion assembly with reusable keyboard/mouse and UGUI gesture drivers — see [Required capabilities and fake input](#required-capabilities-and-fake-input) below. Version 0.3.2 makes the editor CLI launch domain-reload safe by persisting its one-shot launch record in `UnityEditor.SessionState` and resuming it idempotently after Enter Play Mode. Version 0.3.1 adds per-logical-run host boot reset coordination: hosts register `AutoTestBootstrapper.HostBootReset` alongside `BootKick`; normal runs reset at `StartRun`; and CLI preboot resets before readiness polling without allowing runner startup to erase that host state. `AutoTestRunner.Awake()` is not the reset boundary. Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
 ## Package dependencies
 
@@ -67,6 +67,66 @@ Exit codes:
 - `0`: mandatory runtime confidence scenario passed.
 - `1`: scenario completed and failed.
 - `3`: scenario was blocked, timed out, missing, or threw before producing a product result.
+
+## Required capabilities and fake input
+
+A case declares a runtime precondition instead of assuming it's always available:
+
+```csharp
+testCase.requiredCapabilities = AutoTestRuntimeCapability.FakeInput;
+```
+
+`AutoTestRunner` evaluates every required capability via `AutoTestCapabilityRegistry` immediately
+after `context.Begin`, before the executor's `Prepare`/`Run`/`Cleanup`. If unavailable, the case
+fails fast with a fatal `"Setup"` failure (`assertionId = "AUTOTEST_CAPABILITY_UNAVAILABLE"`) and
+the executor is never invoked. A required capability is a run precondition only — it proves the
+input mechanism was available, not that the gesture achieved its intended effect; product
+assertions still prove outcomes.
+
+### Optional prerequisites
+
+`FakeInput` is provided by the optional `Hung.AutoTest.FakeInput` assembly
+(`Runtime/FakeInput/Hung.AutoTest.FakeInput.asmdef`), enabled only when both
+`com.unity.inputsystem` and `com.unity.ugui` are installed (asmdef `versionDefines`/
+`defineConstraints`). It is not a `package.json` dependency — `Hung.AutoTest` core stays free of
+Input System/UGUI references. Host glue that needs it adds an explicit asmdef reference to
+`Hung.AutoTest.FakeInput`.
+
+### AutoTestInputSystemDriver
+
+Owns Input System keyboard/mouse device synthesis and cleanup:
+
+```csharp
+using var input = new AutoTestInputSystemDriver();
+input.QueueText("hello");
+input.PumpOneFrame(); // pumps one queued character/key/pointer action per call
+```
+
+- Resolves a supplied device or creates and owns a virtual one; `Cleanup()`/`Dispose()` releases
+  pressed state and removes only devices this instance created — never a pre-existing device.
+- `Cleanup()` is idempotent; calling a mutating method afterward throws `ObjectDisposedException`.
+
+### AutoTestEventSystemPointerDriver
+
+Owns UGUI EventSystem click/drag gesture sequencing. Accepts already-resolved `GameObject`
+targets and screen positions — it does not resolve semantic target keys or app IDs; that stays in
+host glue:
+
+```csharp
+var pointer = new AutoTestEventSystemPointerDriver();
+bool started = pointer.TryClick(targetGameObject, screenPosition);
+yield return pointer.Drag(sourceGameObject, startScreen, destinationGameObject, endScreen, moveFrames: 6);
+pointer.Cancel(); // ends an in-flight drag exactly once; safe to call when idle
+```
+
+- Click sequence: enter, down, up, click. Drag sequence: initialize, begin, at least six move
+  samples, drop, end, pointer up. `Cancel()` dispatches end/up cleanup exactly once.
+- Resolves `EventSystem.current`, falling back to an inactive-object scene search if unset.
+- Returns `false`/no-ops with a diagnostic in `LastDiagnostic` when the target or EventSystem is
+  missing — never throws a null-reference exception.
+
+See `Docs/adr/ADR-E5-autotest-required-capabilities.md` for the serialized-field compatibility
+contract.
 
 ## Known debt
 - RuntimeSnapshot schema carries TD-shaped sections (PetSnapshot etc.) — pure data, no type coupling; generalize together with com.hung.combatstats.
