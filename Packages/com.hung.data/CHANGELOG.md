@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.11.1] - 2026-08-15
+- Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
+
 ## [0.11.0] - 2026-08-14
 ### Breaking
 - Removed PVM-owned `Runtime/CharacterLegacy` and global `DailyGiftDataSO`/`DailyGiftItem` from Data.

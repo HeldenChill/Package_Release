@@ -16,6 +16,13 @@ namespace Hung.Base.Tests
         [TestCase("base.gold")]
         [TestCase("pet_vs_monster.gem")]
         [TestCase("game.item-2")]
+        // Namespace is optional: catalog ids built from CSV names parse unchanged.
+        [TestCase("gold")]
+        [TestCase("Pump_Shotgun")]
+        [TestCase("Health_Kit")]
+        // Case is unrestricted in both segments.
+        [TestCase("Base.gold")]
+        [TestCase("base.GOLD")]
         public void Parse_ValidId_RoundTrips(string raw)
         {
             ItemId id = ItemId.Parse(raw);
@@ -26,14 +33,27 @@ namespace Hung.Base.Tests
 
         [TestCase(null)]
         [TestCase("")]
-        [TestCase("gold")]
-        [TestCase("Base.gold")]
-        [TestCase("base.GOLD")]
         [TestCase("base..gold")]
         [TestCase("base.gold!")]
+        [TestCase("base.gold.extra")]
+        [TestCase("_gold")]
+        [TestCase("2gold")]
+        [TestCase(".gold")]
+        [TestCase("gold.")]
         public void Parse_InvalidId_Throws(string raw)
         {
             Assert.Throws<ArgumentException>(() => ItemId.Parse(raw));
+        }
+
+        /// <summary>
+        /// Case is allowed by the pattern but NOT folded by equality — the widened regex
+        /// must not be mistaken for case-insensitive ids.
+        /// </summary>
+        [Test]
+        public void Equality_IsCaseSensitive()
+        {
+            Assert.AreNotEqual(ItemId.Parse("base.gold"), ItemId.Parse("base.Gold"));
+            Assert.AreNotEqual(ItemId.Parse("Pump_Shotgun"), ItemId.Parse("pump_shotgun"));
         }
 
         [Test]

@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.5.4] - 2026-08-15
+- Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
+
 ## [0.5.3] - 2026-08-11
 - Dependency-only patch: align Base 0.19.2 for the F4-IE editor prerequisite.
 

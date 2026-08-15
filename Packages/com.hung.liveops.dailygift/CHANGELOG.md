@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.1] - 2026-08-15
+- Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
+
 ## [0.4.0] - 2026-08-14
 ### Breaking
 - DailyGiftManager and DailyGiftPopup now serialize a `ScriptableObject` which must implement `Hung.Data.LiveOps.IDailyGiftConfig`.

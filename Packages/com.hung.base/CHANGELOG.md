@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.19.4] - 2026-08-15
+- `ItemId` now accepts an optional namespace segment and uppercase characters, so catalog ids authored from CSV display names (`Pump_Shotgun`) parse without a `namespace.` prefix. Equality remains Ordinal, so `Gold` and `gold` stay distinct ids.
+
 ## [0.19.3] - 2026-08-15
 - Removed Custom ID button/text-entry from ItemId Odin drawer; dropdown-only selection now.
 

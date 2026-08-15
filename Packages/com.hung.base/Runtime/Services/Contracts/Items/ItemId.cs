@@ -11,8 +11,11 @@ namespace Hung.Base
     [Serializable]
     public struct ItemId : IEquatable<ItemId>, IComparable<ItemId>
     {
+        // Namespace segment ("base.gold") is optional and case is unrestricted, so catalog
+        // ids authored straight from CSV display names ("Pump_Shotgun") parse as-is.
+        // Equality below stays Ordinal: "Gold" and "gold" are DIFFERENT ids by design.
         private static readonly Regex Pattern = new(
-            "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_-]*$",
+            "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)?$",
             RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         [SerializeField] private string value;
