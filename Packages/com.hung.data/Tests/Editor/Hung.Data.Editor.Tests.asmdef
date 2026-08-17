@@ -4,6 +4,7 @@
     "Hung.Data",
     "Hung.Data.Editor",
     "Hung.Base",
+    "Hung.Persistence",
     "Hung.Base.Editor",
     "Sirenix.OdinInspector.Editor",
     "Sirenix.Serialization",

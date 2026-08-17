@@ -2,6 +2,7 @@
     "name": "Hung.Base",
     "rootNamespace": "Hung.Base",
     "references": [
+        "Hung.Persistence",
         "Hung.Utilities.STimer",
         "Hung.Utilities",
         "Hung.DesignPattern",

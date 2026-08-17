@@ -1,12 +1,13 @@
 {
-  "generatedAt": "2026-08-15T16:43:05Z",
+  "generatedAt": "2026-08-17T08:33:50Z",
   "packages": {
     "com.hung.autotest": "0.4.0",
-    "com.hung.base": "0.19.4",
-    "com.hung.data": "0.11.1",
+    "com.hung.base": "0.20.0",
+    "com.hung.data": "0.12.2",
     "com.hung.designpattern": "0.4.3",
     "com.hung.liveops.dailygift": "0.4.1",
     "com.hung.liveops.energy": "0.2.3",
+    "com.hung.persistence": "0.1.0",
     "com.hung.ui": "0.5.4",
     "com.hung.utilities": "0.2.2"
   },
@@ -17,10 +18,11 @@
     "com.hung.designpattern",
     "com.hung.liveops.dailygift",
     "com.hung.liveops.energy",
+    "com.hung.persistence",
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.08.15.4",
+  "releaseTag": "release-2026.08.17.1",
   "schemaVersion": 1,
-  "sourceCommit": "92694c19b70e4fc57a51ed52c884563c5a765679"
+  "sourceCommit": "1c7b1e97a90cf8605efc6b64df7ed8f861553544"
 }

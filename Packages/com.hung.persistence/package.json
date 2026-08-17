@@ -1,0 +1,13 @@
+{
+  "name": "com.hung.persistence",
+  "version": "0.1.0",
+  "displayName": "Hung Persistence",
+  "description": "Generic local save persistence: definitions, envelope, migration, atomic file store with primary/backup rotation and quarantine, codecs, HMAC protection, canonical-existence evidence, and composition. Contains no product models and no Unity API calls.",
+  "unity": "2022.3",
+  "keywords": [
+    "layer:1"
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}

@@ -66,21 +66,19 @@ namespace Hung.Data.Persistence
         public static IPersistenceService CreateDefault()
         {
             string comHungRoot = Path.Combine(Application.persistentDataPath, "ComHung");
-            var keyProvider = new LocalSecretKeyProvider(Path.Combine(comHungRoot, "Keys"));
-            SaveSecretKeyResult keyResult = keyProvider.GetOrCreateKey(KeyPurpose);
-            if (!keyResult.Success)
-                throw new PersistenceException(keyResult.ErrorCode);
-
             var codec = new BeneficialCompressionCodec(16 * 1024);
-            var protector = new HmacSha256SaveProtector(keyResult.Key);
             var diagnostics = new UnityDebugSaveDiagnostics();
-            var service = new PersistenceService(
-                new FileSaveStore(Path.Combine(comHungRoot, "Saves")),
-                new PlayerPrefsLegacySaveSource(),
-                diagnostics);
 
-            PackageSaveDefinitions.RegisterAll(service, codec, protector);
-            Database.CompatibilityDefinitionFactory = new CompatibilitySaveDefinitionFactory(codec, protector, diagnostics);
+            var builder = new PersistenceBuilder()
+                .WithRoot(Path.Combine(comHungRoot, "Saves"))
+                .WithCodec(codec)
+                .WithHmacProtection(new LocalSecretKeyProvider(Path.Combine(comHungRoot, "Keys")), KeyPurpose)
+                .WithDiagnostics(diagnostics)
+                .WithLegacySource(new PlayerPrefsLegacySaveSource());
+
+            PersistenceService service = builder.Build();
+            PackageSaveDefinitions.RegisterAll(service, codec, builder.Protector);
+            Database.CompatibilityDefinitionFactory = new CompatibilitySaveDefinitionFactory(codec, builder.Protector, diagnostics);
             return service;
         }
     }

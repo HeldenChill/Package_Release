@@ -10,8 +10,8 @@
   ],
   "dependencies": {
     "com.hung.designpattern": "0.4.3",
-    "com.hung.base": "0.19.4",
-    "com.hung.data": "0.11.1",
+    "com.hung.base": "0.20.0",
+    "com.hung.data": "0.12.2",
     "com.hung.ui": "0.5.4"
   },
   "samples": [

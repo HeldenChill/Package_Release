@@ -1,19 +1,15 @@
 {
-  "name": "Hung.LiveOps.DailyGift.Tests",
+  "name": "Hung.Persistence.PlayModeTests",
   "references": [
-    "Hung.LiveOps.DailyGift",
-    "Hung.Base",
     "Hung.Persistence",
-    "Hung.Data",
-    "Hung.DesignPattern",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],
-  "includePlatforms": ["Editor"],
+  "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": true,
-  "precompiledReferences": ["nunit.framework.dll"],
+  "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
   "autoReferenced": false,
   "defineConstraints": ["UNITY_INCLUDE_TESTS"],
   "versionDefines": [],

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.2] - 2026-08-17
+- 8 product-free persistence mechanism tests moved to `com.hung.persistence/Tests/` (`PersistenceServiceTests`, `FileSaveStoreTests`, `SaveEnvelopeTests`, `SaveMigrationRegistryTests`, `SaveTransformTests`, `PersistenceBenchmarkTests`, plus internal test-double helpers `InMemorySaveStore`/`PersistenceTestDoubles`, which are duplicated rather than moved since they are `internal` and consumed by tests that stay here). Product-coupled tests (`SaveDefinitionTests`, `LegacyImportTests`, `LegacyFixtureCharacterizationTests`, `ProductionDefinitionTests`, `DatabaseFacadeTestScope`, `PersistenceBootstrapTests`) and the six `.raw.json` fixture files stay unchanged. No behaviour change, no public signature change.
+
+## [0.12.1] - 2026-08-17
+- `PersistenceBootstrap.CreateDefault()` refactored to compose its service graph through the new `com.hung.persistence` `PersistenceBuilder` instead of wiring `FileSaveStore`/codec/protector by hand. Unity glue (`Application.persistentDataPath`, the `RuntimeInitializeOnLoadMethod` install hook, `UnityDebugSaveDiagnostics`, `PackageSaveDefinitions.RegisterAll`, `Database.CompatibilityDefinitionFactory`) stays in `Hung.Data`. Service graph unchanged: same 16 KB codec threshold, same HMAC protector, same `persistence-hmac-v1` key purpose, same store root layout. No behaviour or public signature change.
+
+## [0.12.0] - 2026-08-17
+- Persistence implementation (`PersistenceService`, `FileSaveStore`, envelope, migration registry, codecs, protectors) moved out to new `com.hung.persistence` package. `Hung.Data` now depends on it; namespaces unchanged (`Hung.Data.Persistence`). Dependency alignment: com.hung.base 0.19.4 -> 0.20.0.
+
 ## [0.11.1] - 2026-08-15
 - Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
 

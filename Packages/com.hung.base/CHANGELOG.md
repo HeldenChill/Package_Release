@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.20.0] - 2026-08-17
+- Persistence contracts (`IPersistenceService`, `ISaveStore`, `SaveDefinition<T>`, envelope/codec/protector interfaces) moved out to new `com.hung.persistence` package. `Hung.Base` now depends on it; namespaces unchanged (`Hung.Base.Persistence`).
+
 ## [0.19.4] - 2026-08-15
 - `ItemId` now accepts an optional namespace segment and uppercase characters, so catalog ids authored from CSV display names (`Pump_Shotgun`) parse without a `namespace.` prefix. Equality remains Ordinal, so `Gold` and `gold` stay distinct ids.
 

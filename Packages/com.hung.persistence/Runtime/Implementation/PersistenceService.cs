@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Hung.Data.Persistence
 {
-    public sealed class PersistenceService : IPersistenceService
+    public sealed class PersistenceService : IPersistenceService, ICanonicalExistenceQuery
     {
         private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
@@ -18,14 +18,18 @@ namespace Hung.Data.Persistence
         private readonly ISaveStore store;
         private readonly ILegacySaveSource legacy;
         private readonly ISaveDiagnostics diagnostics;
+        private readonly ICanonicalEvidenceStore evidence;
         private readonly Dictionary<Type, SaveDefinition> definitionsByType = new Dictionary<Type, SaveDefinition>();
 
-        public PersistenceService(ISaveStore store, ILegacySaveSource legacy = null, ISaveDiagnostics diagnostics = null)
+        public PersistenceService(ISaveStore store, ILegacySaveSource legacy = null, ISaveDiagnostics diagnostics = null, ICanonicalEvidenceStore evidence = null)
         {
             this.store = store ?? throw new ArgumentNullException(nameof(store));
             this.legacy = legacy;
             this.diagnostics = diagnostics ?? NullSaveDiagnostics.Instance;
+            this.evidence = evidence;
         }
+
+        public bool CanonicalExistenceProven(string key) => evidence != null && evidence.HasReceipt(key);
 
         public void Register<T>(SaveDefinition<T> definition) where T : new()
         {
@@ -64,6 +68,16 @@ namespace Hung.Data.Persistence
                 envelope.Integrity = definition.Protector.Protect(envelope.GetAuthenticatedBytes());
                 byte[] bytes = Encoding.UTF8.GetBytes(envelope.ToJson());
                 SaveStoreWriteResult write = store.Write(definition.Key, bytes);
+                if (write.Success)
+                {
+                    // Commit the receipt AFTER a successful canonical write, never before.
+                    // A crash between write and receipt leaves primary present, so the legacy
+                    // gate is already closed by primary.Exists; the receipt lands on the next
+                    // successful save. The inverse order would, on a crash, permanently block
+                    // legacy import for a user whose canonical write never landed -
+                    // a worse, unrecoverable failure.
+                    evidence?.CommitReceipt(definition.Key, definition.CurrentSchemaVersion, DateTime.UtcNow);
+                }
                 return new SaveResult(write.Success, write.Success ? null : write.ErrorCode, write.Path);
             }
             catch
@@ -99,7 +113,7 @@ namespace Hung.Data.Persistence
                 store.QuarantineBackup(definition.Key, backup.Content.ToArray(), result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT");
             }
 
-            if ((!primary.Exists && !backup.Exists) && TryLoadLegacy(definition, out LoadResult<T> legacyResult))
+            if ((!primary.Exists && !backup.Exists && !CanonicalExistenceProven(definition.Key)) && TryLoadLegacy(definition, out LoadResult<T> legacyResult))
                 return legacyResult;
 
             if (definition.FailurePolicy == SaveFailurePolicy.FailClosed && (primary.Exists || backup.Exists))
