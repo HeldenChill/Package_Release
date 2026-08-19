@@ -1,0 +1,14 @@
+{
+  "name": "com.hung.sync",
+  "version": "0.1.0",
+  "displayName": "Hung Sync",
+  "description": "Generic semantic synchronization overlay above local persistence: operation envelope with stable idempotency ids, expected revisions, durable pending queue, deterministic retry classification, and transport/auth ports. Contains no product models, no server implementation, and no Unity API calls.",
+  "unity": "2022.3",
+  "keywords": [
+    "layer:1"
+  ],
+  "dependencies": {
+    "com.hung.persistence": "0.1.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}

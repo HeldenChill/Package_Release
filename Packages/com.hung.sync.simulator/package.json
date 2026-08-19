@@ -1,0 +1,13 @@
+{
+  "name": "com.hung.sync.simulator",
+  "version": "0.1.0",
+  "displayName": "Hung Sync Simulator (development only)",
+  "description": "DEVELOPMENT AND TEST ONLY. Deterministic in-memory fake sync server: accounts, authoritative revisions, operation-id deduplication, configurable latency, offline mode, auth expiry, business rejection, and forced revision conflicts. MUST NOT be referenced by production runtime assemblies.",
+  "unity": "2022.3",
+  "keywords": [
+    "layer:1"
+  ],
+  "dependencies": {
+    "com.hung.sync": "0.1.0"
+  }
+}
