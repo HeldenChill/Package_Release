@@ -1,0 +1,20 @@
+{
+    "packageName": "Tools",
+    "version": "1.0.0",
+    "outputFolder": "SDKBuilds",
+    "includeDependencies": false,
+    "sdkRootFolder": "",
+    "sdkFolderNames": [],
+    "sdkFolderPaths": [
+        "Assets/_Game/_Tools"
+    ],
+    "excludePathContains": [
+        "/Demo/",
+        "/Demos/",
+        "/Example/",
+        "/Examples/",
+        "/Sample/",
+        "/Samples/",
+        "/Samples~/"
+    ]
+}
