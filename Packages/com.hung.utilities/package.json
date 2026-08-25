@@ -8,6 +8,6 @@
     "layer:0"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.4.3"
+    "com.hung.designpattern": "0.4.4"
   }
 }

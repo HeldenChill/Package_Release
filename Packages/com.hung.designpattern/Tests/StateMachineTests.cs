@@ -84,5 +84,47 @@ namespace Hung.DesignPattern.Tests
             Assert.DoesNotThrow(() => sm.ChangeState(STATE.MOVE));
             Assert.AreEqual(STATE.IDLE, sm.CurrentState, "unregistered target must not change currentState");
         }
+        // BUG-0031 regression. AddDecorState/RemoveDecorState are invoked from
+        // BaseState._OnAddDecorState, i.e. from gameplay rather than setup, so an
+        // unregistered id must log and return instead of throwing KeyNotFoundException
+        // out of the calling state.
+        [Test]
+        public void AddDecorState_UnregisteredState_NoOpDoesNotThrow()
+        {
+            var sm = new StateMachine();
+            var idle = new RecordingState(STATE.IDLE);
+            sm.AddState(STATE.IDLE, idle);
+            sm.Start(STATE.IDLE);
+
+            Assert.DoesNotThrow(() => sm.AddDecorState(STATE.STUN));
+            Assert.AreEqual(STATE.IDLE, sm.CurrentState, "unregistered decorator must not change currentState");
+        }
+
+        [Test]
+        public void RemoveDecorState_UnregisteredState_NoOpDoesNotThrow()
+        {
+            var sm = new StateMachine();
+            var idle = new RecordingState(STATE.IDLE);
+            sm.AddState(STATE.IDLE, idle);
+            sm.Start(STATE.IDLE);
+
+            Assert.DoesNotThrow(() => sm.RemoveDecorState(STATE.STUN));
+            Assert.AreEqual(STATE.IDLE, sm.CurrentState);
+        }
+
+        // CurrentState used to dereference currentState directly, so reading it after
+        // Stop() threw a NullReferenceException - including from ChangeState's own log.
+        [Test]
+        public void CurrentState_AfterStop_ReturnsNoneRatherThanThrowing()
+        {
+            var sm = new StateMachine();
+            var idle = new RecordingState(STATE.IDLE);
+            sm.AddState(STATE.IDLE, idle);
+            sm.Start(STATE.IDLE);
+            sm.Stop();
+
+            Assert.DoesNotThrow(() => { var _ = sm.CurrentState; });
+            Assert.AreEqual(STATE.NONE, sm.CurrentState);
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Hung.DesignPattern
         public bool IsDebug;
         [SerializeField]
         protected STATE currentStateId;
-        public STATE CurrentState => currentState.Id;
+        public STATE CurrentState => currentState?.Id ?? STATE.NONE;
         public Dictionary<STATE, BaseState> States => states;
 
         public StateMachine()
@@ -59,18 +59,30 @@ namespace Hung.DesignPattern
         }
         public void AddDecorState(STATE id)
         {
-            switch (states[id].Type)
+            // Reached from BaseState._OnAddDecorState, i.e. from gameplay code rather than
+            // setup, so an unregistered id must not throw out of the calling state.
+            if (!states.TryGetValue(id, out BaseState state))
+            {
+                Debug.Log($"STATE MACHINE - CANNOT ADD DECOR: {id}");
+                return;
+            }
+            switch (state.Type)
             {
                 case STATE_TYPE.DECORATOR:
-                    states[id].Decorator = currentState;
-                    currentState = states[id];
+                    state.Decorator = currentState;
+                    currentState = state;
                     currentState.Enter();
                     break;
             }
         }
         public void RemoveDecorState(STATE id)
         {
-            switch (states[id].Type)
+            if (!states.TryGetValue(id, out BaseState state))
+            {
+                Debug.Log($"STATE MACHINE - CANNOT REMOVE DECOR: {id}");
+                return;
+            }
+            switch (state.Type)
             {
                 case STATE_TYPE.DECORATOR:
                     if (currentState == null) return;

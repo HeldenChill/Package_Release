@@ -8,7 +8,7 @@
     "layer:1"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.4.3",
+    "com.hung.designpattern": "0.4.4",
     "com.hung.utilities": "0.2.2",
     "com.hung.persistence": "0.1.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1",

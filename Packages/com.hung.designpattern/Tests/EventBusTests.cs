@@ -15,6 +15,8 @@ namespace Hung.DesignPattern.Tests
         private struct NoSubscribersEvent : global::Hung.DesignPattern.IEvent { }
         private struct TwoSubscribersEvent : global::Hung.DesignPattern.IEvent { }
         private struct SubscriberExceptionEvent : global::Hung.DesignPattern.IEvent { }
+        private struct UnsubscribeDuringRaiseEvent : global::Hung.DesignPattern.IEvent { }
+        private struct SubscribeDuringRaiseEvent : global::Hung.DesignPattern.IEvent { }
 
         [Test]
         public void Subscribe_ReceivesRaise()
@@ -82,6 +84,54 @@ namespace Hung.DesignPattern.Tests
             global::Hung.DesignPattern.EventBus<SubscriberExceptionEvent>.Unsubscribe(throwing);
             global::Hung.DesignPattern.EventBus<SubscriberExceptionEvent>.Unsubscribe(second);
             Assert.IsTrue(secondCalled);
+        }
+        // BUG-0217 regression. Raise used to enumerate the live binding set, so a handler
+        // that mutated its own bus threw out of MoveNext - which the per-iteration catch
+        // inside Raise cannot intercept - silently skipping every binding after it.
+        [Test]
+        public void UnsubscribeDuringRaise_DoesNotThrowAndLaterBindingsStillFire()
+        {
+            int laterCalls = 0;
+            global::Hung.DesignPattern.EventBinding<UnsubscribeDuringRaiseEvent> selfRemoving = null;
+            selfRemoving = new global::Hung.DesignPattern.EventBinding<UnsubscribeDuringRaiseEvent>(
+                () => global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Unsubscribe(selfRemoving));
+            var later = new global::Hung.DesignPattern.EventBinding<UnsubscribeDuringRaiseEvent>(() => laterCalls++);
+
+            global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Subscribe(selfRemoving);
+            global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Subscribe(later);
+
+            Assert.DoesNotThrow(() =>
+                global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Raise(new UnsubscribeDuringRaiseEvent()));
+            Assert.AreEqual(1, laterCalls, "a self-unsubscribing handler must not stop later bindings from firing");
+
+            // The mutation still took effect: the removed binding is gone for the next raise.
+            global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Raise(new UnsubscribeDuringRaiseEvent());
+            Assert.AreEqual(2, laterCalls);
+
+            global::Hung.DesignPattern.EventBus<UnsubscribeDuringRaiseEvent>.Unsubscribe(later);
+        }
+
+        // Pins the chosen semantic: Raise snapshots its binding set, so a handler added
+        // mid-raise fires on the NEXT raise, never on the in-flight event.
+        [Test]
+        public void SubscribeDuringRaise_DoesNotReceiveTheInFlightEvent()
+        {
+            int lateCalls = 0;
+            var late = new global::Hung.DesignPattern.EventBinding<SubscribeDuringRaiseEvent>(() => lateCalls++);
+            var adder = new global::Hung.DesignPattern.EventBinding<SubscribeDuringRaiseEvent>(
+                () => global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Subscribe(late));
+
+            global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Subscribe(adder);
+
+            Assert.DoesNotThrow(() =>
+                global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Raise(new SubscribeDuringRaiseEvent()));
+            Assert.AreEqual(0, lateCalls, "a binding added mid-raise must not receive the in-flight event");
+
+            global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Unsubscribe(adder);
+            global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Raise(new SubscribeDuringRaiseEvent());
+            Assert.AreEqual(1, lateCalls, "it must receive the next raise");
+
+            global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Unsubscribe(late);
         }
     }
 }
