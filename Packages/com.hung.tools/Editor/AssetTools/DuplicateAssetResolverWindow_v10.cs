@@ -66,7 +66,7 @@ namespace DuplicateAssetResolver.EditorTool
         private string lastBackupFolder;
         private string lastStatus = "Ready.";
 
-        [MenuItem("Tools/PetVsMonster/Maintenance/Danger/Duplicate Asset Resolver")]
+        [MenuItem("Tools/Universal/Maintenance/Danger/Duplicate Asset Resolver")]
         private static void Open()
         {
             var window = GetWindow<DuplicateAssetResolverWindow>("Duplicate Resolver");
@@ -1407,7 +1407,19 @@ namespace DuplicateAssetResolver.EditorTool
             });
 
             localFileIdWarnings = warningCount;
-            updated = Regex.Replace(updated, @"\b" + Regex.Escape(pair.fromGuid) + @"\b", pair.toGuid, RegexOptions.IgnoreCase);
+
+            // Fallback pass: catch "guid: X" references the strict fileID-paired pattern above
+            // missed (differently-ordered or malformed YAML reference blocks). Scoped to the
+            // "guid:" key specifically, not a bare word-boundary match on the GUID string -
+            // a blind global replace would also rewrite unrelated occurrences of the same 32-hex
+            // string (comments, hash fields, sourceAssetIdentifier blocks, etc.) that are not
+            // actually references to this asset.
+            updated = Regex.Replace(
+                updated,
+                @"(guid:\s*)" + Regex.Escape(pair.fromGuid) + @"\b",
+                "${1}" + pair.toGuid,
+                RegexOptions.IgnoreCase);
+
             return updated;
         }
 

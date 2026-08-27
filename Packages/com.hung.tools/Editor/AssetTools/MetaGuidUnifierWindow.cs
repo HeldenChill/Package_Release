@@ -33,7 +33,7 @@ namespace Base
         private bool _revealExportFile = true;
         private bool _allowReleaseOutsideGuidOwners = false;
 
-        [MenuItem("Tools/PetVsMonster/Maintenance/Danger/Meta GUID Unifier")]
+        [MenuItem("Tools/Universal/Maintenance/Danger/Meta GUID Unifier")]
         private static void Open()
         {
             GetWindow<MetaGuidUnifierWindow>(WindowTitle);
@@ -729,7 +729,14 @@ namespace Base
                     continue;
                 }
 
-                string currentGuid = ReadGuidFromMeta(metaPath);
+                string readError;
+                string currentGuid = ReadGuidFromMeta(metaPath, out readError);
+
+                if (readError != null)
+                {
+                    errors.Add(readError);
+                    continue;
+                }
 
                 if (!IsValidGuid(currentGuid))
                 {
@@ -782,7 +789,14 @@ namespace Base
                             continue;
                         }
 
-                        string outsideOwnerCurrentGuid = ReadGuidFromMeta(outsideOwnerMetaPath);
+                        string outsideOwnerReadError;
+                        string outsideOwnerCurrentGuid = ReadGuidFromMeta(outsideOwnerMetaPath, out outsideOwnerReadError);
+
+                        if (outsideOwnerReadError != null)
+                        {
+                            errors.Add(outsideOwnerReadError);
+                            continue;
+                        }
 
                         if (!IsValidGuid(outsideOwnerCurrentGuid))
                         {
@@ -884,7 +898,20 @@ namespace Base
 
         private string ReadGuidFromMeta(string metaPath)
         {
+            return ReadGuidFromMeta(metaPath, out _);
+        }
+
+        // A meta file with 2+ "guid:" lines is corrupt (e.g. an unresolved cross-branch GUID
+        // collision merged as literal duplicate lines instead of a real conflict). Returning the
+        // first match silently would let Unify "succeed" while leaving the stray duplicate line
+        // in place. Surface it as an explicit error instead so BuildUnifyPlan blocks the file.
+        private string ReadGuidFromMeta(string metaPath, out string error)
+        {
+            error = null;
             string[] lines = File.ReadAllLines(metaPath, Encoding.UTF8);
+
+            string foundGuid = null;
+            int guidLineCount = 0;
 
             foreach (string rawLine in lines)
             {
@@ -896,19 +923,27 @@ namespace Base
                 if (!line.StartsWith("guid:", StringComparison.Ordinal))
                     continue;
 
+                guidLineCount++;
+
+                if (guidLineCount > 1)
+                    continue;
+
                 string guid = line.Substring("guid:".Length).Trim();
 
                 // Phòng trường hợp sau GUID có thêm ký tự thừa.
                 char[] separators = { ' ', '\t', '\r', '\n', ',', '#' };
                 guid = guid.Split(separators, StringSplitOptions.RemoveEmptyEntries)[0];
 
-                if (!IsValidGuid(guid))
-                    return null;
-
-                return guid.ToLowerInvariant();
+                foundGuid = IsValidGuid(guid) ? guid.ToLowerInvariant() : null;
             }
 
-            return null;
+            if (guidLineCount > 1)
+            {
+                error = $"Meta file has {guidLineCount} 'guid:' lines (corrupt, likely an unresolved GUID collision merge): {metaPath}";
+                return null;
+            }
+
+            return foundGuid;
         }
         private bool TryReplaceGuidInMeta(string metaPath, string targetGuid, out string error)
         {
@@ -925,6 +960,22 @@ namespace Base
             string newline = text.Contains("\r\n") ? "\r\n" : "\n";
 
             string[] lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            int guidLineCount = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].TrimStart().StartsWith("guid:", StringComparison.Ordinal))
+                    guidLineCount++;
+            }
+
+            // A corrupt meta (e.g. an unresolved cross-branch GUID collision merged as two literal
+            // "guid:" lines) must never be written to — replacing only the first match would leave
+            // the stray duplicate behind and the file would still be invalid YAML afterward.
+            if (guidLineCount > 1)
+            {
+                error = $"Meta file has {guidLineCount} 'guid:' lines (corrupt, likely an unresolved GUID collision merge) - refusing to write: {metaPath}";
+                return false;
+            }
 
             for (int i = 0; i < lines.Length; i++)
             {

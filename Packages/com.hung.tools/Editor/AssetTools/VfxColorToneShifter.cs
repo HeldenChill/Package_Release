@@ -121,7 +121,7 @@ public class VfxColorToneShifter : EditorWindow
     private bool autoSimulate = true;
     private double lastSimulationTime;
 
-    [MenuItem("Tools/PetVsMonster/Art/Particle/VFX Color Tone Shifter")]
+    [MenuItem("Tools/Universal/Art/Particle/VFX Color Tone Shifter")]
     public static void Open()
     {
         GetWindow<VfxColorToneShifter>("VFX Tone");

@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 public sealed class SDKToolkitWindow : EditorWindow
 {
-    private const string DefaultConfigPath =
+    // Overridable per-project via EditorPrefs so this tool is not hardcoded to any one
+    // project's folder layout. Falls back to this project's existing convention when unset.
+    private const string ConfigPathPrefKey = "Hung.Base.SDKToolkit.ConfigPath";
+    private const string JsonExportFolderPrefKey = "Hung.Base.SDKToolkit.JsonExportFolder";
+
+    private const string FallbackConfigPath =
         "Assets/_Game/_Base/Tools/SDKPackager/sdk-package-config.json";
 
-    private const string DefaultJsonExportFolder =
+    private const string FallbackJsonExportFolder =
         "Assets/_Game/_Base/Tools/SDKPackager";
+
+    private static string DefaultConfigPath => EditorPrefs.GetString(ConfigPathPrefKey, FallbackConfigPath);
+    private static string DefaultJsonExportFolder => EditorPrefs.GetString(JsonExportFolderPrefKey, FallbackJsonExportFolder);
 
     private string configPath = DefaultConfigPath;
     private TextAsset configJsonAsset;
@@ -20,13 +27,9 @@ public sealed class SDKToolkitWindow : EditorWindow
     private SDKPackageConfig config;
 
     private readonly List<SDKFolderRow> folderRows = new List<SDKFolderRow>();
-    private readonly List<AssetPathRow> asmdefReferenceRows = new List<AssetPathRow>();
-    private readonly List<AssetPathRow> asmdefParentFolderRows = new List<AssetPathRow>();
 
     private Vector2 folderScroll;
     private Vector2 jsonPreviewScroll;
-    private Vector2 asmdefReferenceScroll;
-    private Vector2 asmdefParentScroll;
 
     private int selectedTab;
 
@@ -36,16 +39,18 @@ public sealed class SDKToolkitWindow : EditorWindow
     private string jsonExportPath =
         DefaultJsonExportFolder + "/ThirdPartySDKs.json";
 
-    private AssemblyDefinitionAsset targetAsmdef;
-    private AsmdefSearchMode asmdefSearchMode = AsmdefSearchMode.All;
-    private bool includeTargetAssembly;
-
     private bool suppressNamePathBinding;
 
-    [MenuItem("Tools/SDK Tools/SDK Toolkit")]
+    [MenuItem("Tools/Universal/Maintenance/SDK Toolkit")]
     public static void Open()
     {
         GetWindow<SDKToolkitWindow>("SDK Toolkit");
+    }
+
+    [MenuItem("Tools/Universal/Maintenance/SDK Toolkit/Configure Default Paths")]
+    public static void ConfigurePathsMenu()
+    {
+        SDKToolkitSettingsWindow.Open();
     }
 
     private void OnEnable()
@@ -80,8 +85,7 @@ public sealed class SDKToolkitWindow : EditorWindow
             new[]
             {
                 "Package Export",
-                "JSON Export",
-                "Asmdef Finder"
+                "JSON Export"
             }
         );
 
@@ -95,10 +99,6 @@ public sealed class SDKToolkitWindow : EditorWindow
 
             case 1:
                 DrawJsonExportTab();
-                break;
-
-            case 2:
-                DrawAsmdefFinderTab();
                 break;
         }
     }
@@ -298,82 +298,6 @@ public sealed class SDKToolkitWindow : EditorWindow
         DrawJsonPreview();
     }
 
-    private void DrawAsmdefFinderTab()
-    {
-        if (config == null)
-            return;
-
-        EditorGUILayout.Space(6);
-
-        EditorGUILayout.LabelField("Find .asmdef / .asmref References", EditorStyles.boldLabel);
-
-        targetAsmdef = (AssemblyDefinitionAsset)EditorGUILayout.ObjectField(
-            "Target Assembly",
-            targetAsmdef,
-            typeof(AssemblyDefinitionAsset),
-            false
-        );
-
-        asmdefSearchMode = (AsmdefSearchMode)EditorGUILayout.EnumPopup(
-            "Search Mode",
-            asmdefSearchMode
-        );
-
-        includeTargetAssembly = EditorGUILayout.ToggleLeft(
-            "Include Target Assembly",
-            includeTargetAssembly
-        );
-
-        string targetAssemblyName = GetAssemblyNameFromAsset(targetAsmdef);
-
-        using (new EditorGUI.DisabledScope(true))
-        {
-            EditorGUILayout.TextField("Resolved Name", targetAssemblyName);
-        }
-
-        EditorGUILayout.Space(6);
-
-        EditorGUILayout.BeginHorizontal();
-
-        using (new EditorGUI.DisabledScope(targetAsmdef == null || string.IsNullOrWhiteSpace(targetAssemblyName)))
-        {
-            if (GUILayout.Button("Find References", GUILayout.Height(30)))
-            {
-                FindAsmdefReferences();
-            }
-        }
-
-        using (new EditorGUI.DisabledScope(asmdefReferenceRows.Count == 0))
-        {
-            if (GUILayout.Button("Find Parent Folders", GUILayout.Height(30)))
-            {
-                FindParentFoldersFromAsmdefReferences();
-            }
-        }
-
-        using (new EditorGUI.DisabledScope(asmdefParentFolderRows.Count == 0))
-        {
-            if (GUILayout.Button("Add Parent Folders To Package List", GUILayout.Height(30)))
-            {
-                AddAsmdefParentFoldersToPackageList();
-            }
-        }
-
-        if (GUILayout.Button("Clear", GUILayout.Height(30), GUILayout.Width(70)))
-        {
-            asmdefReferenceRows.Clear();
-            asmdefParentFolderRows.Clear();
-        }
-
-        EditorGUILayout.EndHorizontal();
-
-        EditorGUILayout.Space(8);
-
-        DrawAsmdefReferenceList();
-        EditorGUILayout.Space(8);
-        DrawAsmdefParentFolderList();
-    }
-
     private void DrawFolderList()
     {
         EditorGUILayout.BeginHorizontal();
@@ -493,99 +417,6 @@ public sealed class SDKToolkitWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    private void DrawAsmdefReferenceList()
-    {
-        EditorGUILayout.BeginHorizontal();
-
-        EditorGUILayout.LabelField("Reference Results", EditorStyles.boldLabel);
-
-        GUILayout.FlexibleSpace();
-
-        EditorGUILayout.LabelField(
-            asmdefReferenceRows.Count.ToString(),
-            GUILayout.Width(60)
-        );
-
-        EditorGUILayout.EndHorizontal();
-
-        if (asmdefReferenceRows.Count == 0)
-        {
-            EditorGUILayout.HelpBox("No asmdef/asmref references found yet.", MessageType.None);
-            return;
-        }
-
-        asmdefReferenceScroll = EditorGUILayout.BeginScrollView(
-            asmdefReferenceScroll,
-            GUILayout.MinHeight(160),
-            GUILayout.MaxHeight(260)
-        );
-
-        foreach (AssetPathRow row in asmdefReferenceRows)
-        {
-            EditorGUILayout.BeginHorizontal();
-
-            row.include = EditorGUILayout.Toggle(row.include, GUILayout.Width(20));
-
-            UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(row.assetPath);
-
-            EditorGUILayout.ObjectField(
-                asset,
-                typeof(UnityEngine.Object),
-                false
-            );
-
-            EditorGUILayout.EndHorizontal();
-        }
-
-        EditorGUILayout.EndScrollView();
-    }
-
-    private void DrawAsmdefParentFolderList()
-    {
-        EditorGUILayout.BeginHorizontal();
-
-        EditorGUILayout.LabelField("Parent Folders", EditorStyles.boldLabel);
-
-        GUILayout.FlexibleSpace();
-
-        EditorGUILayout.LabelField(
-            asmdefParentFolderRows.Count.ToString(),
-            GUILayout.Width(60)
-        );
-
-        EditorGUILayout.EndHorizontal();
-
-        if (asmdefParentFolderRows.Count == 0)
-        {
-            EditorGUILayout.HelpBox("No parent folders found yet.", MessageType.None);
-            return;
-        }
-
-        asmdefParentScroll = EditorGUILayout.BeginScrollView(
-            asmdefParentScroll,
-            GUILayout.MinHeight(140),
-            GUILayout.MaxHeight(240)
-        );
-
-        foreach (AssetPathRow row in asmdefParentFolderRows)
-        {
-            EditorGUILayout.BeginHorizontal();
-
-            row.include = EditorGUILayout.Toggle(row.include, GUILayout.Width(20));
-
-            DefaultAsset asset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(row.assetPath);
-
-            EditorGUILayout.ObjectField(
-                asset,
-                typeof(DefaultAsset),
-                false
-            );
-
-            EditorGUILayout.EndHorizontal();
-        }
-
-        EditorGUILayout.EndScrollView();
-    }
 
     private void SetConfigAsset(TextAsset asset)
     {
@@ -1372,204 +1203,6 @@ public sealed class SDKToolkitWindow : EditorWindow
         return result;
     }
 
-    private void FindAsmdefReferences()
-    {
-        asmdefReferenceRows.Clear();
-        asmdefParentFolderRows.Clear();
-
-        if (targetAsmdef == null)
-            return;
-
-        string targetAssemblyName = GetAssemblyNameFromAsset(targetAsmdef);
-        string targetAsmdefPath = AssetDatabase.GetAssetPath(targetAsmdef);
-        string targetGuid = AssetDatabase.AssetPathToGUID(targetAsmdefPath);
-
-        if (string.IsNullOrWhiteSpace(targetAssemblyName))
-        {
-            Debug.LogWarning("[SDKToolkit] Target asmdef has no valid assembly name.");
-            return;
-        }
-
-        if (includeTargetAssembly && !string.IsNullOrWhiteSpace(targetAsmdefPath))
-        {
-            asmdefReferenceRows.Add(new AssetPathRow
-            {
-                assetPath = NormalizeUnityPath(targetAsmdefPath),
-                include = true
-            });
-        }
-
-        List<string> files = new List<string>();
-
-        if (asmdefSearchMode == AsmdefSearchMode.All || asmdefSearchMode == AsmdefSearchMode.AsmdefOnly)
-        {
-            files.AddRange(Directory.GetFiles(
-                Application.dataPath,
-                "*.asmdef",
-                SearchOption.AllDirectories
-            ));
-        }
-
-        if (asmdefSearchMode == AsmdefSearchMode.All || asmdefSearchMode == AsmdefSearchMode.AsmrefOnly)
-        {
-            files.AddRange(Directory.GetFiles(
-                Application.dataPath,
-                "*.asmref",
-                SearchOption.AllDirectories
-            ));
-        }
-
-        foreach (string absolutePath in files)
-        {
-            string assetPath = ToAssetPath(absolutePath);
-
-            if (string.IsNullOrWhiteSpace(assetPath))
-                continue;
-
-            if (!includeTargetAssembly && string.Equals(assetPath, targetAsmdefPath, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            string content = File.ReadAllText(absolutePath);
-
-            bool matchByName = content.IndexOf(targetAssemblyName, StringComparison.OrdinalIgnoreCase) >= 0;
-            bool matchByGuid = !string.IsNullOrWhiteSpace(targetGuid) &&
-                               content.IndexOf("GUID:" + targetGuid, StringComparison.OrdinalIgnoreCase) >= 0;
-
-            if (!matchByName && !matchByGuid)
-                continue;
-
-            if (asmdefReferenceRows.Any(x => string.Equals(x.assetPath, assetPath, StringComparison.OrdinalIgnoreCase)))
-                continue;
-
-            asmdefReferenceRows.Add(new AssetPathRow
-            {
-                assetPath = assetPath,
-                include = true
-            });
-        }
-
-        asmdefReferenceRows.Sort((a, b) => string.Compare(a.assetPath, b.assetPath, StringComparison.OrdinalIgnoreCase));
-
-        Debug.Log("[SDKToolkit] Found asmdef/asmref references: " + asmdefReferenceRows.Count);
-    }
-
-    private void FindParentFoldersFromAsmdefReferences()
-    {
-        asmdefParentFolderRows.Clear();
-
-        List<string> parentPaths = new List<string>();
-
-        foreach (AssetPathRow row in asmdefReferenceRows)
-        {
-            if (!row.include)
-                continue;
-
-            string parentPath = ResolvePackageParentFolderFromAssetPath(row.assetPath);
-
-            if (string.IsNullOrWhiteSpace(parentPath))
-                continue;
-
-            if (!AssetDatabase.IsValidFolder(parentPath))
-                continue;
-
-            if (IsExcluded(parentPath))
-                continue;
-
-            parentPaths.Add(parentPath);
-        }
-
-        parentPaths = RemoveChildPathsIfParentExists(parentPaths);
-
-        foreach (string path in parentPaths)
-        {
-            asmdefParentFolderRows.Add(new AssetPathRow
-            {
-                assetPath = path,
-                include = true
-            });
-        }
-
-        Debug.Log("[SDKToolkit] Found parent folders: " + asmdefParentFolderRows.Count);
-    }
-
-    private string ResolvePackageParentFolderFromAssetPath(string assetPath)
-    {
-        assetPath = NormalizeUnityPath(assetPath).TrimEnd('/');
-
-        if (string.IsNullOrWhiteSpace(assetPath))
-            return string.Empty;
-
-        string directory = NormalizeUnityPath(Path.GetDirectoryName(assetPath)).TrimEnd('/');
-
-        if (string.IsNullOrWhiteSpace(directory))
-            return string.Empty;
-
-        string folderName = Path.GetFileName(directory);
-
-        if (IsAssemblySubFolderName(folderName))
-        {
-            string parent = NormalizeUnityPath(Path.GetDirectoryName(directory)).TrimEnd('/');
-
-            if (!string.IsNullOrWhiteSpace(parent) && AssetDatabase.IsValidFolder(parent))
-                return parent;
-        }
-
-        return directory;
-    }
-
-    private static bool IsAssemblySubFolderName(string folderName)
-    {
-        if (string.IsNullOrWhiteSpace(folderName))
-            return false;
-
-        return string.Equals(folderName, "Runtime", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(folderName, "Editor", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(folderName, "Tests", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(folderName, "Tests.Editor", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(folderName, "Tests.Runtime", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private void AddAsmdefParentFoldersToPackageList()
-    {
-        foreach (AssetPathRow row in asmdefParentFolderRows)
-        {
-            if (!row.include)
-                continue;
-
-            if (!AssetDatabase.IsValidFolder(row.assetPath))
-                continue;
-
-            if (IsExcluded(row.assetPath))
-                continue;
-
-            AddFolderRow(row.assetPath, true);
-        }
-
-        CleanParentChildDuplicates();
-        selectedTab = 0;
-
-        Repaint();
-    }
-
-    private string GetAssemblyNameFromAsset(AssemblyDefinitionAsset asmdefAsset)
-    {
-        if (asmdefAsset == null)
-            return string.Empty;
-
-        string path = AssetDatabase.GetAssetPath(asmdefAsset);
-
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            return string.Empty;
-
-        string json = File.ReadAllText(path);
-        AssemblyDefinitionInfo info = JsonUtility.FromJson<AssemblyDefinitionInfo>(json);
-
-        if (info == null || string.IsNullOrWhiteSpace(info.name))
-            return Path.GetFileNameWithoutExtension(path);
-
-        return info.name.Trim();
-    }
-
     private bool IsExcluded(string assetPath)
     {
         if (config == null || config.excludePathContains == null)
@@ -1682,13 +1315,6 @@ public sealed class SDKToolkitWindow : EditorWindow
                && path.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
     }
 
-    private enum AsmdefSearchMode
-    {
-        All,
-        AsmdefOnly,
-        AsmrefOnly
-    }
-
     [Serializable]
     private sealed class SDKPackageConfig
     {
@@ -1706,23 +1332,6 @@ public sealed class SDKToolkitWindow : EditorWindow
         public string[] excludePathContains;
     }
 
-    [Serializable]
-    private sealed class AssemblyDefinitionInfo
-    {
-        public string name;
-        public string[] references;
-        public string[] optionalUnityReferences;
-        public string[] includePlatforms;
-        public string[] excludePlatforms;
-        public bool allowUnsafeCode;
-        public bool overrideReferences;
-        public string[] precompiledReferences;
-        public bool autoReferenced;
-        public string[] defineConstraints;
-        public string[] versionDefines;
-        public bool noEngineReferences;
-    }
-
     private sealed class SDKFolderRow
     {
         public string folderName;
@@ -1730,10 +1339,43 @@ public sealed class SDKToolkitWindow : EditorWindow
         public bool exists;
         public bool include;
     }
+}
 
-    private sealed class AssetPathRow
+public sealed class SDKToolkitSettingsWindow : EditorWindow
+{
+    public static void Open()
     {
-        public string assetPath;
-        public bool include;
+        GetWindow<SDKToolkitSettingsWindow>("SDK Toolkit Settings");
+    }
+
+    private void OnGUI()
+    {
+        EditorGUILayout.Space(6);
+        EditorGUILayout.HelpBox(
+            "These paths control where SDK Toolkit reads/writes its config JSON. " +
+            "Defaults match this project's convention; change them if this package is used in a different project.",
+            MessageType.Info);
+
+        EditorGUILayout.Space(8);
+
+        DrawPathField("Config Path", "Hung.Base.SDKToolkit.ConfigPath", "Assets/_Game/_Base/Tools/SDKPackager/sdk-package-config.json");
+        DrawPathField("JSON Export Folder", "Hung.Base.SDKToolkit.JsonExportFolder", "Assets/_Game/_Base/Tools/SDKPackager");
+
+        EditorGUILayout.Space(8);
+
+        if (GUILayout.Button("Reset To Defaults"))
+        {
+            EditorPrefs.DeleteKey("Hung.Base.SDKToolkit.ConfigPath");
+            EditorPrefs.DeleteKey("Hung.Base.SDKToolkit.JsonExportFolder");
+        }
+    }
+
+    private static void DrawPathField(string label, string prefKey, string fallback)
+    {
+        string current = EditorPrefs.GetString(prefKey, fallback);
+        string updated = EditorGUILayout.TextField(label, current);
+
+        if (updated != current)
+            EditorPrefs.SetString(prefKey, updated);
     }
 }

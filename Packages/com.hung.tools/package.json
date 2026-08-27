@@ -1,6 +1,6 @@
 {
   "name": "com.hung.tools",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "displayName": "Hung Tools",
   "description": "L6 editor/dev tooling: UI flow generator, DOTween preview, VFX color tone shifting, Spine sprite-sheet bakers, meta-GUID unifier, asmdef reference finder, duplicate asset resolver, and prefab particle scaling.",
   "unity": "2022.3",

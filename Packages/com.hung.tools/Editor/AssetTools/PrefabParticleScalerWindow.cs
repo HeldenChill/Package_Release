@@ -18,7 +18,7 @@ public class PrefabParticleScalerWindow : EditorWindow
         FullSpatialEffect
     }
 
-    [MenuItem("Tools/PetVsMonster/Art/Particle/Prefab Particle Scaler")]
+    [MenuItem("Tools/Universal/Art/Particle/Prefab Particle Scaler")]
     public static void Open()
     {
         GetWindow<PrefabParticleScalerWindow>("Prefab Particle Scaler");

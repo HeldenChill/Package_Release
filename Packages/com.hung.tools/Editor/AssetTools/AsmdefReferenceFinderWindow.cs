@@ -47,7 +47,7 @@ public class AsmReferenceFinderWindow : EditorWindow
         public UnityEngine.Object parentFolder;
 
     }
-    [MenuItem("Tools/PetVsMonster/Maintenance/Assembly Definition/Find References Deep")]
+    [MenuItem("Tools/Universal/Maintenance/Assembly Definition/Find References Deep")]
     public static void Open()
     {
         GetWindow<AsmReferenceFinderWindow>("Asm Ref Finder");

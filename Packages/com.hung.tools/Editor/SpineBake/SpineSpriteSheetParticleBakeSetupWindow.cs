@@ -12,7 +12,7 @@ public class SpineSpriteSheetParticleBakeSetupWindow : EditorWindow
     private SerializedObject setupSerializedObject;
     private Vector2 scroll;
 
-    [MenuItem("Tools/PetVsMonster/Art/Particle/Spine Sprite Sheet Particle Setup")]
+    [MenuItem("Tools/Universal/Art/Particle/Spine Sprite Sheet Particle Setup")]
     public static void Open()
     {
         GetWindow<SpineSpriteSheetParticleBakeSetupWindow>("Spine Particle Setup");

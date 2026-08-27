@@ -1,7 +1,10 @@
 {
     "name": "Hung.Tool.Editor",
     "rootNamespace": "Hung.Tool.Editor",
-    "references": [],
+    "references": [
+        "DOTween.Modules",
+        "Unity.TextMeshPro"
+    ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

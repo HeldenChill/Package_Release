@@ -10,11 +10,28 @@ namespace Hung.Tool
 {
     public static class UIFlowPackageExporter
     {
-        private const string DefaultExportFolder = "Assets/_Game/_UI/Exports";
-        private const string DefaultScriptFolder = "Assets/_Game/_UI/Scripts";
-        private const string DefaultEditorFolder = "Assets/_Game/_UI/Editor/UIFlowGenerator";
+        // Overridable per-project via EditorPrefs so this tool is not hardcoded to any one
+        // project's folder layout. Falls back to this project's existing convention when unset,
+        // so behavior here is unchanged; other projects can point these at their own UI folders.
+        private const string ExportFolderPrefKey = "Hung.Tool.UIFlowPackageExporter.ExportFolder";
+        private const string ScriptFolderPrefKey = "Hung.Tool.UIFlowPackageExporter.ScriptFolder";
+        private const string EditorFolderPrefKey = "Hung.Tool.UIFlowPackageExporter.EditorFolder";
 
-        [MenuItem("Assets/UI Flow/Export Selected Definition Package")]
+        private const string FallbackExportFolder = "Assets/_Game/_UI/Exports";
+        private const string FallbackScriptFolder = "Assets/_Game/_UI/Scripts";
+        private const string FallbackEditorFolder = "Assets/_Game/_UI/Editor/UIFlowGenerator";
+
+        private static string DefaultExportFolder => EditorPrefs.GetString(ExportFolderPrefKey, FallbackExportFolder);
+        private static string DefaultScriptFolder => EditorPrefs.GetString(ScriptFolderPrefKey, FallbackScriptFolder);
+        private static string DefaultEditorFolder => EditorPrefs.GetString(EditorFolderPrefKey, FallbackEditorFolder);
+
+        [MenuItem("Tools/Universal/UI Flow/Configure Export Folders")]
+        public static void ConfigureExportFoldersMenu()
+        {
+            UIFlowExporterSettingsWindow.Open();
+        }
+
+        [MenuItem("Assets/Universal/UI Flow/Export Selected Definition Package")]
         public static void ExportSelectedDefinitionPackageMenu()
         {
             UIFlowDefinition definition = Selection.activeObject as UIFlowDefinition;
@@ -27,7 +44,7 @@ namespace Hung.Tool
             ExportDefinitionPackage(definition);
         }
 
-        [MenuItem("Assets/UI Flow/Export Selected Pack Package")]
+        [MenuItem("Assets/Universal/UI Flow/Export Selected Pack Package")]
         public static void ExportSelectedPackPackageMenu()
         {
             UIFlowPack pack = Selection.activeObject as UIFlowPack;
@@ -382,6 +399,47 @@ namespace Hung.Tool
 
                 current = next;
             }
+        }
+    }
+
+    public class UIFlowExporterSettingsWindow : EditorWindow
+    {
+        public static void Open()
+        {
+            GetWindow<UIFlowExporterSettingsWindow>("UI Flow Exporter Settings");
+        }
+
+        private void OnGUI()
+        {
+            EditorGUILayout.Space(6);
+            EditorGUILayout.HelpBox(
+                "These folders control where UIFlowPackageExporter looks for/exports generator files. " +
+                "Defaults match this project's convention; change them if this package is used in a different project.",
+                MessageType.Info);
+
+            EditorGUILayout.Space(8);
+
+            DrawFolderField("Export Folder", "Hung.Tool.UIFlowPackageExporter.ExportFolder", "Assets/_Game/_UI/Exports");
+            DrawFolderField("Script Folder", "Hung.Tool.UIFlowPackageExporter.ScriptFolder", "Assets/_Game/_UI/Scripts");
+            DrawFolderField("Editor Folder", "Hung.Tool.UIFlowPackageExporter.EditorFolder", "Assets/_Game/_UI/Editor/UIFlowGenerator");
+
+            EditorGUILayout.Space(8);
+
+            if (GUILayout.Button("Reset To Defaults"))
+            {
+                EditorPrefs.DeleteKey("Hung.Tool.UIFlowPackageExporter.ExportFolder");
+                EditorPrefs.DeleteKey("Hung.Tool.UIFlowPackageExporter.ScriptFolder");
+                EditorPrefs.DeleteKey("Hung.Tool.UIFlowPackageExporter.EditorFolder");
+            }
+        }
+
+        private static void DrawFolderField(string label, string prefKey, string fallback)
+        {
+            string current = EditorPrefs.GetString(prefKey, fallback);
+            string updated = EditorGUILayout.TextField(label, current);
+
+            if (updated != current)
+                EditorPrefs.SetString(prefKey, updated);
         }
     }
 }

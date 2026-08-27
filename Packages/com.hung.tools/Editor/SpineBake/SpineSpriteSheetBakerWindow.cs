@@ -51,7 +51,7 @@ public class SpineSpriteSheetBakerWindow : EditorWindow
     private int removedFrameCount;
     private float animationDuration;
 
-    [MenuItem("Tools/PetVsMonster/Art/Spine/Bake Sprite Sheet")]
+    [MenuItem("Tools/Universal/Art/Spine/Bake Sprite Sheet")]
     public static void Open()
     {
         GetWindow<SpineSpriteSheetBakerWindow>("Spine Sprite Sheet Baker");
