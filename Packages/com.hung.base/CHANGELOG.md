@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.20.1] - 2026-08-28
+- Fix: `LoadStart` loaded `GameScene` by hardcoded build index 2, which assumed CryptoLoader
+  always occupies index 0. Disabling CryptoLoader in Build Settings (release-style run with the
+  debug gate off) shifts every later scene's index down by one, so index 2 pointed past the end
+  of the list ("Scene with build index: 2 couldn't be loaded because it has not been added to
+  the build settings") followed by a `NullReferenceException` on the resulting async op. Now
+  loads `GameScene` by name via `SceneGameManager.LoadingSceneAsync(string)`, which is immune to
+  index shifts regardless of whether CryptoLoader is included in the build.
+
 ## [0.20.0] - 2026-08-17
 - Persistence contracts (`IPersistenceService`, `ISaveStore`, `SaveDefinition<T>`, envelope/codec/protector interfaces) moved out to new `com.hung.persistence` package. `Hung.Base` now depends on it; namespaces unchanged (`Hung.Base.Persistence`).
 
