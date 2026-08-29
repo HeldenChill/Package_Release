@@ -45,6 +45,7 @@ namespace Hung.Ads
 
         void Awake()
         {
+            DontDestroyOnLoad(gameObject);
             appOpen = appOpenBehaviour as IAds;
             banner = bannerBehaviour as IAds;
             reward = rewardBehaviour as IRewardAds;
