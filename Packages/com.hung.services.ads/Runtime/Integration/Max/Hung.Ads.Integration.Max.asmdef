@@ -1,0 +1,20 @@
+{
+    "name": "Hung.Ads.Integration.Max",
+    "rootNamespace": "Hung.Ads.Integration.Max",
+    "references": [
+        "Hung.Ads",
+        "Hung.Base",
+        "MaxSdk.Scripts"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ADS_MAX"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

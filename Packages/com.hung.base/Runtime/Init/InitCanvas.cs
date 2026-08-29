@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,6 +10,7 @@ namespace Hung.Base.Init
 {
     using Hung.UI;
     using Hung.Base;
+    using Hung.Data.Persistence;
     public class InitCanvas : UICanvas
     {
         public event Action<int, bool> _OnToggleValueChange;
@@ -26,6 +28,8 @@ namespace Hung.Base.Init
         [SerializeField]
         Button startButton;
         [SerializeField]
+        Button clearDataButton;
+        [SerializeField]
         TMP_InputField levelInputField;
         [SerializeField]
         public int StartLevel => int.Parse(levelInputField.text);
@@ -41,6 +45,7 @@ namespace Hung.Base.Init
             iapToggle._OnValueChange += OnToggleValueChange;
 
             startButton.onClick.AddListener(OnStartButtonClick);
+            clearDataButton.onClick.AddListener(OnClearDataButtonClick);
         }
 
         public void SetData(bool value1, bool value2, bool value3, bool value4, bool value5)
@@ -65,6 +70,37 @@ namespace Hung.Base.Init
         private void OnDestroy()
         {
             startButton.onClick.RemoveListener(OnStartButtonClick);
+            clearDataButton.onClick.RemoveListener(OnClearDataButtonClick);
+        }
+        void OnClearDataButtonClick()
+        {
+            // Canonical data is JSON files under <persistentDataPath>/ComHung; PlayerPrefs is an
+            // import-only legacy source. Wiping only the files lets the legacy import repopulate
+            // the save on the next Load, so both media must go.
+            string comHungRoot = Path.Combine(Application.persistentDataPath, "ComHung");
+            foreach (string directory in OwnedRootLayout.DirectoryNames)
+            {
+                string path = Path.Combine(comHungRoot, "Saves", directory);
+                try
+                {
+                    if (Directory.Exists(path))
+                        Directory.Delete(path, true);
+                }
+                catch (IOException e)
+                {
+                    Debug.LogError($"Clear data could not delete '{path}': {e.Message}", this);
+                }
+            }
+
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+
+            // ponytail: disk only - deliberately does NOT touch live state. DataManager and
+            // ItemManager both cache GameData in DontDestroyOnLoad singletons, and DataManager
+            // re-seeds items only while its cache is null, so clearing mid-session would leave
+            // an unseeded GameData alive and throw on the next GetItemData. Restart to reload.
+            levelInputField.text = "0";
+            Debug.Log("[Init] Save data cleared. Restart play mode for it to take effect.");
         }
     }
 }

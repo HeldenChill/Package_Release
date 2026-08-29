@@ -18,6 +18,8 @@ namespace Hung.Base
         X2_COIN = 6,
         RESET_LEVEL = 7,
         REFILL_HEART = 8,
+        LOCK_TRADER_OFFER = 9,
+        REROLL_SKILL_CARD = 10,
     }
 
     public enum LEVEL_STATE

@@ -46,7 +46,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelData: {fileID: 11400000, guid: efac10fe8021eaa44aa69795e61040fa, type: 2}
   gameplayData: {fileID: 11400000, guid: 5d4e0d9fb6616604c97e58ae798678d0, type: 2}
-  itemCatalog: {fileID: 11400000, guid: 5e99064e95c47794d884e5edaf72206e, type: 2}
+  orderData: {fileID: 11400000, guid: a849488898bda2847a937ac512b19548, type: 2}
+  mailData: {fileID: 0}
+  shopData: {fileID: 0}
+  itemCatalog: {fileID: 11400000, guid: eda5f4c36753911409902843267fd547, type: 2}
   poolData: {fileID: 11400000, guid: 1a5d30e66517fc747b49c09aa5ec1590, type: 2}
-  gameConfig: {fileID: 11400000, guid: 992e2e8e2ab75544ca6c3de9d3ab300d, type: 2}
+  gameConfig: {fileID: 11400000, guid: 76460b421a98f2243a1de4dc42f895ef, type: 2}
   iapData: {fileID: 11400000, guid: 48bcb4c20f3de154fa5a16cae06c202d, type: 2}

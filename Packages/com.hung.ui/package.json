@@ -1,6 +1,6 @@
 {
   "name": "com.hung.ui",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "displayName": "Hung UI",
   "description": "UI framework: UIManager facade, UICanvas lifecycle, transitions, widgets.",
   "unity": "2022.3",
@@ -10,7 +10,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.4.4",
     "com.hung.utilities": "0.2.2",
-    "com.hung.base": "0.20.1",
+    "com.hung.base": "0.21.0",
     "com.unity.addressables": "2.8.1"
   }
 }
