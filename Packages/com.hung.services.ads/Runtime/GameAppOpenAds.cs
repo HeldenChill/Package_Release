@@ -11,6 +11,9 @@ namespace Hung.Ads
     public class GameAppOpenAds : MonoBehaviour, IAds
     {
         GameConfig config;
+        // Lazy: Locator.Data is not guaranteed to be set when this Awake runs
+        // (this GO survives scene loads via DontDestroyOnLoad).
+        GameConfig Config => config ??= Locator.Data?.GetSOData<GameConfig>();
         bool isCanShow = true;
         EventBinding<ResetAoaCapEvent> _resetAoaBinding;
 
@@ -22,7 +25,6 @@ namespace Hung.Ads
         private void Awake()
         {
             isCanShow = true;
-            config = Locator.Data.GetSOData<GameConfig>();
             _resetAoaBinding = new EventBinding<ResetAoaCapEvent>(OnResetCapping);
             EventBus<ResetAoaCapEvent>.Subscribe(_resetAoaBinding);
         }
@@ -42,9 +44,11 @@ namespace Hung.Ads
         }
         public void Show()
         {
+            if (Config == null) return;
+
             if(!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if(GameData.user.normalLevelIndex >= config.StartInterLevel)
+                if(GameData.user.normalLevelIndex >= Config.StartInterLevel)
                 {
                     if (isCanShow)
                     {

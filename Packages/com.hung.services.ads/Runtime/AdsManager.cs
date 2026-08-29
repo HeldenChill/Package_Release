@@ -50,6 +50,18 @@ namespace Hung.Ads
             banner = bannerBehaviour as IAds;
             reward = rewardBehaviour as IRewardAds;
             inter = interBehaviour as IInterAds;
+
+            // Self-registration: the consuming game holds IAdsService (a Hung.Base contract),
+            // so it never needs an assembly reference to Hung.Ads. See the class comment.
+            Locator.Ads = this;
+        }
+
+        void OnDestroy()
+        {
+            if (ReferenceEquals(Locator.Ads, this))
+            {
+                Locator.Ads = null;
+            }
         }
 
         public void ShowRewarded(AdsShowRequest request, Action<AdsShowResult> onCompleted)

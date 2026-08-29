@@ -32,6 +32,9 @@ namespace Hung.Ads
 
         STimer cappingTimer;
         GameConfig config;
+        // Lazy: Locator.Data is not guaranteed to be set when this Awake runs
+        // (this GO survives scene loads via DontDestroyOnLoad).
+        GameConfig Config => config ??= Locator.Data?.GetSOData<GameConfig>();
         readonly AdsRequestController requests = new AdsRequestController();
         AdsRequestContext activeRequest;
         InterstitialRequestSession activeSession;
@@ -66,10 +69,9 @@ namespace Hung.Ads
         private void Awake()
         {
             cappingTimer = TimerManager.Ins.PopSTimer();
-            config = Locator.Data.GetSOData<GameConfig>();
             _resetInterBinding = new EventBinding<ResetInterCapEvent>(ResetInterCapping);
             EventBus<ResetInterCapEvent>.Subscribe(_resetInterBinding);
-            cappingTimer.Start(config.InterCappingTime);
+            if (Config != null) cappingTimer.Start(Config.InterCappingTime);
 
             var built = new AdsProviderRegistry();
             for (int i = 0; i < providerBindings.Length; i++)
@@ -176,22 +178,23 @@ namespace Hung.Ads
                 else
                 {
                     if (!cappingTimer.IsStart
-                        && GameData.user.normalLevelIndex >= config.StartInterLevel)
+                        && Config != null
+                        && GameData.user.normalLevelIndex >= Config.StartInterLevel)
                     {
-                        if (config.AdsCappingCount > 0
+                        if (Config.AdsCappingCount > 0
                         && GameData.user.watchingAdsCount > 0
-                        && GameData.user.watchingAdsCount % config.AdsCappingCount == 0)
+                        && GameData.user.watchingAdsCount % Config.AdsCappingCount == 0)
                         {
                             activeSession.OnSkipped("inter-count-cap");
-                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Watch Ads Count:{GameData.user.watchingAdsCount} \n -Ads Capping:{config.AdsCappingCount}!");
+                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Watch Ads Count:{GameData.user.watchingAdsCount} \n -Ads Capping:{Config.AdsCappingCount}!");
                             GameData.user.watchingAdsCount += 1;
                             gameData.user.playGameAdsCount = 0;
                             return;
                         }
 
-                        if (gameData.user.playGameAdsCount % config.ShowInterLevelStep == 0)
+                        if (gameData.user.playGameAdsCount % Config.ShowInterLevelStep == 0)
                         {
-                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Play Game Count:{gameData.user.playGameAdsCount} \n -Ads Capping:{config.ShowInterLevelStep}!");
+                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Play Game Count:{gameData.user.playGameAdsCount} \n -Ads Capping:{Config.ShowInterLevelStep}!");
                             activeSession.OnSkipped("inter-level-step");
                             gameData.user.playGameAdsCount = 0;
                             return;
@@ -201,7 +204,7 @@ namespace Hung.Ads
                         {
                             AcquireAdsLease(request);
                             activeProvider.Show(request.Placement);
-                            cappingTimer.Start(config.InterCappingTime);
+                            if (Config != null) cappingTimer.Start(Config.InterCappingTime);
                             EventBus<ResetAoaCapEvent>.Raise(new ResetAoaCapEvent());
                             isShowOnLoad = false;
                             maxTryAttempt = 0;
@@ -409,7 +412,7 @@ namespace Hung.Ads
         #endregion
         private void ResetInterCapping()
         {
-            cappingTimer.Start(config.InterCappingTime);
+            if (Config != null) cappingTimer.Start(Config.InterCappingTime);
         }
 
 
