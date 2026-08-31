@@ -1,0 +1,28 @@
+{
+    "name": "Hung.Ads.Integration.AdMob",
+    "rootNamespace": "Hung.Ads.Integration.AdMob",
+    "references": [
+        "Hung.Ads",
+        "Hung.Base"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "GoogleMobileAds.dll",
+        "GoogleMobileAds.Common.dll",
+        "GoogleMobileAds.Unity.dll",
+        "GoogleMobileAds.Ump.dll",
+        "GoogleMobileAds.Ump.Unity.dll",
+        "GoogleMobileAds.Core.dll",
+        "Google.VersionHandler.dll",
+        "Google.MiniJson.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ADS_ADMOB"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
