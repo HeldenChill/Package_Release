@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.3] - 2026-08-31
+- Dependency alignment: com.hung.data 0.12.2 -> 0.12.3, com.hung.ui 0.5.4 -> 0.5.5. No runtime or API change.
+
 ## [0.4.1] - 2026-08-15
 - Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
 

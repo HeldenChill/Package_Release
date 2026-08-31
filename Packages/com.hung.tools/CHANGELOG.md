@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1] - 2026-08-31
+### Fixed
+- Republished so the folder `.meta` files for `Editor/GrayscaleTextureConverter/` and its
+  `Tests/` subfolder ship with the package. Both are committed in source but had never been
+  carried into a public snapshot, so Unity logged "has no meta file, but it's in an immutable
+  folder. The asset will be ignored." and skipped the Grayscale Texture Converter tool entirely.
+
 ## [0.7.0] - 2026-08-26
 ### Removed
 - **Dependencies dropped:** `com.hung.base` and `com.hung.ui` removed from `package.json`, and the matching `Hung.UI`/`Hung.Base` entries removed from `Hung.Tool.asmdef` references. No source file in this package used any `Hung.*` type or namespace from either dependency; the declarations were stale. Real references retained: `DOTween.Modules`, `Unity.TextMeshPro` (root asmdef) and `spine-unity`/`spine-csharp` (Spine editor asmdef).
