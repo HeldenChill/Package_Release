@@ -344,6 +344,8 @@ namespace Hung.AutoTest
             AutoTestCaseReport caseReport = AutoTestCaseReport.Create(testCase);
             float caseStart = Time.realtimeSinceStartup;
             float nextSnapshotAt = 0f;
+            float previousTimeScale = Time.timeScale;
+            Time.timeScale = testCase.timeScale;
 
             yield return scenarioExecutor.Prepare(testCase, context);
 
@@ -379,6 +381,7 @@ namespace Hung.AutoTest
             EvaluateAssertions(finalSnapshot, testCase);
 
             yield return scenarioExecutor.Cleanup(testCase, context);
+            Time.timeScale = previousTimeScale;
             logCollector.Stop();
             eventCollector.Stop();
 
