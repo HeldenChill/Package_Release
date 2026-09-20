@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.21.1] - 2026-09-20
+- Added `MotionProbe` utility in `Hung.Base` for non-allocating kinematic diagnostics.
+
 ## [0.20.1] - 2026-08-28
 - Fix: `LoadStart` loaded `GameScene` by hardcoded build index 2, which assumed CryptoLoader
   always occupies index 0. Disabling CryptoLoader in Build Settings (release-style run with the

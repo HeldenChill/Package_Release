@@ -1,0 +1,22 @@
+{
+    "name": "Hung.Character",
+    "rootNamespace": "",
+    "references": [
+        "DOTween.Modules",
+        "Unity.InputSystem",
+        "Hung.Utilities.STimer",
+        "Hung.DesignPattern",
+        "Hung.Utilities",
+        "Hung.Base",
+        "Hung.Data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
