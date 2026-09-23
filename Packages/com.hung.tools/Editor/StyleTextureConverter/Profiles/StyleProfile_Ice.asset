@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da4d236c7e57204eb491eb10651b66a, type: 3}
+  m_Name: StyleProfile_Ice
+  m_EditorClassIdentifier: 
+  outputSuffix: _Ice
+  steps:
+  - rid: 5534195494881329253
+  - rid: 5534195494881329254
+  - rid: 5534195494881329255
+  references:
+    version: 2
+    RefIds:
+    - rid: 5534195494881329253
+      type: {class: KeyExtractStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        channel: 2
+        autoNormalize: 1
+        alphaThreshold: 0.78431374
+    - rid: 5534195494881329254
+      type: {class: GradientRampStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        ramp:
+          serializedVersion: 2
+          key0: {r: 0.078431375, g: 0.56078434, b: 0.84705883, a: 1}
+          key1: {r: 0.16470589, g: 0.99215686, b: 0.92156863, a: 1}
+          key2: {r: 0.78431374, g: 1, b: 0.9764706, a: 0}
+          key3: {r: 0, g: 0, b: 0, a: 0}
+          key4: {r: 0, g: 0, b: 0, a: 0}
+          key5: {r: 0, g: 0, b: 0, a: 0}
+          key6: {r: 0, g: 0, b: 0, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 36044
+          ctime2: 65535
+          ctime3: 0
+          ctime4: 0
+          ctime5: 0
+          ctime6: 0
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 5534195494881329255
+      type: {class: RimStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        color: {r: 0.9607843, g: 1, b: 0.99607843, a: 1}
+        widthTexels: 10
+        softTexels: 2
+        strength: 0.85
