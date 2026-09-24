@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da4d236c7e57204eb491eb10651b66a, type: 3}
+  m_Name: StyleProfile_PetInk
+  m_EditorClassIdentifier: 
+  outputSuffix: _PetInk
+  steps:
+  - rid: 5534195512360042496
+  - rid: 5534195512360042497
+  - rid: 5534195512360042498
+  - rid: 5534195512360042499
+  references:
+    version: 2
+    RefIds:
+    - rid: 5534195512360042496
+      type: {class: BackgroundCutStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        gradientThreshold: 0.15
+        openPercent: 0.4
+        shrinkPercent: 0.8
+        workingSize: 256
+        keepLargestOnly: 1
+        fillHoles: 1
+    - rid: 5534195512360042497
+      type: {class: PosterizeStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        colors: 6
+        maxSamples: 65536
+        minRegionPercent: 1.5
+        seed: 1
+    - rid: 5534195512360042498
+      type: {class: AdjustStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        brightness: -0.05
+        contrast: 1
+        gamma: 1
+        saturation: 0.75
+    - rid: 5534195512360042499
+      type: {class: InkLineStep, ns: StyleTextureConverter, asm: Hung.Tool.Editor}
+      data:
+        enabled: 1
+        ink: {r: 0.15294118, g: 0.007843138, b: 0, a: 1}
+        outlinePercent: 1.7
+        interiorPercent: 0.4

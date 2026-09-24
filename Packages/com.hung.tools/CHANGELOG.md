@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.0] - 2026-09-24
+### Fixed
+- `SpineSpriteSheetBakeSetup` and `SpineSpriteSheetParticleBakeSetup` moved from the editor-only
+  `Hung.Tool.Editor.Spine` assembly into a new runtime assembly `Hung.Tool.Spine`
+  (`SpineBake/`). As `MonoBehaviour`s inside an Editor-platform assembly, Unity could not load
+  them on scene GameObjects ("The associated script can not be loaded"). Script `.meta` GUIDs
+  are unchanged, so existing scene references reconnect without edits.
+- `Hung.Tool.Editor.Spine` now references `Hung.Tool.Spine`.
+
 ## [0.8.1] - 2026-08-31
 ### Fixed
 - Republished so the folder `.meta` files for `Editor/GrayscaleTextureConverter/` and its

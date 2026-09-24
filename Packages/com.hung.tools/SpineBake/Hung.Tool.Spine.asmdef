@@ -1,14 +1,11 @@
 {
-    "name": "Hung.Tool.Editor.Spine",
-    "rootNamespace": "Hung.Tool.Editor",
+    "name": "Hung.Tool.Spine",
+    "rootNamespace": "Hung.Tool",
     "references": [
-        "Hung.Tool.Spine",
         "spine-unity",
         "spine-csharp"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

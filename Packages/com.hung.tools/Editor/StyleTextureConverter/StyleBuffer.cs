@@ -19,6 +19,10 @@ namespace StyleTextureConverter
         /// <summary>Per-texel 0..1 key written by a key step; null until one runs.</summary>
         public float[] key;
 
+        /// <summary>Per-texel region label written by a posterize step; -1 = transparent / no region.
+        /// Null until one runs; set back to null by any step that changes alpha.</summary>
+        public int[] regions;
+
         public StyleBuffer(int width, int height, float scale)
         {
             this.width = width;
@@ -26,6 +30,10 @@ namespace StyleTextureConverter
             this.scale = scale;
             pixels = new Vector4[width * height];
         }
+
+        /// <summary>Resolution-relative distance: percent of the long side, in this buffer's texels.
+        /// Preview buffers are proportional downscales, so no scale multiply is needed.</summary>
+        public float PercentToTexels(float percent) => percent / 100f * Mathf.Max(width, height);
 
         public static float Luminance(Vector4 p) => 0.2126f * p.x + 0.7152f * p.y + 0.0722f * p.z;
     }
