@@ -28,10 +28,11 @@ namespace Hung.UI
         [Button]
         public override void Play(ANIM anim)
         {
-            if (state != ANIM.NONE) return;
+            if (!TryBeginOrQueue(anim)) return;
             Propertys Data = Array.Find(datas, data => data.Id == anim);
             if (Data == null) return;
             state = anim;
+            int generation = CurrentGeneration;
 
             switch (anim)
             {
@@ -39,24 +40,21 @@ namespace Hung.UI
                     OnAnimEnter((int)ANIM.SHOW);
                     RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.SHOW);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.SHOW, generation);
                     });
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
                     RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.HIDE);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
                     break;
                 case ANIM.IDLE:
                     OnAnimEnter((int)ANIM.IDLE);
                     RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.IDLE);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.IDLE, generation);
                     });
                     break;
             }

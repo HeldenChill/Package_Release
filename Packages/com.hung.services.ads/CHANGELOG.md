@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.5] - 2026-09-26
+- Dependency alignment for the Base/UI release.
+- Declare the existing Analytics assembly dependency for standalone consumers.
+
 ## [0.6.3] - 2026-08-31
 ### Fixed
 - Dependency alignment: com.hung.data 0.12.2 -> 0.12.3.

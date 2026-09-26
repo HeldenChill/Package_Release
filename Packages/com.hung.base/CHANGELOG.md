@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.22.0] - 2026-09-26
+- Added `IUIAcquisitionService`, `UIAcquireResult<T>`, and typed failure categories for optional addressed UI loading without changing `IUIService`.
+- Added neutral `Hung.UI.Scoping` path, scope, registry, and canvas lifecycle hooks for hierarchy-based UI ownership. Existing canvases remain global by default. Reopen invalidates a pending close completion.
+
 ## [0.21.1] - 2026-09-20
 - Added `MotionProbe` utility in `Hung.Base` for non-allocating kinematic diagnostics.
 

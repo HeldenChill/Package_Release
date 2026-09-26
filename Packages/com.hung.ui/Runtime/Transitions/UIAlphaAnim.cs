@@ -23,10 +23,11 @@ namespace Hung.UI
         }
         public override void Play(ANIM anim)
         {
-            if (state != ANIM.NONE) return;
+            if (!TryBeginOrQueue(anim)) return;
             Propertys Data = Array.Find(datas, data => data.Id == anim);
             if (Data == null) return;
             state = anim;
+            int generation = CurrentGeneration;
             switch (anim)
             {
                 case ANIM.SHOW:
@@ -35,16 +36,14 @@ namespace Hung.UI
                     canvasGroup.alpha = 0;
                     canvasGroup.DOFade(1, Data.Time).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.SHOW);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.SHOW, generation);
                     });
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
                     canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.HIDE);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
                     break;
 

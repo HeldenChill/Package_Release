@@ -7,6 +7,8 @@ namespace Hung.UI
     public class UISCanvasTransition : UITransition
     {
         private UISCanvas _canvas;
+        private int operationGeneration;
+        private Action pendingIntro;
         // Lazy, not Awake-cached: this component is added at runtime via
         // AddComponent while its GameObject is still inactive (registry sets
         // SetActive(false) right after instantiate) - Unity defers Awake on
@@ -18,17 +20,43 @@ namespace Hung.UI
 
         public override void PlayIntro(Action onComplete)
         {
-            Canvas.Show();
-            onComplete?.Invoke();
+            // UISCanvas.OnActivated already starts SHOW once.
+            if (onComplete == null) return;
+            if (Canvas.IsFullyShown)
+            {
+                onComplete();
+                return;
+            }
+            if (pendingIntro != null) Canvas.FullyShown -= pendingIntro;
+            int generation = operationGeneration;
+            Action handler = null;
+            handler = () =>
+            {
+                Canvas.FullyShown -= handler;
+                if (ReferenceEquals(pendingIntro, handler)) pendingIntro = null;
+                if (generation == operationGeneration) onComplete();
+            };
+            pendingIntro = handler;
+            Canvas.FullyShown += handler;
         }
 
         public override void PlayOutro(Action onComplete)
         {
-            Canvas.HideForClose(onComplete);
+            int generation = operationGeneration;
+            Canvas.HideForClose(() =>
+            {
+                if (generation == operationGeneration) onComplete?.Invoke();
+            });
         }
 
         public override void Interrupt()
         {
+            operationGeneration++;
+            if (pendingIntro != null)
+            {
+                Canvas.FullyShown -= pendingIntro;
+                pendingIntro = null;
+            }
             Canvas.StopAllAnims();
         }
     }

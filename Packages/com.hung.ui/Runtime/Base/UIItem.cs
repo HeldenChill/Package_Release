@@ -69,7 +69,11 @@ namespace Hung.UI
         {
             icon.sprite = sprite;
             icon.gameObject.SetActive(isActive);
+            OnIconSpriteAssigned(sprite);
         }
+
+        /// <summary>Extend icon presentation after assignment without coupling the package to game services.</summary>
+        protected virtual void OnIconSpriteAssigned(Sprite sprite) { }
         public void SetFrame(Sprite sprite, bool isActive = true)
         {
             frame.sprite = sprite;

@@ -29,10 +29,11 @@ namespace Hung.UI
         [Button]
         public override void Play(ANIM anim)
         {
-            if (state != ANIM.NONE) return;
+            if (!TryBeginOrQueue(anim)) return;
             Propertys Data = Array.Find(datas, data => data.Id == anim);
             if (Data == null) return;
             state = anim;
+            int generation = CurrentGeneration;
             if (Data.IsSetStartSize)
             {
                 RectTransform.localScale = Data.StartSize;
@@ -44,16 +45,14 @@ namespace Hung.UI
                     RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).OnComplete(
                         () =>
                         {
-                            OnAnimExit((int)ANIM.SHOW);
-                            state = ANIM.NONE;
+                            CompleteIfCurrent((int)ANIM.SHOW, generation);
                         });
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
                     RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).OnComplete(() =>
                     {
-                        OnAnimExit((int)ANIM.HIDE);
-                        state = ANIM.NONE;
+                        CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
                     break;
             }

@@ -36,6 +36,11 @@ namespace Hung.UI
         protected const int LEFT_X = -850;
         protected const int UP_Y = 850;
         private Action pendingTransitionCallback;
+        private ANIM pendingTransitionAnim;
+        private int animationGeneration;
+        /// <summary>Changes whenever an animation starts or is interrupted.</summary>
+        protected int CurrentGeneration => animationGeneration;
+        internal bool IsPending(ANIM anim) => state == anim || (animQueue?.Contains(anim) ?? false);
         public virtual void OnInit() { }
         public virtual void Play() { }
         public virtual void Play(ANIM anim) { }
@@ -51,33 +56,67 @@ namespace Hung.UI
         public override void PlayIntro(Action onComplete)
         {
             pendingTransitionCallback = onComplete;
+            pendingTransitionAnim = ANIM.SHOW;
             Play(ANIM.SHOW);
         }
 
         public override void PlayOutro(Action onComplete)
         {
             pendingTransitionCallback = onComplete;
+            pendingTransitionAnim = ANIM.HIDE;
             Play(ANIM.HIDE);
         }
 
         public override void Interrupt()
         {
+            animationGeneration++;
             Stop();
             state = ANIM.NONE;
+            animQueue?.Clear();
             pendingTransitionCallback = null;
+            pendingTransitionAnim = ANIM.NONE;
+        }
+
+        /// <summary>
+        /// Starts an idle animation or queues one distinct different request behind the active one.
+        /// Closing while SHOW is in progress must not discard the HIDE request.
+        /// </summary>
+        protected bool TryBeginOrQueue(ANIM anim)
+        {
+            if (state == ANIM.NONE)
+            {
+                animationGeneration++;
+                return true;
+            }
+            if (state == anim) return false;
+            animQueue ??= new Queue<ANIM>();
+            if (!animQueue.Contains(anim)) animQueue.Enqueue(anim);
+            return false;
         }
 
         protected void OnAnimExit(int animCode)
         {
-            _OnAnimExit?.Invoke(GetHashCode(), animCode);
+            int completedGeneration = animationGeneration;
             state = ANIM.NONE;
-            Action callback = pendingTransitionCallback;
-            pendingTransitionCallback = null;
+            Action callback = pendingTransitionAnim == (ANIM)animCode ? pendingTransitionCallback : null;
+            if (callback != null)
+            {
+                pendingTransitionCallback = null;
+                pendingTransitionAnim = ANIM.NONE;
+            }
+            _OnAnimExit?.Invoke(GetHashCode(), animCode);
             callback?.Invoke();
-            if (isAnimQueue && animQueue?.Count > 0)
+            if (completedGeneration == animationGeneration && animQueue?.Count > 0)
             {
                 Play(animQueue.Dequeue());
             }
+        }
+
+        /// <summary>Ignore completion from an operation invalidated by interrupt or replay.</summary>
+        protected void CompleteIfCurrent(int animCode, int generation)
+        {
+            if (generation == animationGeneration && state == (ANIM)animCode)
+                OnAnimExit(animCode);
         }
 
         protected void OnAnimEnter(int animCode)

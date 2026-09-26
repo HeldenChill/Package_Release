@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.10.1] - 2026-09-26
+- Republished current source changes in the public snapshot.
+
 ## [0.10.0] - 2026-09-24
 ### Fixed
 - `SpineSpriteSheetBakeSetup` and `SpineSpriteSheetParticleBakeSetup` moved from the editor-only

@@ -1,0 +1,20 @@
+{
+    "name": "Hung.Analytics",
+    "rootNamespace": "Hung.Analytics",
+    "references": [
+        "AppsFlyer",
+        "Hung.Base",
+        "Hung.Common",
+        "Hung.DesignPattern",
+        "Hung.Utilities.STimer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

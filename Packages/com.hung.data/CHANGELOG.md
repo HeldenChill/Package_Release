@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.12.5] - 2026-09-26
+- Dependency alignment for the Base/UI release.
+
 ## [0.12.2] - 2026-08-17
 - 8 product-free persistence mechanism tests moved to `com.hung.persistence/Tests/` (`PersistenceServiceTests`, `FileSaveStoreTests`, `SaveEnvelopeTests`, `SaveMigrationRegistryTests`, `SaveTransformTests`, `PersistenceBenchmarkTests`, plus internal test-double helpers `InMemorySaveStore`/`PersistenceTestDoubles`, which are duplicated rather than moved since they are `internal` and consumed by tests that stay here). Product-coupled tests (`SaveDefinitionTests`, `LegacyImportTests`, `LegacyFixtureCharacterizationTests`, `ProductionDefinitionTests`, `DatabaseFacadeTestScope`, `PersistenceBootstrapTests`) and the six `.raw.json` fixture files stay unchanged. No behaviour change, no public signature change.
 

@@ -29,6 +29,12 @@ namespace Hung.UI
         [SerializeField]
         protected Button closeButton;
         [SerializeField]
+        protected List<Button> closeBtns = new List<Button>();
+        private readonly List<Button> allCloseButtons = new List<Button>();
+
+        /// <summary>Authored controls that close this canvas, including the legacy button.</summary>
+        public IReadOnlyList<Button> CloseButtons => allCloseButtons;
+        [SerializeField]
         protected Propertys data;
         [SerializeField]
         protected UICanvasComponent[] canvasComponent;
@@ -38,12 +44,32 @@ namespace Hung.UI
         protected int longestHideAnimId = 0;
         protected float longestHideAnimTime = 0;
         private Action pendingCloseCallback;
+        private readonly HashSet<UIAnim> pendingHide = new HashSet<UIAnim>();
+        private readonly HashSet<UIAnim> pendingShow = new HashSet<UIAnim>();
+        private readonly Dictionary<UIAnim, Action<int, int>> exitHandlers = new Dictionary<UIAnim, Action<int, int>>();
+        private bool isFullyShown;
+        private CanvasGroup[] raycastBlockers;
+
+        /// <summary>True after all participating SHOW effects finish on an active canvas.</summary>
+        public bool IsFullyShown => isFullyShown && gameObject.activeInHierarchy;
+
+        /// <summary>Raised once when the current SHOW operation reaches its settled state.</summary>
+        public event Action FullyShown;
 
         protected override UITransition EnsureTransition()
         {
-            UITransition t = base.EnsureTransition();
-            if (t == null) t = gameObject.AddComponent<UISCanvasTransition>();
-            return t;
+            UISCanvasTransition composite = null;
+            foreach (UITransition transition in GetComponents<UITransition>())
+            {
+                if (transition is UIAnim) continue;
+                if (transition is UISCanvasTransition knownComposite)
+                {
+                    composite = knownComposite;
+                    continue;
+                }
+                return transition;
+            }
+            return composite != null ? composite : gameObject.AddComponent<UISCanvasTransition>();
         }
 
         protected virtual void Start()
@@ -51,7 +77,14 @@ namespace Hung.UI
             for (int i = 0; i < anims.Length; i++)
             {
                 anims[i]._OnAnimEnter += OnAnimEnter;
-                anims[i]._OnAnimExit += OnAnimExit;
+                UIAnim effect = anims[i];
+                Action<int, int> handler = (id, anim) =>
+                {
+                    OnAnimExit(id, anim);
+                    OnEffectExit(effect, anim);
+                };
+                exitHandlers[effect] = handler;
+                effect._OnAnimExit += handler;
                 for (int j = 0; j < anims[i].Datas.Count; j++)
                 {
                     UIAnim.Propertys Data = anims[i].Datas[j];
@@ -66,41 +99,72 @@ namespace Hung.UI
                     }
                 }
             }
-            closeButton?.onClick.AddListener(Close);
+            allCloseButtons.Clear();
+            if (closeButton != null) allCloseButtons.Add(closeButton);
+            if (closeBtns != null)
+            {
+                foreach (Button button in closeBtns)
+                    if (button != null && !allCloseButtons.Contains(button)) allCloseButtons.Add(button);
+            }
+            foreach (Button button in allCloseButtons) button.onClick.AddListener(Close);
         }
 
-        protected virtual void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             for (int i = 0; i < anims.Length; i++)
             {
                 anims[i]._OnAnimEnter -= OnAnimEnter;
-                anims[i]._OnAnimExit -= OnAnimExit;
+                if (exitHandlers.TryGetValue(anims[i], out Action<int, int> handler))
+                    anims[i]._OnAnimExit -= handler;
             }
-            closeButton?.onClick.RemoveListener(Close);
+            exitHandlers.Clear();
+            foreach (Button button in allCloseButtons)
+                if (button != null) button.onClick.RemoveListener(Close);
         }
 
         protected override void OnOpen(object param)
         {
-            Show();
             _OnOpen?.Invoke(this);
         }
+
+        protected override void OnActivated() => Show();
+
         public override void Show()
         {
+            SetRaycastBlocking(true);
+            isFullyShown = false;
+            pendingShow.Clear();
+            foreach (UIAnim effect in anims)
+            {
+                if (effect == null || !ShouldAnimateOnShow(effect) || effect.Datas == null) continue;
+                foreach (UIAnim.Propertys property in effect.Datas)
+                {
+                    if (property == null || property.Id != UIAnim.ANIM.SHOW) continue;
+                    pendingShow.Add(effect);
+                    break;
+                }
+            }
             for (int i = 0; i < anims.Length; i++)
             {
-                anims[i].Play(UIAnim.ANIM.SHOW);
+                if (anims[i] != null && ShouldAnimateOnShow(anims[i])) anims[i].Play(UIAnim.ANIM.SHOW);
             }
             for (int i = 0; i < canvasComponent.Length; i++)
             {
                 canvasComponent[i].Show();
             }
+            pendingShow.RemoveWhere(effect => !effect.IsPending(UIAnim.ANIM.SHOW));
+            if (pendingShow.Count == 0) MarkFullyShown();
         }
 
         public override void Hide()
         {
+            SetRaycastBlocking(false);
+            isFullyShown = false;
+            pendingShow.Clear();
             for (int i = 0; i < anims.Length; i++)
             {
-                anims[i].Play(UIAnim.ANIM.HIDE);
+                if (anims[i] != null && ShouldAnimateOnHide(anims[i])) anims[i].Play(UIAnim.ANIM.HIDE);
             }
             for (int i = 0; i < canvasComponent.Length; i++)
             {
@@ -114,13 +178,21 @@ namespace Hung.UI
 
         public void HideForClose(Action onComplete)
         {
-            if (anims.Length == 0)
-            {
-                onComplete?.Invoke();
-                return;
-            }
             pendingCloseCallback = onComplete;
+            pendingHide.Clear();
+            foreach (UIAnim effect in anims)
+            {
+                if (effect == null || !ShouldAnimateOnHide(effect) || effect.Datas == null) continue;
+                foreach (UIAnim.Propertys property in effect.Datas)
+                {
+                    if (property == null || property.Id != UIAnim.ANIM.HIDE) continue;
+                    pendingHide.Add(effect);
+                    break;
+                }
+            }
             Hide();
+            pendingHide.RemoveWhere(effect => !effect.IsPending(UIAnim.ANIM.HIDE));
+            if (pendingHide.Count == 0) CompleteClose();
         }
 
         public void StopAllAnims()
@@ -129,7 +201,50 @@ namespace Hung.UI
             {
                 anims[i].Interrupt();
             }
+            pendingHide.Clear();
+            pendingShow.Clear();
+            isFullyShown = false;
             pendingCloseCallback = null;
+        }
+
+        private void OnEffectExit(UIAnim effect, int anim)
+        {
+            if (anim == (int)UIAnim.ANIM.SHOW && pendingShow.Remove(effect) && pendingShow.Count == 0)
+                MarkFullyShown();
+            if (anim != (int)UIAnim.ANIM.HIDE || !pendingHide.Remove(effect)) return;
+            if (pendingHide.Count == 0) CompleteClose();
+        }
+
+        private void MarkFullyShown()
+        {
+            if (isFullyShown) return;
+            isFullyShown = true;
+            FullyShown?.Invoke();
+        }
+
+        private void CompleteClose()
+        {
+            Action callback = pendingCloseCallback;
+            pendingCloseCallback = null;
+            callback?.Invoke();
+        }
+        /// <summary>Allow a canvas subclass to skip a SHOW effect for this operation.</summary>
+        protected virtual bool ShouldAnimateOnShow(UIAnim anim) => true;
+
+        /// <summary>Allow a canvas subclass to skip a HIDE effect for this operation.</summary>
+        protected virtual bool ShouldAnimateOnHide(UIAnim anim) => true;
+
+        private void SetRaycastBlocking(bool blocking)
+        {
+            if (raycastBlockers == null)
+            {
+                var authored = new List<CanvasGroup>();
+                foreach (CanvasGroup group in GetComponentsInChildren<CanvasGroup>(true))
+                    if (group != null && group.blocksRaycasts) authored.Add(group);
+                raycastBlockers = authored.ToArray();
+            }
+            foreach (CanvasGroup group in raycastBlockers)
+                if (group != null) group.blocksRaycasts = blocking;
         }
         protected virtual void OnAnimEnter(int id, int anim)
         {
@@ -150,20 +265,7 @@ namespace Hung.UI
         }
         protected virtual void OnAnimExit(int id, int anim)
         {
-            if (data.SetActiveByAnim)
-            {
-                switch (anim)
-                {
-                    case (int)UIAnim.ANIM.HIDE:
-                        if (id == longestHideAnimId && pendingCloseCallback != null)
-                        {
-                            Action cb = pendingCloseCallback;
-                            pendingCloseCallback = null;
-                            cb.Invoke();
-                        }
-                        break;
-                }
-            }
+            // Completion is coordinated by OnEffectExit for every participating component.
         }
         public virtual T GetCanvasComponent<T>() where T : UICanvasComponent
         {

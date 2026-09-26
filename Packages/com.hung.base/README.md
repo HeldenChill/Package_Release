@@ -1,5 +1,13 @@
 # Hung Base (L1)
 
+## UI Scope Contract
+
+`IUIAcquisitionService` and `UIAcquireResult<T>` provide an optional addressed acquisition contract with `UIAcquireFailure` categories. `IUIService` remains source compatible; consumers that need an addressed result can use an implementation that also exposes `IUIAcquisitionService`.
+
+`Hung.UI.Scoping.UiScopePath`, `UiScope`, `IScopedUi`, and `UiScopeRegistry` provide hierarchy-based canvas lifetime rules. `UICanvas.Scope` defaults to `UiScope.Global`, so existing canvases retain their old lifetime. A scoped canvas binds to the current path on open; `UiScopeRegistry.Enter(path)` closes canvases whose bound scope has ended. Product-specific path names and phase transitions remain in the consuming game.
+
+`UICanvas.OnScopeExit()` unregisters before its outro, and a later `Open()` invalidates an older close completion. The generic registry can be instantiated in tests; production code uses `UiScopeRegistry.Instance` unless a canvas overrides `ScopeRegistry`.
+
 Core runtime: Locator + service contracts (LocatorServices), init flow (InitManager/LoadStart), Stats, GameData, base app glue. Second assembly: Hung.Utilities.Input.
 
 ## ItemId Runtime Contract

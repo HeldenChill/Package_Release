@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.7] - 2026-09-26
+- Dependency alignment for the Base/UI release.
+
 ## [0.2.6] - 2026-09-20
 - Performance: eliminated `CharacterBase.Update()` GC allocations (1,004 B -> 0 B). Cached BrainGraph node lookups (`nodeMap`) and pre-sorted outgoing edge lists (`GetOutgoingCached`).
 - Performance: replaced dynamic string interpolation in `PerceptionNode` and `ConditionNode` with static constants under `DebugRuntime`.

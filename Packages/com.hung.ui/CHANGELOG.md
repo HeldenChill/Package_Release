@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0] - 2026-09-26
+- Added typed `UIManager.AcquireAsync<T>(address)`, injectable `IUIAsyncPrefabProvider`, Addressables provider, in-flight deduplication, and retained prefab leases. The existing callback API remains available.
+- Optional `IUIAddressResolver` routes the existing callback API through addressed acquisition with exactly one success or failure callback.
+- Animation completion now checks an operation generation so delayed callbacks from interrupted effects cannot complete a later operation.
+- UI animation requests queue a distinct HIDE during SHOW; interrupt clears pending requests. Concrete alpha, scale, punch, and position effects use the shared guard.
+- `UISCanvasTransition` coordinates all configured HIDE effects; root-level `UIAnim` components no longer bypass it. SHOW runs once, `IsFullyShown`/`FullyShown` report completion of all SHOW effects, and close without HIDE completes immediately.
+- `UISCanvas` disables authored raycast blockers during hide and restores them on reopen, leaving authored non-blocking groups untouched. Subclasses can skip individual effects with `ShouldAnimateOnShow` and `ShouldAnimateOnHide`.
+- SHOW readiness and close completion ignore configured effects that did not start, preventing a missing target or inert animation from holding the canvas indefinitely.
+- `UIItem.OnIconSpriteAssigned` lets product adapters apply icon presentation after the shared sprite assignment.
+- Added `closeBtns` while retaining serialized `closeButton`; see `Docs/adr/adr-e5-0005-ui-close-buttons.md`.
+- Lowered minimum Addressables dependency from 2.8.1 to 1.22.3 for Unity 2022.3 consumers. Package Repo's Unity 6 manifest may still resolve 2.8.1.
+
 ## [0.5.4] - 2026-08-15
 - Dependency alignment: com.hung.base 0.19.3 -> 0.19.4.
 

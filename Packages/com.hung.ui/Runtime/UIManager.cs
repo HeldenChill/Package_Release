@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Hung.UI
@@ -13,7 +14,7 @@ namespace Hung.UI
     /// addressable loader) from a <c>Hung.UI.asmref</c> folder without forking the manager -
     /// the same extension seam com.hung.data uses for <c>DataManager</c>.
     /// </summary>
-    public partial class UIManager : Singleton<UIManager>, IUIService
+    public partial class UIManager : Singleton<UIManager>, IUIService, IUIAcquisitionService
     {
         [SerializeField]
         private RectTransform parentCanvasTf;
@@ -25,6 +26,8 @@ namespace Hung.UI
         private IUIPrefabProvider prefabProvider;
         private CanvasRegistry registry;
         private UIBackStack backStack;
+        private AsyncCanvasRegistry asyncRegistry;
+        private IUIAddressResolver addressResolver;
 
         public RectTransform ParentCanvasTf => parentCanvasTf;
         public Canvas Canvas => canvas;
@@ -33,11 +36,47 @@ namespace Hung.UI
 
         private void Awake()
         {
-            DontDestroyOnLoad(this);
+            if (Application.isPlaying) DontDestroyOnLoad(this);
+            EnsureInitialized();
+            Locator.UI = this;
+        }
+
+        private void EnsureInitialized()
+        {
+            if (registry != null) return;
             prefabProvider = new ResourcesPrefabProvider();
             registry = new CanvasRegistry(prefabProvider, parentCanvasTf);
             backStack = new UIBackStack();
-            Locator.UI = this;
+        }
+
+        private void OnDestroy()
+        {
+            asyncRegistry?.Dispose();
+            if (ReferenceEquals(Locator.UI, this)) Locator.UI = null;
+        }
+
+        /// <summary>Configure addressed prefab loading before the first acquisition.</summary>
+        public void SetAsyncProvider(IUIAsyncPrefabProvider provider)
+        {
+            if (provider == null) throw new System.ArgumentNullException(nameof(provider));
+            if (asyncRegistry != null) throw new System.InvalidOperationException("Async provider is already configured.");
+            EnsureInitialized();
+            asyncRegistry = new AsyncCanvasRegistry(registry, provider);
+        }
+
+        /// <summary>Configure addressed loading for the existing callback API as well.</summary>
+        public void SetAsyncProvider(IUIAsyncPrefabProvider provider, IUIAddressResolver resolver)
+        {
+            if (resolver == null) throw new System.ArgumentNullException(nameof(resolver));
+            SetAsyncProvider(provider);
+            addressResolver = resolver;
+        }
+
+        /// <summary>Load and cache a canvas by explicit address with a typed failure result.</summary>
+        public Task<UIAcquireResult<T>> AcquireAsync<T>(string address) where T : UICanvas
+        {
+            if (asyncRegistry == null) SetAsyncProvider(new AddressablesUIPrefabProvider());
+            return asyncRegistry.AcquireAsync<T>(address);
         }
 
         public void SetCameraScreenSpace(Camera cam)
@@ -98,7 +137,27 @@ namespace Hung.UI
             TryGetUIAsyncOverride(onComplete, ref handled);
             if (handled) return;
 
+            if (addressResolver != null)
+            {
+                _ = CompleteAddressedCallbackAsync(onComplete);
+                return;
+            }
+
             onComplete?.Invoke(GetUI<T>());
+        }
+
+        private async Task CompleteAddressedCallbackAsync<T>(System.Action<T> onComplete) where T : UICanvas
+        {
+            T canvas = null;
+            try
+            {
+                string address = addressResolver.GetAddress(typeof(T));
+                UIAcquireResult<T> result = await AcquireAsync<T>(address);
+                if (result.Succeeded) canvas = result.Canvas;
+                else Debug.LogError($"[UIManager] UI load failed for '{address}': {result.Diagnostic}");
+            }
+            catch (System.Exception ex) { Debug.LogException(ex); }
+            onComplete?.Invoke(canvas);
         }
 
         /// <summary>

@@ -31,14 +31,7 @@ namespace Hung.UI
         public override IReadOnlyList<UIAnim.Propertys> Datas => datas;
         public override void Play(ANIM anim)
         {
-            if (state != ANIM.NONE)
-            {
-                if (isAnimQueue)
-                {
-                    animQueue.Enqueue(anim);
-                }
-                return;
-            }
+            if (!TryBeginOrQueue(anim)) return;
             Propertys Data = Array.Find(datas, data => data.Id == anim);
             if (Data == null) return;
             if (tf == null) return;
@@ -53,8 +46,10 @@ namespace Hung.UI
                 tf.position = Data.StartTf.position;
             }
             state = anim;
+            int generation = CurrentGeneration;
             TimerManager.Ins.WaitForFrame(5, () =>
             {
+                if (generation != CurrentGeneration || state != anim || tf == null) return;
                 if (Data.EndTf == null)
                 {
                     state = ANIM.NONE;
@@ -68,11 +63,12 @@ namespace Hung.UI
                         currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease).OnComplete(
                             () =>
                             {
-                                OnAnimExit((int)ANIM.SHOW);
+                                if (generation != CurrentGeneration || state != anim) return;
                                 if (Data.IsReturnOriginPos)
                                 {
                                     transform.position = Data.OriginPos;
                                 }
+                                CompleteIfCurrent((int)ANIM.SHOW, generation);
                             });
                         break;
                     case ANIM.HIDE:
@@ -80,11 +76,12 @@ namespace Hung.UI
                         currentAnim?.Kill();
                         currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease).OnComplete(() =>
                         {
-                            OnAnimExit((int)ANIM.HIDE);
+                            if (generation != CurrentGeneration || state != anim) return;
                             if (Data.IsReturnOriginPos)
                             {
                                 transform.position = Data.OriginPos;
                             }
+                            CompleteIfCurrent((int)ANIM.HIDE, generation);
                         });
                         break;
                     case ANIM.IDLE:
@@ -93,11 +90,12 @@ namespace Hung.UI
                         currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease)
                         .SetLoops(2, LoopType.Yoyo).OnComplete(() =>
                         {
-                            OnAnimExit((int)ANIM.IDLE);
+                            if (generation != CurrentGeneration || state != anim) return;
                             if (Data.IsReturnOriginPos)
                             {
                                 transform.position = Data.OriginPos;
                             }
+                            CompleteIfCurrent((int)ANIM.IDLE, generation);
                         });
                         break;
                 }

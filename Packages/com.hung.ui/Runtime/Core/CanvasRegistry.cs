@@ -23,6 +23,21 @@ namespace Hung.UI
             return instances.TryGetValue(typeof(T), out UICanvas ui) && ui != null;
         }
 
+        /// <summary>Return an already instantiated canvas without invoking the Resources provider.</summary>
+        public T GetLoaded<T>() where T : UICanvas => IsLoaded<T>() ? instances[typeof(T)] as T : null;
+
+        /// <summary>Instantiate and cache a prefab acquired by an external provider.</summary>
+        public T RegisterPrefab<T>(T prefab) where T : UICanvas
+        {
+            if (prefab == null) throw new ArgumentNullException(nameof(prefab));
+            T existing = GetLoaded<T>();
+            if (existing != null) return existing;
+            T instance = UnityEngine.Object.Instantiate(prefab, parent);
+            instance.gameObject.SetActive(false);
+            instances[typeof(T)] = instance;
+            return instance;
+        }
+
         public T Get<T>() where T : UICanvas
         {
             if (IsLoaded<T>()) return instances[typeof(T)] as T;
@@ -31,10 +46,7 @@ namespace Hung.UI
             if (prefab == null)
                 throw new InvalidOperationException($"No UI prefab for {typeof(T).Name}");
 
-            T instance = UnityEngine.Object.Instantiate(prefab, parent);
-            instance.gameObject.SetActive(false);
-            instances[typeof(T)] = instance;
-            return instance;
+            return RegisterPrefab(prefab);
         }
 
         public bool Contains(UICanvas ui)
