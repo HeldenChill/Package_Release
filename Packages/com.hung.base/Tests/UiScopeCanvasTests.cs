@@ -52,6 +52,9 @@ namespace Hung.Base.Tests
             public bool IsLoaded<T>() where T : UICanvas => false;
             public T GetUI<T>() where T : UICanvas => null;
             public void GetUIAsync<T>(Action<T> onComplete) where T : UICanvas { }
+            public void CloseUIDirectly(UICanvas canvas) { if (canvas != null) canvas.CloseDirectly(); }
+            public bool IsContain(UICanvas canvas) => false;
+            public bool IsInBackStack(UICanvas canvas) => BackStack.Contains(canvas);
             public void PreloadUI<T>() where T : UICanvas { }
             public void UpdateAllUI() { }
             public void DestroyAllUI(HashSet<UICanvas> exception) { }

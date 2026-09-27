@@ -7,7 +7,7 @@ namespace Hung.Base
     public class MaskRaycastImage : Image
     {
         [SerializeField]
-        List<RectTransform> maskRectTfs;
+        protected List<RectTransform> maskRectTfs;
         public override bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
         {
             if (maskRectTfs != null)

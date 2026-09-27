@@ -8,6 +8,8 @@
 
 `UICanvas.OnScopeExit()` unregisters before its outro, and a later `Open()` invalidates an older close completion. The generic registry can be instantiated in tests; production code uses `UiScopeRegistry.Instance` unless a canvas overrides `ScopeRegistry`.
 
+`UICanvas.Open`/`Close` are virtual. `Setup(param)` pushes the back entry; `CloseDirectly(param)` closes with no transition and no `OnClose`. `UICanvas.BackPushPolicy` (`UIBackPushPolicy.OnOpen` default, `ExplicitSetup`) chooses whether `Open` pushes. `IUIService.CloseUIDirectly`, `IsContain`, `IsInBackStack` and `UIBackStack.Contains` query and close without the back key.
+
 Core runtime: Locator + service contracts (LocatorServices), init flow (InitManager/LoadStart), Stats, GameData, base app glue. Second assembly: Hung.Utilities.Input.
 
 ## ItemId Runtime Contract

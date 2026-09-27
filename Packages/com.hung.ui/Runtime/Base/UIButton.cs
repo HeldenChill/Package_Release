@@ -28,6 +28,8 @@ namespace Hung.UI
 		[SerializeField]
 		protected Button button;
 		[SerializeField]
+		protected Transform tf;
+		[SerializeField]
 		protected TMP_Text textButton;
 		[SerializeField]
 		protected SFX_TYPE sfxType = SFX_TYPE.CLICK;
@@ -36,6 +38,13 @@ namespace Hung.UI
 		protected STATE state;
 		public int IndexID => indexID;
 		public STATE State => state;
+		/// <summary>Serialized target transform; <see cref="RectTf"/> casts it.</summary>
+		public Transform Tf => tf;
+		public RectTransform RectTf => (RectTransform)tf;
+
+		/// <summary>Process-wide default for click SFX. A game whose buttons are silent sets it false at composition.</summary>
+		public static bool DefaultClickSfx = true;
+		protected virtual bool PlaysClickSfx => DefaultClickSfx;
 		protected virtual void Awake()
 		{
 			button.onClick.AddListener(OnClick);
@@ -72,7 +81,7 @@ namespace Hung.UI
 		}
 		protected virtual void OnClick()
 		{
-			Locator.Audio.PlaySfx(sfxType);
+			if (PlaysClickSfx) Locator.Audio?.PlaySfx(sfxType);
 			_OnClick?.Invoke(indexID);
 		}
 

@@ -18,6 +18,9 @@ namespace Hung.UI
             if (backAction != null) backActions[canvas] = backAction;
         }
 
+        /// <summary>True when the canvas is on the stack. Null is never contained.</summary>
+        public bool Contains(UICanvas canvas) => canvas != null && stack.Contains(canvas);
+
         public void Remove(UICanvas canvas)
         {
             stack.Remove(canvas);

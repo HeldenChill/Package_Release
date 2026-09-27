@@ -27,12 +27,27 @@ namespace Hung.UI
         Transform tf;
         [SerializeField]
         Propertys[] datas;
+        // PVM semantics: wait 5 frames before the FIRST play only (lets layout settle anchors).
+        [SerializeField]
+        bool waitFrame = false;
+        bool hasWaitedFrame;
         Tween currentAnim;
         public override IReadOnlyList<UIAnim.Propertys> Datas => datas;
+
         public override void Play(ANIM anim)
         {
+            // SHOW and HIDE reverse each other mid-flight from the current position (no snap);
+            // any other overlap queues through the shared UIAnim guard.
+            // Reverse only onto playable data; otherwise queue as before so the running anim still completes.
+            bool reversing = IsReverse(state, anim) && CanPlay(anim);
+            if (reversing)
+            {
+                currentAnim?.Kill();
+                currentAnim = null;
+                AbandonCurrent();
+            }
             if (!TryBeginOrQueue(anim)) return;
-            Propertys Data = Array.Find(datas, data => data.Id == anim);
+            Propertys Data = Array.Find(datas, data => data != null && data.Id == anim);
             if (Data == null) return;
             if (tf == null) return;
             if (Data.StartTf == null || Data.EndTf == null)
@@ -41,70 +56,55 @@ namespace Hung.UI
                 return;
             }
             Data.OriginPos = tf.position;
-            if (Data.IsSetPositionToStart)
+            if (!reversing && Data.IsSetPositionToStart)
             {
                 tf.position = Data.StartTf.position;
             }
             state = anim;
             int generation = CurrentGeneration;
-            TimerManager.Ins.WaitForFrame(5, () =>
+            if (waitFrame && !hasWaitedFrame)
             {
-                if (generation != CurrentGeneration || state != anim || tf == null) return;
-                if (Data.EndTf == null)
-                {
-                    state = ANIM.NONE;
-                    return;
-                }
-                switch (anim)
-                {
-                    case ANIM.SHOW:
-                        OnAnimEnter((int)ANIM.SHOW);
-                        currentAnim?.Kill();
-                        currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease).OnComplete(
-                            () =>
-                            {
-                                if (generation != CurrentGeneration || state != anim) return;
-                                if (Data.IsReturnOriginPos)
-                                {
-                                    transform.position = Data.OriginPos;
-                                }
-                                CompleteIfCurrent((int)ANIM.SHOW, generation);
-                            });
-                        break;
-                    case ANIM.HIDE:
-                        OnAnimEnter((int)ANIM.HIDE);
-                        currentAnim?.Kill();
-                        currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease).OnComplete(() =>
-                        {
-                            if (generation != CurrentGeneration || state != anim) return;
-                            if (Data.IsReturnOriginPos)
-                            {
-                                transform.position = Data.OriginPos;
-                            }
-                            CompleteIfCurrent((int)ANIM.HIDE, generation);
-                        });
-                        break;
-                    case ANIM.IDLE:
-                        OnAnimEnter((int)ANIM.IDLE);
-                        currentAnim?.Kill();
-                        currentAnim = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease)
-                        .SetLoops(2, LoopType.Yoyo).OnComplete(() =>
-                        {
-                            if (generation != CurrentGeneration || state != anim) return;
-                            if (Data.IsReturnOriginPos)
-                            {
-                                transform.position = Data.OriginPos;
-                            }
-                            CompleteIfCurrent((int)ANIM.IDLE, generation);
-                        });
-                        break;
-                }
-            });
-
+                hasWaitedFrame = true;
+                TimerManager.Ins.WaitForFrame(5, () => Run(anim, Data, generation));
+            }
+            else Run(anim, Data, generation);
         }
+
+        bool CanPlay(ANIM anim)
+        {
+            if (tf == null) return false;
+            Propertys Data = Array.Find(datas, data => data != null && data.Id == anim);
+            return Data != null && Data.StartTf != null && Data.EndTf != null;
+        }
+
+        static bool IsReverse(ANIM running, ANIM requested) =>
+            (running == ANIM.SHOW && requested == ANIM.HIDE) || (running == ANIM.HIDE && requested == ANIM.SHOW);
+
+        void Run(ANIM anim, Propertys Data, int generation)
+        {
+            if (generation != CurrentGeneration || state != anim || tf == null) return;
+            if (Data.EndTf == null)
+            {
+                state = ANIM.NONE;
+                return;
+            }
+            OnAnimEnter((int)anim);
+            currentAnim?.Kill();
+            Tween tween = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease);
+            if (anim == ANIM.IDLE) tween.SetLoops(2, LoopType.Yoyo);
+            currentAnim = tween.OnComplete(() =>
+            {
+                if (generation != CurrentGeneration || state != anim) return;
+                if (Data.IsReturnOriginPos) tf.position = Data.OriginPos;
+                CompleteIfCurrent((int)anim, generation);
+            });
+        }
+
         public override void Stop()
         {
-            tf.DOKill();
+            currentAnim?.Kill();
+            currentAnim = null;
+            if (tf != null) tf.DOKill();
             animQueue?.Clear();
         }
         [Button]

@@ -94,6 +94,17 @@ namespace Hung.UI
             return false;
         }
 
+        /// <summary>
+        /// Drops the running animation without completing it, so a reversing request can start now.
+        /// Unlike <see cref="Interrupt"/>, keeps the pending transition callback of the new request.
+        /// </summary>
+        protected void AbandonCurrent()
+        {
+            animationGeneration++;
+            state = ANIM.NONE;
+            animQueue?.Clear();
+        }
+
         protected void OnAnimExit(int animCode)
         {
             int completedGeneration = animationGeneration;

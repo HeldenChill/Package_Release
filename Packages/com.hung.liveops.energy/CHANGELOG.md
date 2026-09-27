@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.2.7] - 2026-09-27
+- Dependency alignment: com.hung.base 0.22.0 -> 0.23.0.
+
 ## [0.2.6] - 2026-09-26
 - Dependency alignment for the Base/UI release.
 

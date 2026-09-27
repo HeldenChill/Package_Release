@@ -42,6 +42,8 @@ Register canvases with `CanvasRegistry`, open/close them through `UIManager`, an
 
 Public addressed acquisition types: `IUIAsyncPrefabProvider`, `IUIAddressResolver`, `UIPrefabLease`, `AddressablesUIPrefabProvider`, `AsyncCanvasRegistry`, `UIAcquireResult<T>`, and `UIAcquireFailure`. `UIManager.SetAsyncProvider` and `UIManager.AcquireAsync<T>` are the facade entry points.
 
+`UIManager.CloseUIDirectly`, `IsContain` and `IsInBackStack` implement the `IUIService` back-stack queries. `UIButton.Tf`/`RectTf` expose the serialized `tf`; `UIButton.DefaultClickSfx` (static, default true) and the overridable `PlaysClickSfx` control click SFX. `UIPositionAnim.waitFrame` delays only the first play by 5 frames; SHOW/HIDE reverse mid-flight. `UIAnim.AbandonCurrent()` and `MaskRaycastImage.maskRectTfs` are protected adapter seams.
+
 `UIItem.OnIconSpriteAssigned(Sprite)` is the protected extension point for product icon presentation, such as trim-aware scaling.
 
 ## Known limitations / sharp edges

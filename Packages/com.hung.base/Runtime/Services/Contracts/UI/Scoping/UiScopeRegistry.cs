@@ -28,6 +28,11 @@ namespace Hung.UI.Scoping
 
         public UiScopePath Current { get; private set; } = UiScopePath.None;
 
+        // Reused across Enter calls so a transition allocates nothing. A nested Enter (a canvas whose
+        // close changes scope) gets a fresh list, so the outer snapshot is never overwritten.
+        readonly List<IScopedUi> _closing = new();
+        bool _entering;
+
         /// <summary>
         /// Makes <paramref name="path"/> the live scope and closes every registered canvas whose
         /// bound scope it left.
@@ -37,17 +42,28 @@ namespace Hung.UI.Scoping
             if (path == Current) return;
             Current = path;
 
-            var closing = new List<IScopedUi>();
-            foreach (KeyValuePair<IScopedUi, UiScopePath> entry in _bound)
+            bool nested = _entering;
+            List<IScopedUi> closing = nested ? new List<IScopedUi>() : _closing;
+            _entering = true;
+            try
             {
-                if (entry.Key.Scope.ShouldCloseOn(entry.Value, path)) closing.Add(entry.Key);
-            }
+                foreach (KeyValuePair<IScopedUi, UiScopePath> entry in _bound)
+                {
+                    if (entry.Key.Scope.ShouldCloseOn(entry.Value, path)) closing.Add(entry.Key);
+                }
 
-            // Iterate a snapshot: OnScopeExit reaches UICanvas.Close, which unregisters, and
-            // mutating _bound mid-foreach would throw and leave the rest of the popups open.
-            for (int i = 0; i < closing.Count; i++)
+                // Iterate a snapshot: OnScopeExit reaches UICanvas.Close, which unregisters, and
+                // mutating _bound mid-foreach would throw and leave the rest of the popups open.
+                for (int i = 0; i < closing.Count; i++)
+                {
+                    IScopedUi canvas = closing[i];
+                    if (_bound.ContainsKey(canvas)) canvas.OnScopeExit();
+                }
+            }
+            finally
             {
-                closing[i].OnScopeExit();
+                closing.Clear();
+                _entering = nested;
             }
         }
 

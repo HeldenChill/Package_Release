@@ -260,5 +260,34 @@ namespace Hung.UI.Tests
             }
         }
 
+        [Test]
+        public void Manager_back_stack_queries_and_direct_close()
+        {
+            var managerObject = new GameObject("UIManager");
+            var canvasObject = new GameObject("QueryCanvas", typeof(RectTransform), typeof(AsyncProbeCanvas));
+            try
+            {
+                UIManager manager = managerObject.AddComponent<UIManager>();
+                Locator.UI = manager;
+                var canvas = canvasObject.GetComponent<AsyncProbeCanvas>();
+
+                Assert.IsFalse(manager.IsInBackStack(canvas));
+                Assert.IsFalse(manager.IsContain(canvas), "Not acquired through the manager registry.");
+
+                canvas.Open();
+                Assert.IsTrue(manager.IsInBackStack(canvas));
+
+                manager.CloseUIDirectly(canvas);
+                Assert.IsFalse(manager.IsInBackStack(canvas));
+                Assert.IsFalse(canvasObject.activeSelf);
+                Assert.DoesNotThrow(() => manager.CloseUIDirectly(null));
+            }
+            finally
+            {
+                Locator.UI = null;
+                UnityEngine.Object.DestroyImmediate(canvasObject);
+                UnityEngine.Object.DestroyImmediate(managerObject);
+            }
+        }
     }
 }

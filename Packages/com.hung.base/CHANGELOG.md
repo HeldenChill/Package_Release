@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.23.0] - 2026-09-27
+- `UICanvas.Open`/`Close` are now virtual. Added `Setup(param)` (pushes the back entry) and `CloseDirectly(param)` (no transition, no matching Open required, no `OnClose` hook, invalidates a pending outro).
+- Added `UIBackPushPolicy` and static `UICanvas.BackPushPolicy` (default `OnOpen`, unchanged behaviour). `ExplicitSetup` makes only `Setup` push.
+- Scope exit now runs through the virtual `Close`, so view overrides execute. It still bypasses `CanClose`.
+- `Open`, `Setup`, `CloseDirectly` and close completion tolerate a null `Locator.UI`.
+- `IUIService` adds `CloseUIDirectly`, `IsContain` and `IsInBackStack`; `UIBackStack.Contains`. Implementers must add the three members.
+- `UiScopeRegistry.Enter` reuses its snapshot list, falls back to a fresh list on nested re-entry, and skips canvases already closed by a nested transition.
+
 ## [0.22.0] - 2026-09-26
 - Added `IUIAcquisitionService`, `UIAcquireResult<T>`, and typed failure categories for optional addressed UI loading without changing `IUIService`.
 - Added neutral `Hung.UI.Scoping` path, scope, registry, and canvas lifecycle hooks for hierarchy-based UI ownership. Existing canvases remain global by default. Reopen invalidates a pending close completion.

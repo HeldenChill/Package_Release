@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0] - 2026-09-27
+- Requires com.hung.base 0.23.0. `UIManager` implements `CloseUIDirectly`, `IsContain` and `IsInBackStack`; `BackStack` initializes lazily.
+- `UIButton` adds serialized `tf` with `Tf`/`RectTf`, and click-SFX policy `DefaultClickSfx` (default true) via overridable `PlaysClickSfx`. Click no longer throws without `Locator.Audio`.
+- `MaskRaycastImage.maskRectTfs` is protected for product adapters.
+- `UIPositionAnim`: SHOW/HIDE reverse mid-flight from the current position; new serialized `waitFrame` (default false) delays only the first play by 5 frames. **Behaviour change:** 0.6.0 waited 5 frames before every play. See `Docs/adr/adr-e5-0006-ui-canvas-button-position-semantics.md`.
+- `UIAnim.AbandonCurrent` lets an effect replace its running animation without completing it.
+
 ## [0.6.0] - 2026-09-26
 - Added typed `UIManager.AcquireAsync<T>(address)`, injectable `IUIAsyncPrefabProvider`, Addressables provider, in-flight deduplication, and retained prefab leases. The existing callback API remains available.
 - Optional `IUIAddressResolver` routes the existing callback API through addressed acquisition with exactly one success or failure callback.

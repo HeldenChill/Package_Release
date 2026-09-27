@@ -5,8 +5,22 @@ using UnityEngine.Serialization;
 
 namespace Hung.UI
 {
+    /// <summary>When an opened canvas joins the back stack.</summary>
+    public enum UIBackPushPolicy
+    {
+        /// <summary>Every <see cref="UICanvas.Open"/> pushes. Package default.</summary>
+        OnOpen,
+        /// <summary>Only <see cref="UICanvas.Setup"/> pushes; <see cref="UICanvas.Open"/> never does.</summary>
+        ExplicitSetup
+    }
+
     public abstract class UICanvas : MonoBehaviour, IScopedUi
     {
+        /// <summary>
+        /// Process-wide back-stack policy. A game sets it once at composition, before any canvas opens.
+        /// </summary>
+        public static UIBackPushPolicy BackPushPolicy = UIBackPushPolicy.OnOpen;
+
         /// <summary>Lifetime scope for this canvas. Existing canvases remain global by default.</summary>
         public virtual UiScope Scope => UiScope.Global;
 
@@ -14,6 +28,7 @@ namespace Hung.UI
         protected virtual UiScopeRegistry ScopeRegistry => UiScopeRegistry.Instance;
 
         private int lifecycleVersion;
+        private bool closingForScopeExit;
 
         [FormerlySerializedAs("IsDestroyOnClose")]
         public bool isDestroyOnClose;
@@ -41,11 +56,11 @@ namespace Hung.UI
         // silently never run for them. This runs on first Open/Close instead.
         protected virtual UITransition EnsureTransition() => GetComponent<UITransition>();
 
-        public void Open(object param = null)
+        public virtual void Open(object param = null)
         {
             lifecycleVersion++;
             if (Transition) Transition.Interrupt();
-            Locator.UI.BackStack.Push(this, OnBackKey);
+            if (BackPushPolicy == UIBackPushPolicy.OnOpen) PushBack();
             OnOpen(param);
             UpdateUI();
             gameObject.SetActive(true);
@@ -54,14 +69,43 @@ namespace Hung.UI
             if (Transition) Transition.PlayIntro(null);
         }
 
-        /// <summary>Closes this canvas when its bound scope is no longer active.</summary>
+        /// <summary>Adds this canvas to the back stack with <see cref="OnBackKey"/> as its action.</summary>
+        public virtual void Setup(object param = null) => PushBack();
+
+        private void PushBack() => Locator.UI?.BackStack.Push(this, OnBackKey);
+
+        /// <summary>
+        /// Closes this canvas when its bound scope is no longer active. Routes through the virtual
+        /// <see cref="Close"/> so view overrides run, while still bypassing <see cref="CanClose"/>.
+        /// </summary>
         public void OnScopeExit()
         {
             ScopeRegistry.Unregister(this);
-            CloseCore(true);
+            closingForScopeExit = true;
+            try { Close(); }
+            finally { closingForScopeExit = false; }
         }
 
-        public void Close() => CloseCore(false);
+        /// <summary>
+        /// Closes with the outro transition. Scope exit also routes here, already unregistered, so an
+        /// override must call <c>base.Close()</c> unconditionally and must not gate on
+        /// <see cref="CanClose"/> itself (the base applies it, except on scope exit); skipping the base
+        /// leaves the canvas open and never scope-closed again.
+        /// </summary>
+        public virtual void Close() => CloseCore(closingForScopeExit);
+
+        /// <summary>
+        /// Closes immediately without a transition and without requiring a matching Open. Does not
+        /// raise <see cref="OnClose"/>. Invalidates any pending outro so it cannot hide a later reopen.
+        /// </summary>
+        public virtual void CloseDirectly(object param = null)
+        {
+            lifecycleVersion++;
+            if (Transition) Transition.Interrupt();
+            ScopeRegistry.Unregister(this);
+            Locator.UI?.BackStack.Remove(this);
+            Deactivate();
+        }
 
         private void CloseCore(bool scopeExit)
         {
@@ -79,9 +123,14 @@ namespace Hung.UI
         private void FinishClose(int version)
         {
             if (version != lifecycleVersion) return;
-            Locator.UI.BackStack.Remove(this);
+            Locator.UI?.BackStack.Remove(this);
             OnClose();
             if (version != lifecycleVersion) return;
+            Deactivate();
+        }
+
+        private void Deactivate()
+        {
             gameObject.SetActive(false);
             if (isDestroyOnClose) Destroy(gameObject);
         }

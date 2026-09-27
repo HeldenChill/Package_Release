@@ -32,7 +32,14 @@ namespace Hung.UI
         public RectTransform ParentCanvasTf => parentCanvasTf;
         public Canvas Canvas => canvas;
         public CanvasScaler CanvasScaler => canvasScaler;
-        public UIBackStack BackStack => backStack;
+        public UIBackStack BackStack
+        {
+            get
+            {
+                EnsureInitialized();
+                return backStack;
+            }
+        }
 
         private void Awake()
         {
@@ -130,6 +137,22 @@ namespace Hung.UI
         {
             return registry.Get<T>();
         }
+
+        /// <inheritdoc/>
+        public void CloseUIDirectly(UICanvas ui)
+        {
+            if (ui != null) ui.CloseDirectly();
+        }
+
+        /// <inheritdoc/>
+        public bool IsContain(UICanvas ui)
+        {
+            EnsureInitialized();
+            return ui != null && registry.Contains(ui);
+        }
+
+        /// <inheritdoc/>
+        public bool IsInBackStack(UICanvas ui) => BackStack.Contains(ui);
 
         public void GetUIAsync<T>(System.Action<T> onComplete) where T : UICanvas
         {

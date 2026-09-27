@@ -28,6 +28,12 @@ namespace Hung.Base
         /// hook. Callers must not assume the callback has already run when this returns.
         /// </summary>
         public void GetUIAsync<T>(System.Action<T> onComplete) where T : UICanvas;
+        /// <summary>Close without transition and without requiring a matching Open. Null is ignored.</summary>
+        public void CloseUIDirectly(UICanvas canvas);
+        /// <summary>True when this service's registry holds the canvas instance.</summary>
+        public bool IsContain(UICanvas canvas);
+        /// <summary>True when the canvas is on the back stack.</summary>
+        public bool IsInBackStack(UICanvas canvas);
         public void PreloadUI<T>() where T : UICanvas;
         public void UpdateAllUI();
         public void DestroyAllUI(HashSet<UICanvas> exception);
