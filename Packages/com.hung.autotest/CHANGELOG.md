@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.2] - 2026-09-29
+- Fixed `AutoTestAssertionRegistry` string ids surviving Enter Play Mode with domain reload
+  disabled: the registry now clears on `SubsystemRegistration`, so game glue re-registering on
+  `BeforeSceneLoad` no longer throws `Assertion id '...' is already registered` on the second play.
+
 ## [0.4.0] - 2026-08-15
 - Added `AutoTestRuntimeCapability` (`[Flags]` enum, `FakeInput = 1`) and
   `AutoTestCaseData.requiredCapabilities` (additive, default `None`) so a case can declare a

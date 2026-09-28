@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Hung.AutoTest
 {
@@ -31,6 +32,14 @@ namespace Hung.AutoTest
             = new(StringComparer.Ordinal);
         static readonly Dictionary<string, AutoTestAssertionDescriptor> descriptors
             = new(StringComparer.Ordinal);
+
+        // Enter Play Mode with domain reload off keeps statics alive, so game glue that
+        // re-registers on BeforeSceneLoad would hit the duplicate-id throw on the second play.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetOnSubsystemRegistration()
+        {
+            ResetStringRegistryForTests();
+        }
 
         public static void Register(AutoTestAssertionType type, Func<AutoTestAssertionConfig, IAutoTestAssertion> creator)
         {
