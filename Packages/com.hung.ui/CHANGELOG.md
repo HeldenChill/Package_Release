@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.1] - 2026-09-28
+- `UIScaleAnim.Propertys` is public so product code can read authored keyframes (`StartSize`, `EndSize`, `IsSetStartSize`). Serialization unchanged.
+- `UIAlphaAnim` plays authored IDLE data as an endless yoyo fade to 0 (PVM semantics); it runs until `Stop`/`Interrupt`.
+- `UIAlphaAnim.Stop()` releases the running animation, so the next `Play` starts at once instead of being ignored or queued.
+
 ## [0.7.0] - 2026-09-27
 - Requires com.hung.base 0.23.0. `UIManager` implements `CloseUIDirectly`, `IsContain` and `IsInBackStack`; `BackStack` initializes lazily.
 - `UIButton` adds serialized `tf` with `Tf`/`RectTf`, and click-SFX policy `DefaultClickSfx` (default true) via overridable `PlaysClickSfx`. Click no longer throws without `Locator.Audio`.

@@ -19,6 +19,7 @@ namespace Hung.UI
 
         public override void Stop()
         {
+            state = ANIM.NONE;
             canvasGroup.DOKill();
         }
         public override void Play(ANIM anim)
@@ -45,6 +46,10 @@ namespace Hung.UI
                     {
                         CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
+                    break;
+                case ANIM.IDLE:
+                    OnAnimEnter((int)ANIM.IDLE);
+                    canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).SetLoops(-1, LoopType.Yoyo);
                     break;
 
 

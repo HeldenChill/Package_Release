@@ -11,7 +11,8 @@ namespace Hung.UI
     public class UIScaleAnim : UIAnim
     {
         [Serializable]
-        private new class Propertys : UIAnim.Propertys
+        /// <summary>Scale keyframe. Public so product code can read authored sizes (for example to snap to StartSize).</summary>
+        public new class Propertys : UIAnim.Propertys
         {
             public Vector2 StartSize = Vector3.zero;
             public Vector2 EndSize;
