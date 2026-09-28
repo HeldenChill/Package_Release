@@ -44,7 +44,7 @@ Public addressed acquisition types: `IUIAsyncPrefabProvider`, `IUIAddressResolve
 
 `UIManager.CloseUIDirectly`, `IsContain` and `IsInBackStack` implement the `IUIService` back-stack queries. `UIButton.Tf`/`RectTf` expose the serialized `tf`; `UIButton.DefaultClickSfx` (static, default true) and the overridable `PlaysClickSfx` control click SFX. `UIPositionAnim.waitFrame` delays only the first play by 5 frames; SHOW/HIDE reverse mid-flight. `UIAnim.AbandonCurrent()` and `MaskRaycastImage.maskRectTfs` are protected adapter seams. `UIScaleAnim.Propertys` is public (0.7.1). `UIAlphaAnim` loops authored IDLE data and `Stop()` releases its running state.
 
-`UIItem.OnIconSpriteAssigned(Sprite)` is the protected extension point for product icon presentation, such as trim-aware scaling.
+`UIItem.OnIconSpriteAssigned(Sprite)` is the protected extension point for product icon presentation, such as trim-aware scaling. `UIItem.anims` is protected (0.7.2) for product subclasses.
 
 ## Known limitations / sharp edges
 

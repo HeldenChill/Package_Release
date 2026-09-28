@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.8] - 2026-09-28
+- Dependency alignment: com.hung.ui 0.7.1 -> 0.7.2.
+
 ## [0.4.7] - 2026-09-28
 - Dependency alignment: com.hung.ui 0.7.0 -> 0.7.1.
 

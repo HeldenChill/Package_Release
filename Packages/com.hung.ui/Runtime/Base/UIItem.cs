@@ -35,8 +35,9 @@ namespace Hung.UI
         protected TMP_Text quantityText;
         [SerializeField]
         protected bool isHaveX = true;
+        /// <summary>Authored item animations. Protected so product subclasses drive the same serialized list (0.7.2).</summary>
         [SerializeField]
-        List<UIAnim> anims;
+        protected List<UIAnim> anims;
         protected int quantity = 0;
         public Image Icon => icon;
         public void SetData(int quantity, bool isHaveX = true)

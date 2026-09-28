@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.7.2] - 2026-09-28
+- `UIItem.anims` is protected so product subclasses drive the same serialized list instead of redeclaring it (a redeclared serialized `anims` is serialized twice). Name, type and serialization unchanged.
+
 ## [0.7.1] - 2026-09-28
 - `UIScaleAnim.Propertys` is public so product code can read authored keyframes (`StartSize`, `EndSize`, `IsSetStartSize`). Serialization unchanged.
 - `UIAlphaAnim` plays authored IDLE data as an endless yoyo fade to 0 (PVM semantics); it runs until `Stop`/`Interrupt`.

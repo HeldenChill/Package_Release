@@ -35,5 +35,15 @@ namespace Hung.UI.Tests
             }
             finally { Object.DestroyImmediate(gameObject); }
         }
+
+        [Test]
+        public void Anims_list_is_protected_for_product_subclasses()
+        {
+            // PVM UISItem drives this serialized list; a redeclared `anims` would be serialized twice.
+            var field = typeof(UIItem).GetField("anims", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.IsNotNull(field);
+            Assert.IsTrue(field.IsFamily, "anims is protected");
+            Assert.IsTrue(field.IsDefined(typeof(SerializeField), false), "anims stays serialized");
+        }
     }
 }
