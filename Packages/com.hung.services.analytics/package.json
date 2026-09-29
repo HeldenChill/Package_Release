@@ -8,7 +8,7 @@
     "layer:4"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.4.4",
+    "com.hung.designpattern": "0.4.5",
     "com.hung.utilities": "0.2.2",
     "com.hung.base": "0.23.0",
     "com.hung.data": "0.12.6"

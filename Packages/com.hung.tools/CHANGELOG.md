@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.0] - 2026-09-29
+### Removed
+- `SDKToolkitWindow` / `SDKToolkitSettingsWindow` (`Tools/Universal/Maintenance/SDK Toolkit`): redundant tool.
+
 ## [0.10.1] - 2026-09-26
 - Republished current source changes in the public snapshot.
 

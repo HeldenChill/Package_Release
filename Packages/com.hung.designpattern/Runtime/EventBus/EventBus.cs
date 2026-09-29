@@ -10,6 +10,10 @@ namespace Hung.DesignPattern
     {
         static readonly HashSet<IEventBinding<T>> bindings = new();
 
+        // Every closed EventBus<T> registers its reset once, on first touch, so
+        // EventBusRegistry can clear all of them without knowing the event types.
+        static EventBus() => EventBusRegistry.Register(() => bindings.Clear());
+
         public static void Subscribe(EventBinding<T> binding) => bindings.Add(binding);
         public static void Unsubscribe(EventBinding<T> binding) => bindings.Remove(binding);
 
@@ -36,6 +40,25 @@ namespace Hung.DesignPattern
                     Debug.LogException(ex);
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Clears every EventBus binding set when play mode starts. With Enter Play Mode Options
+    /// disabling domain reload, the static sets survive stopping play: a subscriber whose
+    /// owner was destroyed without unsubscribing (play stopped mid-phase) keeps receiving
+    /// events in the next session and touches destroyed objects.
+    /// </summary>
+    public static class EventBusRegistry
+    {
+        static readonly List<System.Action> resets = new();
+
+        internal static void Register(System.Action reset) => resets.Add(reset);
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        public static void ClearAllBindings()
+        {
+            foreach (var reset in resets) reset();
         }
     }
 }

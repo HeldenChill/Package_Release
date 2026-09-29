@@ -6,8 +6,8 @@ namespace Hung.DesignPattern.Tests
 {
     // EventBus<T> API uses Raise, not Publish. Adjusted from the plan's assumed API
     // during Ph5 execution. Each test uses its own event struct to avoid bleeding
-    // into other tests via EventBus<T>'s static per-type binding set (no Clear/Reset
-    // exists to isolate tests, so [TearDown] explicitly unsubscribes instead).
+    // into other tests via EventBus<T>'s static per-type binding set (tests unsubscribe
+    // explicitly; EventBusRegistry.ClearAllBindings would wipe every other bus too).
     public class EventBusTests
     {
         private struct SubscribeReceivesRaiseEvent : global::Hung.DesignPattern.IEvent { public int Value; }
@@ -17,6 +17,7 @@ namespace Hung.DesignPattern.Tests
         private struct SubscriberExceptionEvent : global::Hung.DesignPattern.IEvent { }
         private struct UnsubscribeDuringRaiseEvent : global::Hung.DesignPattern.IEvent { }
         private struct SubscribeDuringRaiseEvent : global::Hung.DesignPattern.IEvent { }
+        private struct ClearAllBindingsEvent : global::Hung.DesignPattern.IEvent { }
 
         [Test]
         public void Subscribe_ReceivesRaise()
@@ -132,6 +133,21 @@ namespace Hung.DesignPattern.Tests
             Assert.AreEqual(1, lateCalls, "it must receive the next raise");
 
             global::Hung.DesignPattern.EventBus<SubscribeDuringRaiseEvent>.Unsubscribe(late);
+        }
+
+        // Domain reload off: a binding left behind by a stopped play session must not fire in
+        // the next one. ClearAllBindings is what SubsystemRegistration runs on play start.
+        [Test]
+        public void ClearAllBindings_DropsSubscriberLeftFromPreviousSession()
+        {
+            int callCount = 0;
+            var stale = new global::Hung.DesignPattern.EventBinding<ClearAllBindingsEvent>(() => callCount++);
+            global::Hung.DesignPattern.EventBus<ClearAllBindingsEvent>.Subscribe(stale);
+
+            global::Hung.DesignPattern.EventBusRegistry.ClearAllBindings();
+            global::Hung.DesignPattern.EventBus<ClearAllBindingsEvent>.Raise(new ClearAllBindingsEvent());
+
+            Assert.AreEqual(0, callCount);
         }
     }
 }

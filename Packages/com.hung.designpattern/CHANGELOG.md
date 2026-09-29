@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.5] - 2026-09-29
+### Fixed
+- `EventBus` bindings are cleared on `SubsystemRegistration` (new `EventBusRegistry.ClearAllBindings`).
+  With domain reload disabled, a subscriber left behind by a stopped play session kept receiving
+  events in the next session and touched destroyed objects.
+
 ## [0.4.3] - 2026-08-09
 - Fix: MiniPool now reuses inactive slots after out-of-order despawn and Collect sweeps every active object.
 
