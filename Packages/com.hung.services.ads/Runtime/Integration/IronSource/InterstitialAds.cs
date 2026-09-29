@@ -88,7 +88,7 @@ namespace Hung.Ads.Integration.IronSource
             Debug.Log("Interstitial ad load complete.");
             IsLoading = false;
             OnAdsLoaded?.Invoke();
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_inters_successfullyloaded");
+            Locator.Analytics.LogEvent("af_inters_successfullyloaded", AnalyticsCategory.Ads);
             Locator.Analytics.AdsInterLoadComplete();
         }
         private void OnAdLoadFailed(LevelPlayAdError error)
@@ -101,7 +101,7 @@ namespace Hung.Ads.Integration.IronSource
         }
         private void OnAdsDisplay(LevelPlayAdInfo info)
         {
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_inters_displayed");
+            Locator.Analytics.LogEvent("af_inters_displayed", AnalyticsCategory.Ads);
             Locator.Analytics.AdsInterShow(placement);
             Debug.Log("Interstitial ad full screen content opened.");
         }

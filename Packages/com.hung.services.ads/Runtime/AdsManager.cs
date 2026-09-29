@@ -21,6 +21,18 @@ namespace Hung.Ads
         [SerializeField]
         MonoBehaviour interBehaviour;
 
+        [SerializeField]
+        [Tooltip("Optional. When set, rewarded/interstitial/banner are routed across installed providers per this config, and the Game*Ads providerBindings are ignored.")]
+        AdsRoutingConfig routingConfig;
+
+        AdsRoutedComposer.Result routed;
+
+        /// <summary>Optional remote routing override (JSON, see AdsRoutingOverride). Read at every load cycle. Reset on SubsystemRegistration.</summary>
+        public static Func<string> RoutingOverrideJson { get; set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => RoutingOverrideJson = null;
+
         IAds appOpen;
         IAds banner;
         IRewardAds reward;
@@ -56,8 +68,25 @@ namespace Hung.Ads
             Locator.Ads = this;
         }
 
+        void Start()
+        {
+            if (routingConfig == null) return;
+
+            routed = AdsRoutedComposer.Compose(routingConfig.Data, AdsInstallers.All, gameObject, () => RoutingOverrideJson?.Invoke());
+            var registry = routed.ToLegacyRegistry();
+            (reward as GameRewardAds)?.ConfigureProviders(registry);
+            (inter as GameInterAds)?.ConfigureProviders(registry);
+            (banner as GameBannerAds)?.ConfigureProviders(registry);
+
+            // Re-assigning Type runs the existing "load if not ready" path through the Game*Ads lifecycle.
+            if (reward != null) reward.Type = reward.Type;
+            if (inter != null) inter.Type = inter.Type;
+        }
+
         void OnDestroy()
         {
+            routed?.Dispose();
+            routed = null;
             if (ReferenceEquals(Locator.Ads, this))
             {
                 Locator.Ads = null;

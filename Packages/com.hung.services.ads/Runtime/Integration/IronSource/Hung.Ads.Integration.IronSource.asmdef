@@ -6,7 +6,6 @@
         "Hung.Base",
         "Hung.DesignPattern",
         "Hung.Utilities.STimer",
-        "Hung.Analytics",
         "Unity.LevelPlay"
     ],
     "includePlatforms": [],

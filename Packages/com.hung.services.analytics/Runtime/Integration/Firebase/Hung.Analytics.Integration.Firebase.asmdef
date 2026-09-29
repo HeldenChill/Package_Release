@@ -1,0 +1,19 @@
+{
+    "name": "Hung.Analytics.Integration.Firebase",
+    "rootNamespace": "Hung.Analytics.Backends",
+    "references": [
+        "Hung.Analytics",
+        "Hung.Base"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ANALYTICS_FIREBASE"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

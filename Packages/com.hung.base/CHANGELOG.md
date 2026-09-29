@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.25.0] - 2026-09-29
+### Changed (breaking)
+- `IAnalyticsService`: added `LogEvent(name, AnalyticsCategory, parameters)` and `SetUserProperty`; `LevelTrackEvent(state, level, stars, firstPass, isFtu)`; removed `GoogleFireBaseTrackEvent`, `AppsFlyerTrackParamEvent`, `FireUserProps`, `Day`.
+### Added
+- `AnalyticsCategory` flags enum. `GameData.LevelData.MarkPassed(int)`.
+
+## [0.24.0] - 2026-09-29
+- Added `IRewardAds.IsCanShowFor(Placement)` (default interface method, default false). Lets rewarded ad readiness be checked per placement for consumers using ads routing.
+
 ## [0.23.0] - 2026-09-27
 - `UICanvas.Open`/`Close` are now virtual. Added `Setup(param)` (pushes the back entry) and `CloseDirectly(param)` (no transition, no matching Open required, no `OnClose` hook, invalidates a pending outro).
 - Added `UIBackPushPolicy` and static `UICanvas.BackPushPolicy` (default `OnOpen`, unchanged behaviour). `ExplicitSetup` makes only `Setup` push.

@@ -25,6 +25,12 @@ namespace Hung.Base
         public Action _OnTriggerLoadAds { get; }
         public Action<Action> _OnAddLoadAds { get; }
         public void Show(Action rewardCallBack, Action hiddenCallBack = null, Placement placement = Placement.NONE);
+
+        /// <summary>
+        /// True when a rewarded ad can be shown now for this placement (its routed provider list when
+        /// ads routing is on). Default false for implementations that predate placement routing.
+        /// </summary>
+        public bool IsCanShowFor(Placement placement) => false;
     }
     public interface IInterAds : IAds
     {

@@ -1,6 +1,6 @@
 {
   "name": "com.hung.services.ads",
-  "version": "0.6.6",
+  "version": "0.7.1",
   "displayName": "Hung Services Ads",
   "description": "Ads service wrapper, vendor-isolated (neutral core + Max/AdMob/IronSource integration assemblies).",
   "unity": "2022.3",
@@ -10,8 +10,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.4.5",
     "com.hung.utilities": "0.2.2",
-    "com.hung.base": "0.23.0",
-    "com.hung.data": "0.12.6",
-    "com.hung.services.analytics": "0.3.7"
+    "com.hung.base": "0.25.0",
+    "com.hung.data": "0.12.6"
   }
 }

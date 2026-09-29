@@ -1,0 +1,20 @@
+{
+    "name": "Hung.Analytics.Integration.AppsFlyer",
+    "rootNamespace": "Hung.Analytics.Backends",
+    "references": [
+        "Hung.Analytics",
+        "Hung.Base",
+        "AppsFlyer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ANALYTICS_APPSFLYER"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

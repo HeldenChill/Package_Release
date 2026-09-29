@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.7.1] - 2026-09-29
+### Changed
+- Custom `af_*` ad events use `Locator.Analytics.LogEvent(name, AnalyticsCategory.Ads)` (base 0.25.0).
+- IronSource revenue `extra` carries `mediation = ironsource`.
+- Dropped the `com.hung.services.analytics` dependency and the `Hung.Analytics` reference from `Hung.Ads.Integration.IronSource`; removed the IronSource loading wait on `FirebaseManager` and the unused `AnalyticsManager` field.
+
+## [0.7.0] - 2026-09-29
+### Added
+- Multi-provider ads routing: `AdsRouter`, `AdsRoutingConfig`/`AdsRoutingData`/`AdsRoutingOverride`, `AdsProviderSet`, `IAdsProviderInstaller`/`AdsInstallers`, `RoutedLoadCycle`, `RoutedRewardedProvider`, `RoutedInterstitialProvider`, `RoutedBannerProvider`, `AdsRoutedComposer`. Lets rewarded/interstitial/banner serve from MAX, AdMob and Yandex, alone or combined (chain, per-format, parallel, per-placement), switchable at compile time and at runtime. See README "Routed mode".
+- `AdMobRewarded`/`AdMobInterstitial`/`AdMobBanner`/`AdMobAdsInstaller` — AdMob integration rewritten on Google Mobile Ads Unity 9.1.0 (was fully dead/commented-out code).
+- `MaxAdsInstaller` and `SetAdUnitId(string)` on the MAX rewarded/interstitial/banner providers, for routed mode.
+- `AdsManager.routingConfig` (optional `AdsRoutingConfig` field) and `AdsManager.RoutingOverrideJson` (static remote-override seam).
+- Requires `com.hung.base` `0.24.0` (adds `IRewardAds.IsCanShowFor(Placement)`).
+
+- `RoutedInterstitialProvider.IsCanShowFor(Placement)`.
+
+### Fixed (found in review before release)
+- `GameRewardAds.Show` / `GameInterAds.Show` gated on the format default route while the routed provider showed the placement route. A placement route that was not ready took the pause lease, failed inside the routed provider and left the request open. Both now gate on the request's placement.
+- Routed reward/interstitial providers could block every later show for the session if a vendor never reported hidden / done / display-fail. The lock now expires after 180 seconds (`showLockTimeout`, injectable `clock`).
+- AdMob providers waited forever for SDK init and never reported load-fail, stalling a chain. They now report load-fail after 15 seconds and skip deferred loads on destroyed components.
+
+### Changed
+- None for legacy mode: `routingConfig == null` is byte-for-byte the existing behavior.
+
+### Known gaps
+- Yandex Mobile Ads integration is deferred and may be dropped. No `Hung.Ads.Integration.Yandex` assembly exists; `HUNG_ADS_YANDEX` is reserved and unused.
+- Open review items (late reward across shows, duplicate MAX components, banner retry, override `enabled` default, AdMob analytics parity, route allocation) are listed in the README under Known limitations.
+
 ## [0.6.6] - 2026-09-27
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0; com.hung.data 0.12.5 -> 0.12.6; com.hung.services.analytics 0.3.6 -> 0.3.7.
 

@@ -107,7 +107,7 @@ namespace Hung.Ads.Integration.IronSource
         {
             IsLoading = false;
             OnAdsLoaded?.Invoke();
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_rewarded_successfullyloaded");
+            Locator.Analytics.LogEvent("af_rewarded_successfullyloaded", AnalyticsCategory.Ads);
             Locator.Analytics.AdsRewardLoad();
         }
         private void OnAdLoadFailed(LevelPlayAdError error)
@@ -120,7 +120,7 @@ namespace Hung.Ads.Integration.IronSource
         }
         private void OnAdsDisplay(LevelPlayAdInfo info)
         {
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_rewarded_displayed");
+            Locator.Analytics.LogEvent("af_rewarded_displayed", AnalyticsCategory.Ads);
             Locator.Analytics.AdsRewardShow(placement);
         }
         private void HandleAdDisplayFail(LevelPlayAdInfo info, LevelPlayAdError error)

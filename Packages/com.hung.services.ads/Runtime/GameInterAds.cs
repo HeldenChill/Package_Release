@@ -200,7 +200,10 @@ namespace Hung.Ads
                             return;
                         }
 
-                        if (activeProvider != null && activeProvider.IsCanShow)
+                        bool canShow = activeProvider is RoutedInterstitialProvider routed
+                            ? routed.IsCanShowFor(request.Placement)
+                            : activeProvider != null && activeProvider.IsCanShow;
+                        if (canShow)
                         {
                             AcquireAdsLease(request);
                             activeProvider.Show(request.Placement);

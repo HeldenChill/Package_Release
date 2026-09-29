@@ -11,7 +11,6 @@ namespace Hung.Ads
     using Unity.Services.LevelPlay;
     using Hung.Utilities.Timer;
     using System.Collections;
-    using Hung.Analytics;
 
     [DefaultExecutionOrder(-50)]
     public class AdsManager : Singleton<AdsManager>, IAdsService
@@ -25,8 +24,6 @@ namespace Hung.Ads
         GameRewardAds reward;
         [SerializeField]
         GameInterAds interstitial;
-        [SerializeField]
-        AnalyticsManager analyticsManager;
         protected ADS_TYPE type;
         AdsLoadQueue loadQueue;
         bool isMaxAvailable = false;
@@ -142,26 +139,12 @@ namespace Hung.Ads
         float loadingProgress = 0f;
         protected IEnumerator CheckingRemoteData()
         {
-            while (FirebaseManager.Ins == null || !FirebaseManager.Ins.IsAvailable)
-            {
-                loadingProgress = Mathf.Lerp(loadingProgress, 1f, 0.05f);
-                _OnLoadingProgress?.Invoke(loadingProgress);
-                yield return null;
-            }
-
             loadingProgress = 1f;
             _OnLoadingProgress?.Invoke(loadingProgress);
 
-            // FirebaseManager.Ins.GetValueRemoteAsync("AdsConfig", (value) =>
-            // {
-            //     int adsType = 0;
-            //     int.TryParse(value.StringValue.ToString(), out adsType);
-            //     Type = (ADS_TYPE)adsType;
-            //     DevLog.Log(DevId.System, $"Firebase Remote Config Ads Type: {Type} <==");
-            // }); 
             yield return null;
             Type = ADS_TYPE.IRON_SOURCE;
-            DevLog.Log(DevId.System, $"Firebase Remote Config Ads Type: {Type} <==");
+            DevLog.Log(DevId.System, $"Ads Type: {Type} <==");
             yield return null;
 
         }
@@ -196,6 +179,7 @@ namespace Hung.Ads
 
             Dictionary<string, string> extra = new Dictionary<string, string>
             {
+                { "mediation", "ironsource" },
                 { "country", impressionData.Country },
                 { "ad_unit", impressionData.MediationAdUnitId },
                 { "ad_type", impressionData.AdFormat },

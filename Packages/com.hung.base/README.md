@@ -48,6 +48,8 @@ Base owns the vendor-neutral Ads request/result surface. `AdsRequestId`, `AdsSho
 
 `AdsShowResult.IsEarnedReward` is true only for rewarded requests that complete with provider reward evidence. `ShouldContinueFlow` allows callers to continue after completed, skipped, unavailable, or unsupported outcomes while treating misconfiguration and overlap as blocking failures.
 
+`IRewardAds.IsCanShowFor(Placement)` is a default interface method (default `false`) reporting whether a rewarded ad can be shown now for a specific placement — for consumers using per-placement ads routing (`com.hung.services.ads` routed mode). Implementations that predate placement routing need no change.
+
 ## Pause Lease Service
 
 `IPauseService` coordinates pause ownership through `PauseLease` values. Releasing an Ads lease releases only that Ads request and never clears active popup, tutorial, gameplay, application, or debug pauses.

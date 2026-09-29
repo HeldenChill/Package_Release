@@ -21,6 +21,9 @@ namespace Hung.Ads.Integration.Max
 #else
         protected string adUnitId = "unused";
 #endif
+        /// <summary>Overrides the built-in ad unit id (used by routed mode). Call before Start.</summary>
+        public void SetAdUnitId(string id) { if (!string.IsNullOrEmpty(id)) adUnitId = id; }
+
         protected int retryAttempt;
         protected Placement placement;
 
@@ -58,7 +61,7 @@ namespace Hung.Ads.Integration.Max
 
         protected void Show()
         {
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_rewarded_logicgame");
+            Locator.Analytics.LogEvent("af_rewarded_logicgame", AnalyticsCategory.Ads);
             if (IsCanShow)
             {
                 MaxSdk.ShowRewardedAd(adUnitId);
@@ -73,7 +76,7 @@ namespace Hung.Ads.Integration.Max
         {
             // Rewarded ad is ready for you to show. MaxSdk.IsRewardedAdReady(adUnitId) now returns 'true'.\
             IsLoading = false;
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_rewarded_successfullyloaded");
+            Locator.Analytics.LogEvent("af_rewarded_successfullyloaded", AnalyticsCategory.Ads);
             Debug.Log($"[MAX]: OnRewardedAdLoadedEvent");
             Locator.Analytics.AdsRewardLoadComplete();
             OnAdsLoaded?.Invoke();
@@ -96,7 +99,7 @@ namespace Hung.Ads.Integration.Max
         {
             Debug.Log($"[MAX]: OnRewardedAdDisplayedEvent");
             Locator.Analytics.AdsRewardShow(placement);
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_rewarded_displayed");
+            Locator.Analytics.LogEvent("af_rewarded_displayed", AnalyticsCategory.Ads);
         }
 
         protected void OnRewardedAdFailedToDisplayEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo, MaxSdkBase.AdInfo adInfo)

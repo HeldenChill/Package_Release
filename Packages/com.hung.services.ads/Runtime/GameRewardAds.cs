@@ -50,6 +50,13 @@ namespace Hung.Ads
 
         public bool IsShowingAds => isShowingAds;
 
+        /// <inheritdoc cref="IRewardAds.IsCanShowFor"/>
+        public bool IsCanShowFor(Placement placement)
+        {
+            if (activeProvider is RoutedRewardedProvider routed) return routed.IsCanShowFor(placement);
+            return activeProvider != null && activeProvider.IsCanShow;
+        }
+
         public ADS_TYPE Type
         {
             get => type;
@@ -202,7 +209,7 @@ namespace Hung.Ads
                 }
                 else
                 {
-                    if (activeProvider != null && activeProvider.IsCanShow)
+                    if (IsCanShowFor(request.Placement))
                     {
                         AcquireAdsLease(request);
                         activeProvider.Show(request.Placement);

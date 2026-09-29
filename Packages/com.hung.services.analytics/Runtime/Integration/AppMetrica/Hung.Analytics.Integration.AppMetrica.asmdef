@@ -1,0 +1,20 @@
+{
+    "name": "Hung.Analytics.Integration.AppMetrica",
+    "rootNamespace": "Hung.Analytics.Backends",
+    "references": [
+        "Hung.Analytics",
+        "Hung.Base",
+        "AppMetrica"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ANALYTICS_APPMETRICA"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

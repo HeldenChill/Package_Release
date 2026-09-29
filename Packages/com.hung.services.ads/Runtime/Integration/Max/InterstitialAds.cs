@@ -21,6 +21,9 @@ namespace Hung.Ads.Integration.Max
 #else
         protected string adUnitId = "unused";
 #endif
+        /// <summary>Overrides the built-in ad unit id (used by routed mode). Call before Start.</summary>
+        public void SetAdUnitId(string id) { if (!string.IsNullOrEmpty(id)) adUnitId = id; }
+
         public bool IsCanShow => MaxSdk.IsInterstitialReady(adUnitId);
         public bool IsLoading { get; protected set; } = false;
         Placement placement;
@@ -58,7 +61,7 @@ namespace Hung.Ads.Integration.Max
         public virtual void Show(Placement placement)
         {
             this.placement = placement;
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_inters_logicgame");
+            Locator.Analytics.LogEvent("af_inters_logicgame", AnalyticsCategory.Ads);
             if (IsCanShow)
             {
                 MaxSdk.ShowInterstitial(adUnitId);
@@ -75,7 +78,7 @@ namespace Hung.Ads.Integration.Max
         {
             // Interstitial ad is ready for you to show. MaxSdk.IsInterstitialReady(adUnitId) now returns 'true'
             IsLoading = false;
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_inters_successfullyloaded");
+            Locator.Analytics.LogEvent("af_inters_successfullyloaded", AnalyticsCategory.Ads);
             Locator.Analytics.AdsInterLoadComplete();
             OnAdsLoaded?.Invoke();
             Debug.Log($"[MAX]: OnInterstitialLoadedEvent");
@@ -95,7 +98,7 @@ namespace Hung.Ads.Integration.Max
 
         protected virtual void OnInterstitialDisplayedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
         {
-            Locator.Analytics.GoogleFireBaseTrackEvent("af_inters_displayed");
+            Locator.Analytics.LogEvent("af_inters_displayed", AnalyticsCategory.Ads);
             Locator.Analytics.AdsInterShow(placement);
             Debug.Log($"[MAX]: OnInterstitialDisplayedEvent");
 

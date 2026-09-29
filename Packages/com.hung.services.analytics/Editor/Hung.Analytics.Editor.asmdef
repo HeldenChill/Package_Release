@@ -1,0 +1,19 @@
+{
+    "name": "Hung.Analytics.Editor",
+    "rootNamespace": "Hung.Analytics.Editor",
+    "references": [
+        "Hung.Analytics",
+        "Hung.Base"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

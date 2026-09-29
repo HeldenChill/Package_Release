@@ -1,0 +1,20 @@
+{
+    "name": "Hung.Analytics.Integration.GameAnalytics",
+    "rootNamespace": "Hung.Analytics.Backends",
+    "references": [
+        "Hung.Analytics",
+        "Hung.Base",
+        "GameAnalyticsSDK"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HUNG_ANALYTICS_GAMEANALYTICS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

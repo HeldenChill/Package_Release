@@ -280,6 +280,19 @@ namespace Hung.Base
             public int DeltaStar;
             public List<int> LevelStars = new List<int>();
             public List<bool> PassLevels = new List<bool>();
+
+            /// <summary>
+            /// Marks <paramref name="level"/> passed, growing <see cref="PassLevels"/> as needed.
+            /// Returns true only the first time; a negative level returns false and changes nothing.
+            /// </summary>
+            public bool MarkPassed(int level)
+            {
+                if (level < 0) return false;
+                while (PassLevels.Count <= level) PassLevels.Add(false);
+                if (PassLevels[level]) return false;
+                PassLevels[level] = true;
+                return true;
+            }
         }
     }
 }

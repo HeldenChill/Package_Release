@@ -18,6 +18,9 @@ namespace Hung.Ads.Integration.Max
 #else
         protected string bannerAdUnitId = "unused";
 #endif
+        /// <summary>Overrides the built-in banner ad unit id (used by routed mode). Call before InitBanner.</summary>
+        public void SetAdUnitId(string id) { if (!string.IsNullOrEmpty(id)) bannerAdUnitId = id; }
+
         // Start is called before the first frame update
         public void InitBanner()
         {
