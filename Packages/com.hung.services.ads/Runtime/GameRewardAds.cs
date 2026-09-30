@@ -16,8 +16,9 @@ namespace Hung.Ads
 
     public class GameRewardAds : MonoBehaviour, IRewardAds
     {
+        // Optional load queue hooks. Unset = load runs immediately (no host queue required).
         public Action _OnTriggerLoadAds { get; set; }
-        public Action<Action> _OnAddLoadAds { get; set; }
+        public Action<Action> _OnAddLoadAds { get; set; } = load => load?.Invoke();
         public const int MAX_RETRY_ATTEMPT = 6;
         public const float RETRY_LOAD_TIME = 2f;
         [Serializable]

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.2] - 2026-09-30
+### Fixed
+- Rewarded and interstitial ads never loaded when the host did not assign `_OnAddLoadAds`: nothing called `LoadAds`, so `MaxSdk.IsRewardedAdReady` always returned false ("was not requested"). `GameRewardAds` / `GameInterAds` now default `_OnAddLoadAds` to an immediate load; hosts can still override it with their own queue.
+
 ## [0.7.1] - 2026-09-29
 ### Changed
 - Custom `af_*` ad events use `Locator.Analytics.LogEvent(name, AnalyticsCategory.Ads)` (base 0.25.0).
