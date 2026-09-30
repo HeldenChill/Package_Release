@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0] - 2026-09-30
+### Changed
+- The ads module no longer reads or writes `GameData`. Remove-ads, premium remove-ads and level index come from `Locator.AdsEntitlements` (read live each check; unregistered = `NullAdsEntitlements`: ads shown, level 0). Fixes the rewarded/interstitial/banner NRE when the host's `GameData` type is not `Hung.Base.GameData`.
+- `watchingAdsCount` / `playGameAdsCount` moved to the package-owned `AdsSessionCounters`: session-only, reset every launch, no longer persisted in the save. **Hosts must register an `IAdsEntitlements`** to keep remove-ads working.
+- Requires `com.hung.base` 0.26.0.
+
+## [0.7.3] - 2026-09-30
+### Fixed
+- NullReferenceException in `GameRewardAds.OnAdsReceiveReward` / `GameInterAds` after an ad finished when the host scene has no `MainThreadDispatcher`: the reward was never granted. Callbacks now enqueue on the dispatcher when present and run inline otherwise (MAX already raises them on the main thread).
+- Rewarded ad finished but the reward callback never fired when a `MainThreadDispatcher` exists: the reward was queued to the next frame while the hidden callback ran inline and completed the request as Skipped first. Hidden now goes through the same queue, so reward is always marked before completion.
+
 ## [0.7.2] - 2026-09-30
 ### Fixed
 - Rewarded and interstitial ads never loaded when the host did not assign `_OnAddLoadAds`: nothing called `LoadAds`, so `MaxSdk.IsRewardedAdReady` always returned false ("was not requested"). `GameRewardAds` / `GameInterAds` now default `_OnAddLoadAds` to an immediate load; hosts can still override it with their own queue.

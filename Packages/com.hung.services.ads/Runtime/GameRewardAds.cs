@@ -45,9 +45,7 @@ namespace Hung.Ads
         int maxTryAttempt = 0;
         bool isShowOnLoad = false;
         bool isShowingAds = false;
-        protected GameData gameData = null;
         protected ADS_TYPE type;
-        GameData GameData => gameData ??= Locator.Data.GetData<GameData>();
 
         public bool IsShowingAds => isShowingAds;
 
@@ -143,7 +141,7 @@ namespace Hung.Ads
         {
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (GameData.IsPremiumRemoveAds())
+                if (AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
                 {
                     Show(null, null, placement);
                     DevLog.Log(DevId.System, "REWARD: FAIL - Premium Remove Ads!");
@@ -202,7 +200,7 @@ namespace Hung.Ads
 
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (GameData.IsPremiumRemoveAds())
+                if (AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
                 {
                     activeRequest.Complete(AdsRequestOutcome.Skipped, "premium-bypass");
                     Locator.Items?.ShowBadge(BaseItemIds.PremiumRemoveAds);
@@ -218,7 +216,7 @@ namespace Hung.Ads
                         maxTryAttempt = 0;
                         isShowOnLoad = false;
                         isShowingAds = true;
-                        GameData.user.watchingAdsCount += 1;
+                        AdsSessionCounters.WatchedAds += 1;
                     }
                     else
                     {
@@ -252,7 +250,7 @@ namespace Hung.Ads
 
         protected void OnAdsReceiveReward()
         {
-            MainThreadDispatcher.Ins.Enqueue(Action);
+            RunOnMainThread(Action);
             maxTryAttempt = 0;
             adsMobTryAttempt = 0;
             isShowOnLoad = false;
@@ -351,7 +349,9 @@ namespace Hung.Ads
         private void OnProviderHidden()
         {
             DevLog.Log(DevId.System, "[Reward Ads] Hidden!");
-            OnAddDone();
+            // Same queue as the reward: running this inline completed the request as Skipped
+            // before the queued reward was marked, so onGranted never fired.
+            RunOnMainThread(OnAddDone);
         }
         #region ADS MOB
         // internal void LoadAdMobAds()
@@ -420,8 +420,17 @@ namespace Hung.Ads
         // }
         private void OnAdsMobHidden()
         {
-            MainThreadDispatcher.Ins.Enqueue(OnAddDone);
+            RunOnMainThread(OnAddDone);
         }
         #endregion
+    
+        // ponytail: hosts may not place a MainThreadDispatcher. MAX already raises callbacks on the
+        // main thread (MaxEventExecutor.Update), so running inline is safe when none exists.
+        private static void RunOnMainThread(Action action)
+        {
+            var dispatcher = MainThreadDispatcher.Ins;
+            if (dispatcher != null) dispatcher.Enqueue(action);
+            else action();
+        }
     }
 }

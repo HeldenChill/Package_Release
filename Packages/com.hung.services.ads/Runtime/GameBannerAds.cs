@@ -25,8 +25,6 @@ namespace Hung.Ads
         readonly List<IBannerAdsProvider> subscribed = new List<IBannerAdsProvider>();
         int currentRetry = 0;
 
-        GameData gameData;
-        GameData GameData => gameData ??= Locator.Data.GetData<GameData>();
         ADS_TYPE type;
         public ADS_TYPE Type
         {
@@ -117,9 +115,9 @@ namespace Hung.Ads
         {
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (GameData.IsRemoveAds() || GameData.IsPremiumRemoveAds())
+                if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
                 {
-                    Locator.Items?.ShowBadge(GameData.IsPremiumRemoveAds() ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
+                    Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
                     return;
                 }
                 Show(Type);
@@ -131,9 +129,9 @@ namespace Hung.Ads
         {
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (GameData.IsRemoveAds() || GameData.IsPremiumRemoveAds())
+                if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
                 {
-                    Locator.Items?.ShowBadge(GameData.IsPremiumRemoveAds() ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
+                    Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
                     return;
                 }
                 if (TryGetProvider(type, out var provider)) provider.Show();

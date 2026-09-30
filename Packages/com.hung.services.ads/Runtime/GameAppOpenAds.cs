@@ -17,8 +17,6 @@ namespace Hung.Ads
         bool isCanShow = true;
         EventBinding<ResetAoaCapEvent> _resetAoaBinding;
 
-        GameData gameData;
-        GameData GameData => gameData ??= Locator.Data.GetData<GameData>();
 
         public ADS_TYPE Type { get; set; }
 
@@ -48,7 +46,7 @@ namespace Hung.Ads
 
             if(!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if(GameData.user.normalLevelIndex >= Config.StartInterLevel)
+                if(AdsEntitlementsAccess.Current.LevelIndex >= Config.StartInterLevel)
                 {
                     if (isCanShow)
                     {

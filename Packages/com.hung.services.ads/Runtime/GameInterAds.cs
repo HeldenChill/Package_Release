@@ -43,8 +43,6 @@ namespace Hung.Ads
         bool hasActivePauseLease;
         EventBinding<ResetInterCapEvent> _resetInterBinding;
 
-        GameData gameData;
-        GameData GameData => gameData ??= Locator.Data.GetData<GameData>();
         ADS_TYPE type;
         
 
@@ -170,34 +168,34 @@ namespace Hung.Ads
             DevLog.Log(DevId.System, "INTER: SHOW - Ads Request!");
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (GameData.IsRemoveAds())
+                if (AdsEntitlementsAccess.Current.IsRemoveAds)
                 {
                     activeSession.OnSkipped("remove-ads");
-                    Locator.Items?.ShowBadge(GameData.IsPremiumRemoveAds() ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
+                    Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
                     DevLog.Log(DevId.System, "INTER: FAIL - Remove Ads!");
                 }
                 else
                 {
                     if (!cappingTimer.IsStart
                         && Config != null
-                        && GameData.user.normalLevelIndex >= Config.StartInterLevel)
+                        && AdsEntitlementsAccess.Current.LevelIndex >= Config.StartInterLevel)
                     {
                         if (Config.AdsCappingCount > 0
-                        && GameData.user.watchingAdsCount > 0
-                        && GameData.user.watchingAdsCount % Config.AdsCappingCount == 0)
+                        && AdsSessionCounters.WatchedAds > 0
+                        && AdsSessionCounters.WatchedAds % Config.AdsCappingCount == 0)
                         {
                             activeSession.OnSkipped("inter-count-cap");
-                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Watch Ads Count:{GameData.user.watchingAdsCount} \n -Ads Capping:{Config.AdsCappingCount}!");
-                            GameData.user.watchingAdsCount += 1;
-                            gameData.user.playGameAdsCount = 0;
+                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Watch Ads Count:{AdsSessionCounters.WatchedAds} \n -Ads Capping:{Config.AdsCappingCount}!");
+                            AdsSessionCounters.WatchedAds += 1;
+                            AdsSessionCounters.PlayGameAds = 0;
                             return;
                         }
 
-                        if (gameData.user.playGameAdsCount % Config.ShowInterLevelStep == 0)
+                        if (AdsSessionCounters.PlayGameAds % Config.ShowInterLevelStep == 0)
                         {
-                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Play Game Count:{gameData.user.playGameAdsCount} \n -Ads Capping:{Config.ShowInterLevelStep}!");
+                            DevLog.Log(DevId.System, $"INTER: FAIL \n -Play Game Count:{AdsSessionCounters.PlayGameAds} \n -Ads Capping:{Config.ShowInterLevelStep}!");
                             activeSession.OnSkipped("inter-level-step");
-                            gameData.user.playGameAdsCount = 0;
+                            AdsSessionCounters.PlayGameAds = 0;
                             return;
                         }
 
@@ -213,7 +211,7 @@ namespace Hung.Ads
                             isShowOnLoad = false;
                             maxTryAttempt = 0;
                             isShowingAds = true;
-                            GameData.user.watchingAdsCount += 1;
+                            AdsSessionCounters.WatchedAds += 1;
                         }
                         else
                         {
@@ -224,7 +222,7 @@ namespace Hung.Ads
                     else
                     {
                         activeSession.OnSkipped(cappingTimer.IsStart ? "inter-time-cap" : "inter-start-level");
-                        DevLog.Log(DevId.System, $"INTER: FAIL \n -Remaining Time:{cappingTimer.RemainingTime} \n -Level:{GameData.user.normalLevelIndex}!");
+                        DevLog.Log(DevId.System, $"INTER: FAIL \n -Remaining Time:{cappingTimer.RemainingTime} \n -Level:{AdsEntitlementsAccess.Current.LevelIndex}!");
                     }
                 }
 
@@ -255,7 +253,7 @@ namespace Hung.Ads
         }
         protected void OnAdsReceiveReward()
         {
-            MainThreadDispatcher.Ins.Enqueue(Action);
+            RunOnMainThread(Action);
             maxTryAttempt = 0;
             adsMobTryAttempt = 0;
             isShowOnLoad = false;
@@ -420,5 +418,14 @@ namespace Hung.Ads
         }
 
 
+    
+        // ponytail: hosts may not place a MainThreadDispatcher. MAX already raises callbacks on the
+        // main thread (MaxEventExecutor.Update), so running inline is safe when none exists.
+        private static void RunOnMainThread(Action action)
+        {
+            var dispatcher = MainThreadDispatcher.Ins;
+            if (dispatcher != null) dispatcher.Enqueue(action);
+            else action();
+        }
     }
 }

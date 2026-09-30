@@ -19,6 +19,37 @@ namespace Hung.Ads.Tests
         public void TearDown()
         {
             Locator.ResetDataForTests();
+            Locator.AdsEntitlements = null;
+        }
+
+        [Test]
+        public void ShowWithExplicitType_HostRemoveAds_DoesNotShow()
+        {
+            var go = new GameObject(nameof(GameBannerAds));
+            try
+            {
+                var bannerAds = go.AddComponent<GameBannerAds>();
+                var maxProvider = new FakeBannerProvider();
+                var registry = new AdsProviderRegistry();
+                registry.RegisterBanner(ADS_TYPE.MAX, maxProvider);
+                bannerAds.ConfigureProviders(registry);
+                Locator.AdsEntitlements = new FakeEntitlements { IsRemoveAds = true };
+
+                bannerAds.Show(ADS_TYPE.MAX);
+
+                Assert.AreEqual(0, maxProvider.ShowCallCount);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        private sealed class FakeEntitlements : IAdsEntitlements
+        {
+            public bool IsRemoveAds { get; set; }
+            public bool IsPremiumRemoveAds { get; set; }
+            public int LevelIndex { get; set; }
         }
 
         [Test]

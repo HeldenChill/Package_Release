@@ -9,6 +9,6 @@
     "liveops"
   ],
   "dependencies": {
-    "com.hung.base": "0.25.0"
+    "com.hung.base": "0.26.0"
   }
 }

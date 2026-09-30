@@ -17,7 +17,8 @@ namespace Hung.Ads.Tests.Routing
         {
             gameData = new GameData();
             gameData.InitData(new[] { BaseItemIds.RemoveAds, BaseItemIds.PremiumRemoveAds });
-            gameData.user.playGameAdsCount = 1;
+            AdsSessionCounters.Reset();
+            AdsSessionCounters.PlayGameAds = 1;
             Locator.Data = new FakeDataService(gameData);
         }
 
@@ -57,7 +58,7 @@ namespace Hung.Ads.Tests.Routing
             CollectionAssert.IsEmpty(max.Shows);
             CollectionAssert.IsEmpty(admob.Shows);
             Assert.IsFalse(ads.IsShowingAds);
-            Assert.AreEqual(0, gameData.user.watchingAdsCount);
+            Assert.AreEqual(0, AdsSessionCounters.WatchedAds);
         }
 
         [Test]
@@ -105,7 +106,7 @@ namespace Hung.Ads.Tests.Routing
 
             CollectionAssert.IsEmpty(max.Shows);
             CollectionAssert.IsEmpty(yandex.Shows);
-            Assert.AreEqual(0, gameData.user.watchingAdsCount);
+            Assert.AreEqual(0, AdsSessionCounters.WatchedAds);
         }
 
         [Test]

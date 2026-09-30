@@ -27,7 +27,8 @@ namespace Hung.Ads.Tests
             gameData.InitData(new[] { BaseItemIds.RemoveAds, BaseItemIds.PremiumRemoveAds });
             // playGameAdsCount % ShowInterLevelStep must be non-zero or Show() skips
             // via the level-step cap before ever reaching the provider.
-            gameData.user.playGameAdsCount = 1;
+            AdsSessionCounters.Reset();
+            AdsSessionCounters.PlayGameAds = 1;
             Locator.Data = new FakeDataService(gameData);
         }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.26.0] - 2026-09-30
+### Added
+- `IAdsEntitlements` (`IsRemoveAds`, `IsPremiumRemoveAds`, `LevelIndex`), `NullAdsEntitlements`, and the `Locator.AdsEntitlements` slot: the host tells the ads module about remove-ads and progression without the ads module reading `GameData`.
+
 ## [0.25.0] - 2026-09-29
 ### Changed (breaking)
 - `IAnalyticsService`: added `LogEvent(name, AnalyticsCategory, parameters)` and `SetUserProperty`; `LevelTrackEvent(state, level, stars, firstPass, isFtu)`; removed `GoogleFireBaseTrackEvent`, `AppsFlyerTrackParamEvent`, `FireUserProps`, `Day`.
