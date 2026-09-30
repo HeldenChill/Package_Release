@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Hung.Analytics.Tracking;
 using Hung.Base;
 using UnityEngine;
 
@@ -112,6 +113,7 @@ namespace Hung.Analytics
         {
             Log($"Reward_finish_action_{place}", AnalyticsCategory.Ads);
             CheckFirstAdsSession(place);
+            AnalyticsTracking.Facts.Raise(Fact.Monetize(MonetizeKind.RewardedAd));
         }
 
         /// <inheritdoc/>
@@ -141,8 +143,11 @@ namespace Hung.Analytics
         public void AdsInterComplete() => Log("inters_finish", AnalyticsCategory.Ads);
 
         /// <inheritdoc/>
-        public void BuyIAPComplete(IAP_ITEM item, Placement placement) =>
+        public void BuyIAPComplete(IAP_ITEM item, Placement placement)
+        {
             Log($"IAP_packname_{item}_Location_{placement}", AnalyticsCategory.Product);
+            AnalyticsTracking.Facts.Raise(Fact.Monetize(MonetizeKind.Iap));
+        }
 
         /// <inheritdoc/>
         public void TutorialStep(string name, int step) => Log($"{name}_step_{step}", AnalyticsCategory.Design);

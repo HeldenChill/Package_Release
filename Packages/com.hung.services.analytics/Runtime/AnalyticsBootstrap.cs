@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Hung.Analytics.Tracking;
 using Hung.Base;
 using UnityEngine;
 
@@ -21,7 +22,11 @@ namespace Hung.Analytics
             var settings = Resources.Load<AnalyticsSettings>(SettingsResourcePath);
             if (settings == null)
                 Debug.LogWarning($"[Analytics] Resources/{SettingsResourcePath}.asset missing - using default routing. Open Hung/Analytics/Settings.");
-            Install(settings, AnalyticsBackends.Registered);
+            var service = Install(settings, AnalyticsBackends.Registered);
+
+            var tracking = TrackingBootstrap.Install(service, Resources.Load<TrackingSettings>(TrackingSettings.ResourcePath),
+                new DatabaseTrackingStateStore(), new SystemTrackingClock());
+            if (tracking != null) TrackingRunner.Create(tracking);
         }
 
         /// <summary>

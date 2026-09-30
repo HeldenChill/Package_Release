@@ -5,6 +5,7 @@
 - Custom `af_*` ad events use `Locator.Analytics.LogEvent(name, AnalyticsCategory.Ads)` (base 0.25.0).
 - IronSource revenue `extra` carries `mediation = ironsource`.
 - Dropped the `com.hung.services.analytics` dependency and the `Hung.Analytics` reference from `Hung.Ads.Integration.IronSource`; removed the IronSource loading wait on `FirebaseManager` and the unused `AnalyticsManager` field.
+- `AdsManager.prefab`: removed the missing-script `AnalyticsManager` component and the nested `AppsFlyerObject` (it double-initialized AppsFlyer next to `AppsFlyerBackend`). Shipped in `release-2026.09.29.3`.
 
 ## [0.7.0] - 2026-09-29
 ### Added

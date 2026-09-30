@@ -3,6 +3,7 @@
   "references": [
     "Hung.Analytics",
     "Hung.Base",
+    "Hung.Persistence",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

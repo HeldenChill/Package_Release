@@ -101,6 +101,34 @@ Event names of existing methods are byte-identical to the 0.3.x Firebase names s
 
 Level pass state belongs to save data: on COMPLETE call `GameData.level.MarkPassed(level)` and pass its result as `firstPass` to `LevelTrackEvent`.
 
+## Tracking (message space)
+
+Game code sends facts; rules turn them into events. Design: `.cursor/plans/analytics-message-space-design.md`, map of every message: `.cursor/plans/analytics-message-space-atlas.md`.
+
+    AnalyticsTracking.Facts.StageStart(12, replay: false);
+    AnalyticsTracking.Facts.WaveReached(5);
+    AnalyticsTracking.Facts.StageEnd(StageResult.Fail);
+    AnalyticsTracking.Facts.Feature("skill_pick", ("skill_id", "fire_ring")); // id must be in TrackingSettings.featureEvents
+    AnalyticsTracking.Register(new MyGameRule());                           // before the first frame
+
+| Type | Assembly | One line |
+|---|---|---|
+| `AnalyticsTracking` | `Hung.Analytics` | Static entry: `Facts` (never null) and `Register(IRule)` |
+| `TrackingFacts` | `Hung.Analytics` | Fact API: StageStart, WaveReached, StageEnd, Progress, Gacha, Feature, Tutorial |
+| `Fact`, `FactKind`, `StageResult`, `MonetizeKind`, `TutorialPhase` | `Hung.Analytics` | Immutable fact and its enums |
+| `IRule` | `Hung.Analytics` | Rule contract: `Declare` events, handle `OnFact` |
+| `TrackingContext` | `Hung.Analytics` | FTU, stage, wave, replay, attempt, focus, away time, install day, state |
+| `TrackingPipeline` | `Hung.Analytics` | Queues facts until Start, runs context and rules, isolates failures, saves at ColdStart/Blur/StageEnd |
+| `EventEmitter` | `Hung.Analytics` | ftu_ prefix, A/B mode, 40-char fallback, B-name budget; all events Design |
+| `TrackingSettings`, `OutputMode`, `ModeOverride` | `Hung.Analytics` | Optional asset `Resources/HungTrackingSettings`: thresholds, modes, feature list |
+| `Counter`, `Since`, `Accum`, `Pending`, `PendingRecord`, `OncePer` | `Hung.Analytics` | Persisted operators over one state key |
+| `Bucket`, `BucketSet` | `Hung.Analytics` | Inclusive upper-bound labels; last bucket catches the rest |
+| `TrackingState`, `TrackingStateModel` | `Hung.Analytics` | Keyed persisted values; save model v1 (ADR-E5-0007) |
+| `ITrackingStateStore`, `DatabaseTrackingStateStore`, `InMemoryTrackingStateStore` | `Hung.Analytics` | State persistence: Database facade, or memory fallback and tests |
+| `ITrackingClock`, `SystemTrackingClock` | `Hung.Analytics` | Wall clock seam |
+| `TrackingBootstrap` | `Hung.Analytics` | Builds and installs the pipeline; called by `AnalyticsBootstrap` |
+| `StandardRules` | `Hung.Analytics` | The opt-in standard rule pack |
+
 ## Tests
 
-EditMode `Hung.Analytics.Tests`: `CoreHelpersTests`, `AnalyticsServiceTests`, `AnalyticsBootstrapTests`. They exercise the real proxy against `RecordingAnalyticsBackend`. SDK-bound backends have no EditMode test; they are verified by compile with the define on plus Play Mode, device and dashboard DebugView unverified.
+EditMode `Hung.Analytics.Tests`: `CoreHelpersTests`, `AnalyticsServiceTests`, `AnalyticsBootstrapTests`, `TrackingStateTests`, `OperatorTests`, `EventEmitterTests`, `TrackingPipelineTests`, `SessionRulesTests`, `StageRulesTests`, `StreakRulesTests`, `GachaRulesTests`, `FeatureRulesTests`, `TrackingFacadeTests`. They exercise the real proxy against `RecordingAnalyticsBackend`. SDK-bound backends have no EditMode test; they are verified by compile with the define on plus Play Mode, device and dashboard DebugView unverified.

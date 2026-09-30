@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0] - 2026-09-30
+### Added
+- Tracking message space (`Runtime/Tracking/`): the game sends facts through `AnalyticsTracking.Facts`, and rules built from persisted operators (`Counter`, `Since`, `Accum`, `Pending`, `OncePer`, `BucketSet`) emit Design events through `EventEmitter`. The emitter handles the `ftu_` prefix, output mode A/B per event, the 40-char fallback and the B-name budget.
+- Opt-in standard rule pack (`StandardRules`): open_app, login_day, ftu_timeplay, stage_start/fail/quit/complete, checkpoint, consecutive_fail/_wave/_heat, consecutive_win, gacha, gacha_feeling, feature events, tutorial. Games add their own rules with `AnalyticsTracking.Register`.
+- `TrackingSettings` (`Resources/HungTrackingSettings`, optional) holds every threshold, bucket, mode and the feature-event list.
+- Tracking state is saved through `Database` under key `analytics-tracking` (ADR-E5-0007). It is loaded on the first frame and falls back to memory when com.hung.data is absent.
+### Changed
+- `AdsRewardComplete` and `BuyIAPComplete` also raise a tracking Monetize fact. Their existing event names are unchanged.
+
 ## [0.4.0] - 2026-09-29
 ### Changed (breaking)
 - `AnalyticsManager`/`FirebaseManager` replaced by `AnalyticsService` (proxy) + `AnalyticsBootstrap` (BeforeSceneLoad, no prefab). `Locator.Analytics`/`Locator.RevenueSink` are always set, even with zero backends.
