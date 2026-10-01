@@ -87,6 +87,36 @@ namespace Hung.Ads.Tests
             }
         }
 
+        [Test]
+        public void Hidden_CompletesRequestBeforeReload_AndNextAdCanShow()
+        {
+            var go = new GameObject(nameof(GameInterAds));
+            try
+            {
+                var inter = CreateAwake(go);
+                var provider = new FakeInterstitialProvider { IsCanShow = true };
+                var registry = new AdsProviderRegistry();
+                registry.RegisterInterstitial(ADS_TYPE.MAX, provider);
+                inter.ConfigureProviders(registry);
+                inter.Type = ADS_TYPE.MAX;
+                int completed = 0;
+                provider.BeforeLoad = () => Assert.AreEqual(completed, provider.LoadCallCount + 1);
+                for (int cycle = 0; cycle < 2; cycle++)
+                {
+                    var timer = typeof(GameInterAds).GetField("cappingTimer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(inter);
+                    timer.GetType().GetMethod("Stop").Invoke(timer, null);
+                    inter.Show(new AdsShowRequest(AdsRequestId.Create("inter-cycle", AdsRequestKind.Interstitial, Placement.IN_GAME, cycle.ToString())), r => { Assert.IsTrue(r.ShouldContinueFlow); completed++; });
+                    Assert.AreEqual(cycle + 1, provider.ShowCallCount);
+                    Assert.AreEqual(cycle, provider.LoadCallCount);
+                    provider.Hidden();
+                    Assert.AreEqual(cycle + 1, completed);
+                    Assert.AreEqual(cycle + 1, provider.LoadCallCount);
+                    provider.IsCanShow = true;
+                }
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
         private sealed class FakeDataService : IDataService
         {
             private readonly GameData gameData;
@@ -112,10 +142,14 @@ namespace Hung.Ads.Tests
 
             public bool IsCanShow { get; set; }
             public bool IsLoading => false;
-            public void Load() { }
+            public int LoadCallCount;
+            public System.Action BeforeLoad;
+            public void Load() { BeforeLoad?.Invoke(); LoadCallCount++; }
+            public void Hidden() => OnAdsDone?.Invoke();
 
             public void Show(Placement placement)
             {
+                IsCanShow = false;
                 ShowCallCount++;
                 LastPlacement = placement;
             }

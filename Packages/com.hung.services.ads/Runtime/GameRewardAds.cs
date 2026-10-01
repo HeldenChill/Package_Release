@@ -56,6 +56,9 @@ namespace Hung.Ads
             return activeProvider != null && activeProvider.IsCanShow;
         }
 
+        /// <summary>Allow this format to load and show. Disabled requests complete as skipped.</summary>
+        public bool AdsEnabled { get; set; } = true;
+
         public ADS_TYPE Type
         {
             get => type;
@@ -63,7 +66,7 @@ namespace Hung.Ads
             {
                 type = value;
                 ResolveActiveProvider();
-                if (activeProvider != null && !activeProvider.IsCanShow && !activeProvider.IsLoading)
+                if (AdsEnabled && activeProvider != null && !activeProvider.IsCanShow && !activeProvider.IsLoading)
                 {
                     _OnAddLoadAds?.Invoke(LoadAds);
                 }
@@ -198,6 +201,12 @@ namespace Hung.Ads
             activeRequest = context;
             activeSession = new RewardedRequestSession(context);
 
+            if (!AdsEnabled)
+            {
+                activeRequest.Complete(AdsRequestOutcome.Skipped, "ads-disabled");
+                return;
+            }
+
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
                 if (AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
@@ -276,10 +285,18 @@ namespace Hung.Ads
         {
             activeSession?.OnHidden();
             isShowingAds = false;
+            // MAX rejects a load while the previous ad is still visible. Hidden is the
+            // reload boundary, whether or not the user earned a reward.
+            if (AdsEnabled) _OnAddLoadAds?.Invoke(LoadAds);
             _OnTriggerLoadAds?.Invoke();
         }
         internal void LoadAds()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             if (activeProvider != null)
             {
                 DevLog.Log(DevId.System, "[Reward Ads] Start Load!");
@@ -295,11 +312,16 @@ namespace Hung.Ads
         {
             DevLog.Log(DevId.System, "[Reward Ads] Load Complete!");
             OnAdsLoaded();
-            Locator.Analytics.AdsRewardLoadComplete();
+            Locator.Analytics?.AdsRewardLoadComplete();
         }
 
         protected void OnProviderLoadFail()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             maxTryAttempt++;
             DevLog.Log(DevId.System, $"[Reward Ads] Load Fail! - {maxTryAttempt}");
             if (maxTryAttempt <= MAX_RETRY_ATTEMPT)
@@ -309,7 +331,7 @@ namespace Hung.Ads
             }
             else
             {
-                Locator.Analytics.AdsRewardLoadFail();
+                Locator.Analytics?.AdsRewardLoadFail();
                 activeSession?.OnUnavailable();
                 maxTryAttempt = 0;
             }
@@ -323,6 +345,11 @@ namespace Hung.Ads
 
         protected void OnProviderDisplayFail()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             maxTryAttempt++;
             DevLog.Log(DevId.System, $"[Reward Ads] Display Fail! - {maxTryAttempt}");
             isShowingAds = false;
@@ -332,7 +359,7 @@ namespace Hung.Ads
             }
             else
             {
-                Locator.Analytics.AdsRewardShowFail(Placement.NONE, "");
+                Locator.Analytics?.AdsRewardShowFail(Placement.NONE, "");
                 activeSession?.OnDisplayFailed();
                 maxTryAttempt = 0;
             }
@@ -343,7 +370,6 @@ namespace Hung.Ads
         {
             DevLog.Log(DevId.System, "[Reward Ads] Reward!");
             OnAdsReceiveReward();
-            _OnAddLoadAds?.Invoke(LoadAds);
         }
 
         private void OnProviderHidden()
@@ -367,7 +393,7 @@ namespace Hung.Ads
         internal void OnAdsMobLoaded()
         {
             OnAdsLoaded();
-            Locator.Analytics.AdsRewardLoadComplete();  
+            Locator.Analytics?.AdsRewardLoadComplete();
         }
         // protected void OnAdsMobLoadFail(LoadAdError error)
         // {

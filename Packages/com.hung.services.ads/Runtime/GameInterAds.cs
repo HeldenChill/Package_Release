@@ -51,6 +51,9 @@ namespace Hung.Ads
         bool isShowOnLoad = false;
         bool isShowingAds = false;
 
+        /// <summary>Allow this format to load and show. Disabled requests complete as skipped.</summary>
+        public bool AdsEnabled { get; set; } = true;
+
         public ADS_TYPE Type
         {
             get => type;
@@ -58,7 +61,7 @@ namespace Hung.Ads
             {
                 type = value;
                 ResolveActiveProvider();
-                if (activeProvider != null && !activeProvider.IsCanShow && !activeProvider.IsLoading)
+                if (AdsEnabled && activeProvider != null && !activeProvider.IsCanShow && !activeProvider.IsLoading)
                 {
                     DevLog.Log(DevId.System, "[Inter Ads] Start Load!");
                     _OnAddLoadAds?.Invoke(LoadAds);
@@ -133,7 +136,7 @@ namespace Hung.Ads
 
         public void Load()
         {
-            activeProvider?.Load();
+            if (AdsEnabled) activeProvider?.Load();
         }
         public void Show(Action callback, Placement placement = Placement.IN_GAME)
         {
@@ -165,6 +168,12 @@ namespace Hung.Ads
 
             activeRequest = context;
             activeSession = new InterstitialRequestSession(context);
+
+            if (!AdsEnabled)
+            {
+                activeRequest.Complete(AdsRequestOutcome.Skipped, "ads-disabled");
+                return;
+            }
             DevLog.Log(DevId.System, "INTER: SHOW - Ads Request!");
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
@@ -263,6 +272,8 @@ namespace Hung.Ads
             {
                 activeSession?.OnDone();
                 EventBus<ResetInterCapEvent>.Raise(new ResetInterCapEvent());
+                // Keep completion and reload in the same main-thread callback.
+                if (AdsEnabled) _OnAddLoadAds?.Invoke(LoadAds);
             }
         }
 
@@ -278,6 +289,11 @@ namespace Hung.Ads
 
         internal void LoadAds()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             if (activeProvider != null)
             {
                 DevLog.Log(DevId.System, "[Inter Ads] Start Load!");
@@ -297,6 +313,11 @@ namespace Hung.Ads
 
         protected void OnProviderLoadFail()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             maxTryAttempt++;
             DevLog.Log(DevId.System, $"[Inter Ads] Load Fail! - {maxTryAttempt}");
             if (maxTryAttempt <= MAX_RETRY_ATTEMPT)
@@ -306,7 +327,7 @@ namespace Hung.Ads
             }
             else
             {
-                Locator.Analytics.AdsInterFail("Inter ads failed to load after maximum retries.");
+                Locator.Analytics?.AdsInterFail("Inter ads failed to load after maximum retries.");
                 isShowOnLoad = false;
                 maxTryAttempt = 0;
                 activeSession?.OnUnavailable();
@@ -321,6 +342,11 @@ namespace Hung.Ads
 
         protected void OnProviderDisplayFail()
         {
+            if (!AdsEnabled)
+            {
+                _OnTriggerLoadAds?.Invoke();
+                return;
+            }
             maxTryAttempt++;
             DevLog.Log(DevId.System, $"[Inter Ads] Display Fail! - {maxTryAttempt}");
             isShowingAds = false;
@@ -330,7 +356,7 @@ namespace Hung.Ads
             }
             else
             {
-                Locator.Analytics.AdsInterFail("Inter ads failed to load after maximum retries.");
+                Locator.Analytics?.AdsInterFail("Inter ads failed to load after maximum retries.");
                 maxTryAttempt = 0;
                 activeSession?.OnDisplayFailed();
             }
@@ -341,7 +367,6 @@ namespace Hung.Ads
         {
             DevLog.Log(DevId.System, "[Inter Ads] Done!");
             OnAdsReceiveReward();
-            _OnAddLoadAds?.Invoke(LoadAds);
         }
         #region ADS MOB
         // internal void LoadAdsModAds()

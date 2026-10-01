@@ -117,3 +117,22 @@ Open items found by the 0.7.0 review and not yet fixed:
 - The AdMob providers report only `AdsRewardOffer` to analytics. Load, show, complete, click and fail funnel events exist only for MAX.
 - `AdsRouter.Resolve` allocates on every call, so polling `IsCanShowFor` from UI `Update` produces GC churn. Cache resolved routes if needed.
 - `RoutedRewardedProvider` and `RoutedInterstitialProvider` duplicate route-building and subscription code.
+
+## Ad format switches and fullscreen reload (0.8.1)
+
+`AdsManager` exposes **Rewarded Ads Enabled**, **Interstitial Ads Enabled**, and **Banner Ads Enabled** under **Enabled Ad Formats**. All default to true, preserving existing scene/prefab behavior. Configure the manager before startup. Turn off formats your game does not use to avoid vendor ad loads. SDK initialization remains shared with enabled formats.
+
+The manager applies each setting to `GameRewardAds.AdsEnabled`, `GameInterAds.AdsEnabled`, and `GameBannerAds.AdsEnabled`. These public properties gate initial loads, queued/delayed loads, failure retries, banner initialization, and shows. Disabled fullscreen requests return `Skipped` / `ads-disabled`; interstitial callers continue their flow, and rewarded callers receive no reward.
+
+Reward-earned only records reward evidence. Hidden completes the request and then preloads the next rewarded ad, including when the user closed without a reward. Interstitial hidden completion and preload use the same main-thread dispatch. Optional analytics callbacks are null-safe.
+
+```mermaid
+flowchart LR
+    Settings --> Gate
+    Gate -->|Enabled| Show
+    Gate -->|Disabled| Skip
+    RewardEarned --> MarkReward
+    Hidden --> CompleteRequest --> PreloadNext
+```
+
+PVM adoption: keep Rewarded/Banner enabled and disable Interstitial on the AdsManager in LoadStart. Existing interstitial entitlement, level-step and time caps still apply if enabled later.

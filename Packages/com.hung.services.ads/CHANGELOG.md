@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1] - 2026-10-01
+### Fixed
+- Rewarded preload waits until the hidden callback, after request completion. Loading from reward-earned while MAX was still showing rejected the load and left the next ad stuck loading. Closing without earning a reward also preloads the next ad.
+- Interstitial request completion and next preload now run in the same main-thread callback.
+- Optional analytics telemetry no longer throws when no analytics service is registered.
+### Added
+- AdsManager has independent Rewarded Ads Enabled, Interstitial Ads Enabled, and Banner Ads Enabled Inspector switches, all defaulting to true for existing scenes/prefabs. Disabled formats do not load, retry, initialize banners, or show; fullscreen requests complete Skipped with diagnostic `ads-disabled` and never grant a reward.
+
 ## [0.8.0] - 2026-09-30
 ### Changed
 - The ads module no longer reads or writes `GameData`. Remove-ads, premium remove-ads and level index come from `Locator.AdsEntitlements` (read live each check; unregistered = `NullAdsEntitlements`: ads shown, level 0). Fixes the rewarded/interstitial/banner NRE when the host's `GameData` type is not `Hung.Base.GameData`.

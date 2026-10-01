@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-01T08:31:06Z",
+  "generatedAt": "2026-10-01T10:06:36Z",
   "packages": {
     "com.hung.autotest": "0.4.2",
     "com.hung.base": "0.26.0",
@@ -9,7 +9,7 @@
     "com.hung.liveops.dailygift": "0.4.8",
     "com.hung.liveops.energy": "0.2.7",
     "com.hung.persistence": "0.1.0",
-    "com.hung.services.ads": "0.8.0",
+    "com.hung.services.ads": "0.8.1",
     "com.hung.services.analytics": "0.5.1",
     "com.hung.services.iap": "0.7.4",
     "com.hung.sync": "0.1.0",
@@ -36,7 +36,7 @@
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.10.01.1",
+  "releaseTag": "release-2026.10.01.2",
   "schemaVersion": 1,
-  "sourceCommit": "94d9eca843e0b6acc25fc1489ef99a7dfc51d76c"
+  "sourceCommit": "a95bd3d80cbebe6e56726dff7a58b31a3efc3385"
 }

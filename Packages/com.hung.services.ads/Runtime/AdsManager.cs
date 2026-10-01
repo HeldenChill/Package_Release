@@ -25,6 +25,14 @@ namespace Hung.Ads
         [Tooltip("Optional. When set, rewarded/interstitial/banner are routed across installed providers per this config, and the Game*Ads providerBindings are ignored.")]
         AdsRoutingConfig routingConfig;
 
+        [Header("Enabled Ad Formats")]
+        [SerializeField, Tooltip("Allow rewarded loading and showing. Disabled requests skip without granting a reward.")]
+        bool rewardedAdsEnabled = true;
+        [SerializeField, Tooltip("Allow interstitial loading and showing.")]
+        bool interstitialAdsEnabled = true;
+        [SerializeField, Tooltip("Allow banner initialization and showing.")]
+        bool bannerAdsEnabled = true;
+
         AdsRoutedComposer.Result routed;
 
         /// <summary>Optional remote routing override (JSON, see AdsRoutingOverride). Read at every load cycle. Reset on SubsystemRegistration.</summary>
@@ -62,14 +70,23 @@ namespace Hung.Ads
             banner = bannerBehaviour as IAds;
             reward = rewardBehaviour as IRewardAds;
             inter = interBehaviour as IInterAds;
+            ApplyFormatSettings();
 
             // Self-registration: the consuming game holds IAdsService (a Hung.Base contract),
             // so it never needs an assembly reference to Hung.Ads. See the class comment.
             Locator.Ads = this;
         }
 
+        void ApplyFormatSettings()
+        {
+            if (reward is GameRewardAds rewarded) rewarded.AdsEnabled = rewardedAdsEnabled;
+            if (inter is GameInterAds interstitial) interstitial.AdsEnabled = interstitialAdsEnabled;
+            if (banner is GameBannerAds bannerAds) bannerAds.AdsEnabled = bannerAdsEnabled;
+        }
+
         void Start()
         {
+            ApplyFormatSettings();
             if (routingConfig == null) return;
 
             routed = AdsRoutedComposer.Compose(routingConfig.Data, AdsInstallers.All, gameObject, () => RoutingOverrideJson?.Invoke());

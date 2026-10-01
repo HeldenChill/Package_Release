@@ -26,6 +26,9 @@ namespace Hung.Ads
         int currentRetry = 0;
 
         ADS_TYPE type;
+        /// <summary>Allow banner initialization and showing.</summary>
+        public bool AdsEnabled { get; set; } = true;
+
         public ADS_TYPE Type
         {
             get => type;
@@ -89,6 +92,7 @@ namespace Hung.Ads
 
         public void InitBanner()
         {
+            if (!AdsEnabled) return;
             foreach (ADS_TYPE vendor in Enum.GetValues(typeof(ADS_TYPE)))
             {
                 if (vendor == type) continue;
@@ -113,6 +117,7 @@ namespace Hung.Ads
 
         public void Show()
         {
+            if (!AdsEnabled) return;
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
                 if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
@@ -127,6 +132,7 @@ namespace Hung.Ads
 
         public void Show(ADS_TYPE type)
         {
+            if (!AdsEnabled) return;
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
                 if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
