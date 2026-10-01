@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.1] - 2026-10-01
+### Added
+- Optional `ITrackingNamingProfile` for game-owned wire event names, B-mode templates, and parameter keys. Set it through `AnalyticsTracking`, `TrackingPipeline`, or `EventEmitter`; canonical facts and persisted state are unchanged.
+### Changed
+- Apply naming profiles before queued fact replay and before B-mode rendering/length checks. Preserve typed residual parameters; invalid wire names and key collisions fall back to canonical output.
+
 ## [0.5.0] - 2026-09-30
 ### Added
 - Tracking message space (`Runtime/Tracking/`): the game sends facts through `AnalyticsTracking.Facts`, and rules built from persisted operators (`Counter`, `Since`, `Accum`, `Pending`, `OncePer`, `BucketSet`) emit Design events through `EventEmitter`. The emitter handles the `ftu_` prefix, output mode A/B per event, the 40-char fallback and the B-name budget.

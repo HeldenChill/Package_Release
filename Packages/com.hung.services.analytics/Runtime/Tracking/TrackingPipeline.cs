@@ -33,6 +33,10 @@ namespace Hung.Analytics.Tracking
         /// <summary>The context rules read.</summary>
         public TrackingContext Context => _ctx;
 
+        /// <summary>Sets the optional wire naming profile; null restores canonical output.</summary>
+        public void SetNamingProfile(ITrackingNamingProfile profile) =>
+            _emit.SetNamingProfile(profile);
+
         /// <summary>Adds a rule after the existing ones and runs its declarations.</summary>
         public void Add(IRule rule)
         {

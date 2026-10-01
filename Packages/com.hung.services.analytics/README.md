@@ -113,6 +113,7 @@ Game code sends facts; rules turn them into events. Design: `.cursor/plans/analy
 
 | Type | Assembly | One line |
 |---|---|---|
+| `ITrackingNamingProfile` | `Hung.Analytics` | Optional wire event/template/key mapping; canonical facts and state stay unchanged |
 | `AnalyticsTracking` | `Hung.Analytics` | Static entry: `Facts` (never null) and `Register(IRule)` |
 | `TrackingFacts` | `Hung.Analytics` | Fact API: StageStart, WaveReached, StageEnd, Progress, Gacha, Feature, Tutorial |
 | `Fact`, `FactKind`, `StageResult`, `MonetizeKind`, `TutorialPhase` | `Hung.Analytics` | Immutable fact and its enums |
@@ -132,3 +133,7 @@ Game code sends facts; rules turn them into events. Design: `.cursor/plans/analy
 ## Tests
 
 EditMode `Hung.Analytics.Tests`: `CoreHelpersTests`, `AnalyticsServiceTests`, `AnalyticsBootstrapTests`, `TrackingStateTests`, `OperatorTests`, `EventEmitterTests`, `TrackingPipelineTests`, `SessionRulesTests`, `StageRulesTests`, `StreakRulesTests`, `GachaRulesTests`, `FeatureRulesTests`, `TrackingFacadeTests`. They exercise the real proxy against `RecordingAnalyticsBackend`. SDK-bound backends have no EditMode test; they are verified by compile with the define on plus Play Mode, device and dashboard DebugView unverified.
+
+### Optional wire naming profile
+
+Call `AnalyticsTracking.SetNamingProfile(profile)` before the first frame; installation applies it before queued facts replay. Pass null to restore canonical output. `TrackingPipeline.SetNamingProfile` and `EventEmitter.SetNamingProfile` provide the same seam for direct construction. Fixed names are mapped before the FTU prefix; B templates are mapped before rendering and length checks. Successfully rendered B holes are consumed before remaining parameter keys are mapped. Parameter values retain their types. Invalid names or key collisions fall back to canonical output with a warning. User properties and canonical facts/state are unaffected. Games own their maps and validation; the package has no PVM dependency.

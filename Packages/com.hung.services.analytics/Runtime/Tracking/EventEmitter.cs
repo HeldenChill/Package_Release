@@ -27,6 +27,7 @@ namespace Hung.Analytics.Tracking
         readonly Dictionary<string, Declaration> _declared = new Dictionary<string, Declaration>();
         readonly HashSet<string> _warned = new HashSet<string>();
         Dictionary<string, OutputMode> _resolved;
+        ITrackingNamingProfile _profile;
 
         /// <summary>Creates an emitter sending through <paramref name="sink"/>.</summary>
         public EventEmitter(IAnalyticsService sink, TrackingSettings settings, Action<string> warn = null)
@@ -46,16 +47,23 @@ namespace Hung.Analytics.Tracking
             _resolved = null;
         }
 
+        /// <summary>Sets the optional wire naming profile; null restores canonical output.</summary>
+        public void SetNamingProfile(ITrackingNamingProfile profile)
+        {
+            _profile = profile;
+            _resolved = null;
+        }
+
         /// <summary>Sends with the ftu_ prefix when <paramref name="ftu"/> is true.</summary>
         public void Emit(string eventName, bool ftu, IDictionary<string, object> args) =>
-            Send(eventName, ftu ? "ftu_" : "", Copy(args));
+            Send(eventName, ftu, ftu ? "ftu_" : "", Copy(args));
 
         /// <summary>Sends without a prefix and adds an <c>ftu</c> param of 1 or 0 (the tutorial style, T6).</summary>
         public void EmitTagged(string eventName, bool ftu, IDictionary<string, object> args)
         {
             var p = Copy(args);
             p["ftu"] = ftu ? 1 : 0;
-            Send(eventName, "", p);
+            Send(eventName, ftu, "", p);
         }
 
         /// <summary>Sets a user property on every backend.</summary>
@@ -68,30 +76,69 @@ namespace Hung.Analytics.Tracking
             return _resolved.TryGetValue(eventName, out var m) ? m : OutputMode.A;
         }
 
-        void Send(string eventName, string prefix, Dictionary<string, object> parameters)
+        void Send(string eventName, bool ftu, string prefix,
+            Dictionary<string, object> parameters)
         {
-            string name = prefix + eventName;
+            var original = Copy(parameters);
+            OutputMode configured = _settings.ModeFor(eventName);
+            string fixedName = _profile == null ? eventName :
+                _profile.FixedName(eventName, ftu, configured);
+            string name = prefix + fixedName;
             if (ModeOf(eventName) == OutputMode.B && _declared.TryGetValue(eventName, out var d))
             {
-                if (TryRender(d.Template, parameters, out string rendered, out var rest))
+                string template = _profile == null ? d.Template :
+                    _profile.Template(eventName, ftu, d.Template);
+                if (TryRender(template, parameters, out string rendered, out var rest))
                 {
-                    string bName = prefix + rendered;
-                    if (bName.Length <= MaxNameLength)
+                    string candidate = prefix + rendered;
+                    if (IsValidWireName(candidate))
                     {
-                        name = bName;
+                        name = candidate;
                         parameters = rest;
                     }
-                    else WarnOnce(eventName + ".length", $"[Analytics] B name '{bName}' exceeds {MaxNameLength} chars; sent as '{name}' with params.");
+                    else WarnOnce(eventName + ".length",
+                        "[Analytics] Invalid or oversize B name; using fixed name with all parameters.");
                 }
-                else WarnOnce(eventName + ".template", $"[Analytics] B template '{d.Template}' has a hole with no param; sent '{name}' in A mode.");
+                else WarnOnce(eventName + ".template",
+                    "[Analytics] Missing or invalid B template value; using fixed name with all parameters.");
             }
-            _sink.LogEvent(name, AnalyticsCategory.Design, parameters.Count == 0 ? null : parameters);
+            var translated = new Dictionary<string, object>();
+            bool collision = false;
+            foreach (var kv in parameters)
+            {
+                string key = _profile == null ? kv.Key :
+                    _profile.ParameterKey(eventName, ftu, configured, kv.Key);
+                if (string.IsNullOrEmpty(key) || translated.ContainsKey(key))
+                { collision = true; break; }
+                translated.Add(key, kv.Value);
+            }
+            if (collision || !IsValidWireName(name))
+            {
+                WarnOnce(eventName + ".profile", "[Analytics] Invalid naming profile; preserved canonical event and parameters.");
+                name = prefix + eventName;
+                translated = original;
+            }
+            _sink.LogEvent(name, AnalyticsCategory.Design,
+                translated.Count == 0 ? null : translated);
+        }
+
+        static bool IsValidWireName(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > MaxNameLength ||
+                !char.IsLetter(name[0]) || name[0] > 127) return false;
+            foreach (char c in name)
+                if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') &&
+                    !(c >= '0' && c <= '9') && c != '_') return false;
+            return !name.StartsWith("firebase_", StringComparison.Ordinal) &&
+                !name.StartsWith("google_", StringComparison.Ordinal) &&
+                !name.StartsWith("ga_", StringComparison.Ordinal);
         }
 
         static bool TryRender(string template, Dictionary<string, object> args, out string rendered, out Dictionary<string, object> rest)
         {
             rest = new Dictionary<string, object>(args);
             rendered = null;
+            if (string.IsNullOrEmpty(template)) return false;
             var sb = new StringBuilder(template.Length + 8);
             int i = 0;
             while (i < template.Length)
@@ -102,7 +149,7 @@ namespace Hung.Analytics.Tracking
                 if (close < 0) return false;
                 sb.Append(template, i, open - i);
                 string key = template.Substring(open + 1, close - open - 1);
-                if (!args.TryGetValue(key, out object value)) return false;
+                if (!args.TryGetValue(key, out object value) || value == null) return false;
                 sb.Append(AnalyticsText.ToInvariant(value).ToLowerInvariant());
                 rest.Remove(key);
                 i = close + 1;

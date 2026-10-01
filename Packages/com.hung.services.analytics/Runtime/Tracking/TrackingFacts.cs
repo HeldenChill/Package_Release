@@ -44,6 +44,14 @@ namespace Hung.Analytics.Tracking
     {
         static readonly List<IRule> PendingRules = new List<IRule>();
         static TrackingPipeline _pipeline;
+        static ITrackingNamingProfile _namingProfile;
+
+        /// <summary>Sets the optional wire naming profile; null restores canonical output.</summary>
+        public static void SetNamingProfile(ITrackingNamingProfile profile)
+        {
+            _namingProfile = profile;
+            _pipeline?.SetNamingProfile(profile);
+        }
 
         /// <summary>The fact API; a no-op until tracking is installed, so never null.</summary>
         public static TrackingFacts Facts { get; private set; } = TrackingFacts.NoOp;
@@ -59,6 +67,7 @@ namespace Hung.Analytics.Tracking
         internal static void Install(TrackingPipeline pipeline)
         {
             _pipeline = pipeline;
+            pipeline?.SetNamingProfile(_namingProfile);
             if (pipeline == null)
             {
                 Facts = TrackingFacts.NoOp;
@@ -72,6 +81,7 @@ namespace Hung.Analytics.Tracking
         internal static void Reset()
         {
             _pipeline = null;
+            _namingProfile = null;
             PendingRules.Clear();
             Facts = TrackingFacts.NoOp;
         }
