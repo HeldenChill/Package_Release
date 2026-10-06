@@ -17,6 +17,8 @@ namespace Hung.Ads.Integration.Max
 
         public void Install(GameObject host, AdsProviderEntry entry, AdsProviderSet set)
         {
+            MaxRevenueReporter.EnsureSubscribed();
+
             string unit = entry.UnitFor(AdsFormat.Rewarded);
             if (unit != null)
             {

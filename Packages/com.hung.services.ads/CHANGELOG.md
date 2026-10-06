@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.2] - 2026-10-06
+### Fixed
+- MAX impression revenue now reaches `Locator.RevenueSink` (all formats, mediation `max`), so AppsFlyer/analytics backends receive ad revenue. Previously only the IronSource path reported revenue.
+
 ## [0.8.1] - 2026-10-01
 ### Fixed
 - Rewarded preload waits until the hidden callback, after request completion. Loading from reward-earned while MAX was still showing rejected the load and left the next ad stuck loading. Closing without earning a reward also preloads the next ad.
