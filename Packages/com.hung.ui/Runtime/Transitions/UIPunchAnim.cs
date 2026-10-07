@@ -38,21 +38,21 @@ namespace Hung.UI
             {
                 case ANIM.SHOW:
                     OnAnimEnter((int)ANIM.SHOW);
-                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
+                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.SHOW, generation);
                     });
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
-                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
+                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
                     break;
                 case ANIM.IDLE:
                     OnAnimEnter((int)ANIM.IDLE);
-                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).OnComplete(() =>
+                    RectTransform.DOPunchScale(Data.EndSize, Data.Time, Data.Vibrato, Data.Elasticity).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.IDLE, generation);
                     });

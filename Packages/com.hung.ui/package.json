@@ -1,6 +1,6 @@
 {
   "name": "com.hung.ui",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "displayName": "Hung UI",
   "description": "UI framework: UIManager facade, UICanvas lifecycle, transitions, widgets.",
   "unity": "2022.3",

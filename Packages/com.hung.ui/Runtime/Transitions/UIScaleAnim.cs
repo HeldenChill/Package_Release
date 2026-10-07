@@ -43,7 +43,7 @@ namespace Hung.UI
             {
                 case ANIM.SHOW:
                     OnAnimEnter((int)ANIM.SHOW);
-                    RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).OnComplete(
+                    RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).SetUpdate(true).OnComplete(
                         () =>
                         {
                             CompleteIfCurrent((int)ANIM.SHOW, generation);
@@ -51,7 +51,7 @@ namespace Hung.UI
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
-                    RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).OnComplete(() =>
+                    RectTransform.DOScale(Data.EndSize, Data.Time).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });

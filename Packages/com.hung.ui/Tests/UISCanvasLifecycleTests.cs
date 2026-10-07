@@ -134,6 +134,24 @@ namespace Hung.UI.Tests
         }
 
         [Test]
+        public void AnyOpened_fires_once_per_open_with_the_canvas()
+        {
+            var seen = new List<UISCanvas>();
+            Action<UISCanvas> handler = c => seen.Add(c);
+            UISCanvas.AnyOpened += handler;
+            try
+            {
+                canvas.Open();
+                Assert.AreEqual(1, seen.Count);
+                Assert.AreSame(canvas, seen[0]);
+            }
+            finally
+            {
+                UISCanvas.AnyOpened -= handler;
+            }
+        }
+
+        [Test]
         public void Root_animation_does_not_bypass_composite_or_play_show_twice()
         {
             canvas.Open();

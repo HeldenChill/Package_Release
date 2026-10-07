@@ -18,6 +18,13 @@ namespace Hung.UI
         public Action<UISCanvas> _OnOpen;
         public Action<UISCanvas> _OnClose;
 
+        /// <summary>
+        /// Raised once per <see cref="UICanvas.Open"/> of ANY UISCanvas, from OnOpen, i.e. BEFORE
+        /// the GameObject is activated. Lets a product observe every open without subscribing to
+        /// each lazily created canvas. Subscribers must tolerate an inactive canvas.
+        /// </summary>
+        public static event Action<UISCanvas> AnyOpened;
+
         [Serializable]
         protected class Propertys
         {
@@ -126,6 +133,7 @@ namespace Hung.UI
         protected override void OnOpen(object param)
         {
             _OnOpen?.Invoke(this);
+            AnyOpened?.Invoke(this);
         }
 
         protected override void OnActivated() => Show();

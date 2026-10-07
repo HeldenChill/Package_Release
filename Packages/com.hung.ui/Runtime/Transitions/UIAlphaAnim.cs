@@ -35,21 +35,21 @@ namespace Hung.UI
                     OnAnimEnter((int)ANIM.SHOW);
                     canvasGroup.DOKill();
                     canvasGroup.alpha = 0;
-                    canvasGroup.DOFade(1, Data.Time).SetEase(Data.Ease).OnComplete(() =>
+                    canvasGroup.DOFade(1, Data.Time).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.SHOW, generation);
                     });
                     break;
                 case ANIM.HIDE:
                     OnAnimEnter((int)ANIM.HIDE);
-                    canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).OnComplete(() =>
+                    canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).SetUpdate(true).OnComplete(() =>
                     {
                         CompleteIfCurrent((int)ANIM.HIDE, generation);
                     });
                     break;
                 case ANIM.IDLE:
                     OnAnimEnter((int)ANIM.IDLE);
-                    canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).SetLoops(-1, LoopType.Yoyo);
+                    canvasGroup.DOFade(0, Data.Time).SetEase(Data.Ease).SetUpdate(true).SetLoops(-1, LoopType.Yoyo);
                     break;
 
 

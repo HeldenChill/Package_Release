@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.0] - 2026-10-07
+- **Behaviour change:** every `UIAnim` tween (`UIPositionAnim`, `UIAlphaAnim`, `UIScaleAnim`, `UIPunchAnim`) now runs with `SetUpdate(true)`: UI animation and `OnAnimExit` no longer depend on `Time.timeScale`, so a canvas can open and close while the world is paused or slowed.
+- `UISCanvas.AnyOpened` static event, raised once per open from `OnOpen` (before activation).
+
 ## [0.7.2] - 2026-09-28
 - `UIItem.anims` is protected so product subclasses drive the same serialized list instead of redeclaring it (a redeclared serialized `anims` is serialized twice). Name, type and serialization unchanged.
 

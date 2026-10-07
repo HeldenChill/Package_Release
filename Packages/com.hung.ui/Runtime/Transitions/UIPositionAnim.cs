@@ -90,7 +90,7 @@ namespace Hung.UI
             }
             OnAnimEnter((int)anim);
             currentAnim?.Kill();
-            Tween tween = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease);
+            Tween tween = tf.DOMove(Data.EndTf.position, Data.Time).SetEase(Data.Ease).SetUpdate(true);
             if (anim == ANIM.IDLE) tween.SetLoops(2, LoopType.Yoyo);
             currentAnim = tween.OnComplete(() =>
             {

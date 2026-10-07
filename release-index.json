@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-06T02:16:18Z",
+  "generatedAt": "2026-10-07T06:32:16Z",
   "packages": {
     "com.hung.autotest": "0.4.2",
     "com.hung.base": "0.26.0",
@@ -15,7 +15,7 @@
     "com.hung.sync": "0.1.0",
     "com.hung.sync.simulator": "0.1.0",
     "com.hung.tools": "0.11.0",
-    "com.hung.ui": "0.7.2",
+    "com.hung.ui": "0.8.0",
     "com.hung.utilities": "0.2.2"
   },
   "publicRoots": [
@@ -36,7 +36,7 @@
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.10.06.1",
+  "releaseTag": "release-2026.10.07.1",
   "schemaVersion": 1,
-  "sourceCommit": "5a2e7c9c226eed9dc254aa87f9b35c6d91d58d90"
+  "sourceCommit": "bdf648ab001f0516eb1b7091be0c93497123b284"
 }
