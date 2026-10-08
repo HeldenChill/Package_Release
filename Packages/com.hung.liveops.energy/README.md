@@ -112,3 +112,7 @@ pick one terminal path, not both. Use `EnergyResultOutcome` on each result to ch
 There is no migration path from `com.hung.liveops.heart`'s save data. This package is a new package
 identity (see Changelog) with its own persistence format; a consumer adopting Energy starts fresh —
 no reader, converter, or dual-write path from Heart's saved state is provided or planned.
+
+## AI adoption playbook
+
+[Adopt this package](AI~/playbooks/adopt.md) covers reusable host composition and evidence requirements. Product-specific setup and runtime proof belong in the consuming project.

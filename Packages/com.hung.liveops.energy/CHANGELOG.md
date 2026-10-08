@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.8] - 2026-10-08
+
+### Documentation
+
+- Add `AI~/playbooks/adopt.md` with reusable host adoption steps and evidence boundaries (T4). No runtime behavior or dependency changes.
+
+
 ## [0.2.7] - 2026-09-27
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0.
 

@@ -101,3 +101,7 @@ Latest local evidence during this wave:
 - PlayMode purchase recovery: 7/7 passed
 
 Pre-existing Unity console noise may include old unrelated test errors. Trust fresh test summaries, not stale console history.
+
+## AI adoption playbook
+
+[Adopt this package](AI~/playbooks/adopt.md) covers reusable host composition and evidence requirements. Product-specific setup and runtime proof belong in the consuming project.

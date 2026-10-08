@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3] - 2026-10-08
+
+### Documentation
+
+- Add `AI~/playbooks/adopt.md` with reusable host adoption steps and evidence boundaries (T4). No runtime behavior or dependency changes.
+
+
 ## [0.8.2] - 2026-10-06
 ### Fixed
 - MAX impression revenue now reaches `Locator.RevenueSink` (all formats, mediation `max`), so AppsFlyer/analytics backends receive ad revenue. Previously only the IronSource path reported revenue.

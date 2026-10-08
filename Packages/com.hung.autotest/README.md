@@ -132,3 +132,7 @@ contract.
 - RuntimeSnapshot schema carries TD-shaped sections (PetSnapshot etc.) — pure data, no type coupling; generalize together with com.hung.combatstats.
 - AutoTestAssertionType enum carries domain members (serialized in assets) — migrate to string ids later if churn hurts.
 - CLI: `-autoTestSuite <path> -autoTestReadyTimeout <s> -autoTestGameplayScene <name>` via `Hung.AutoTest.Editor.AutoTestCliRunner.RunSuiteFromCommandLine`.
+
+## AI adoption playbook
+
+[Adopt this package](AI~/playbooks/adopt.md) covers reusable host composition and evidence requirements. Product-specific setup and runtime proof belong in the consuming project.

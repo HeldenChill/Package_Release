@@ -1,6 +1,6 @@
 {
   "name": "com.hung.liveops.energy",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "displayName": "Hung LiveOps Energy",
   "description": "Transaction-safe Energy (lives) LiveOps feature: copy-on-write persistence, idempotent grants, and durable run reservations. New package identity replacing com.hung.liveops.heart (no save migration).",
   "unity": "2022.3",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4] - 2026-10-08
+
+### Documentation
+
+- Add `AI~/playbooks/adopt.md` with reusable host adoption steps and evidence boundaries (T4). No runtime behavior or dependency changes.
+
+
 ## [0.4.3] - 2026-10-08
 - Added `AI~/`: `rules/autotest-usage.md` and `playbooks/run-from-agent.md`, installed into projects by claude-unity-shared sync as `pkg-autotest-*` (Unity ignores `AI~`).
 

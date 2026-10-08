@@ -136,3 +136,7 @@ flowchart LR
 ```
 
 PVM adoption: keep Rewarded/Banner enabled and disable Interstitial on the AdsManager in LoadStart. Existing interstitial entitlement, level-step and time caps still apply if enabled later.
+
+## AI adoption playbook
+
+[Adopt this package](AI~/playbooks/adopt.md) covers reusable host composition and evidence requirements. Product-specific setup and runtime proof belong in the consuming project.
