@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.4.3] - 2026-10-08
+- Added `AI~/`: `rules/autotest-usage.md` and `playbooks/run-from-agent.md`, installed into projects by claude-unity-shared sync as `pkg-autotest-*` (Unity ignores `AI~`).
+
 ## [0.4.2] - 2026-09-29
 - Fixed `AutoTestAssertionRegistry` string ids surviving Enter Play Mode with domain reload
   disabled: the registry now clears on `SubsystemRegistration`, so game glue re-registering on
