@@ -93,6 +93,6 @@ main thread**, or the agent must hand the Editor work back rather than guessing 
 
 ## Related rules
 
-- [unity-ide-sync.md](unity-ide-sync.md) — the manual-prefab default this rule overrides when MCP is up; `.asmdef` approval still stands
-- [layer-architecture-dispatch.md](layer-architecture-dispatch.md) — the "runtime-unverified" honesty rule this rule upgrades
+- `unity-ide-sync.md` (where the project defines it) — the manual-prefab default this rule overrides when MCP is up; `.asmdef` approval still stands
+- `layer-architecture-dispatch.md` (where the project defines it) — the "runtime-unverified" honesty rule this rule upgrades
 - [pkg-framework-compile-verification.md](pkg-framework-compile-verification.md) — `dotnet build` gate; MCP's `read_console` is the in-Editor equivalent
