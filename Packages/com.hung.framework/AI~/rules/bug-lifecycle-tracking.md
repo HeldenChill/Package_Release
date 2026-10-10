@@ -6,6 +6,14 @@
 
 Read this rule's values from `.claude/rules/project-values.md` § `bug-lifecycle-tracking`. Keys below appear as `<KEY>`.
 
+Configure `BUG_LEDGER` and optionally `BUG_RECORDS_DIR`:
+- **Single ledger (legacy):** `BUG_LEDGER = .cursor/memory/mem-known-bugs-index.md`
+- **Domain collection:** `BUG_LEDGER = .cursor/memory/bugs/README.md` and `BUG_RECORDS_DIR = .cursor/memory/bugs`
+
+In collection mode, search the entire collection before filing. Each bug record resides in its owning domain file (`mem-bugs-<domain>.md`). Exactly one authoritative record per ID across all domains; status transitions update the record in-place without moving it between files. Historical identity mappings are preserved permanently under `bugs/history/`.
+
+Validation in collection mode requires the shared validator CLI (`.claude/tools/ai-audit/validate-bug-memory.js`). Run `sync.ps1 pull` to install or update shared tools.
+
 ## Policy
 
 Record every credible bug or potential bug found during development, review, testing,

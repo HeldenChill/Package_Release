@@ -13,3 +13,5 @@ Project-specific values these rules need live in the project's `.claude/rules/pr
 Edit here, bump the version, release; never edit the generated copies in a project.
 
 Unity MCP guidance names optional Project rules as plain references; hosts need not define those files for package rule links to resolve.
+
+Ledger validation script alidate-bug-ledger.ps1 delegates to the project's installed shared validator .claude/tools/ai-audit/validate-bug-memory.js when available, enabling collection-mode validation across multiple domain bug memories. Hosts using single-file legacy mode retain local PowerShell validation fallback.

@@ -1,15 +1,54 @@
 param(
     [Parameter(Mandatory = $false)]
-    [string]$LedgerPath = '.cursor/memory/mem-known-bugs-index.md',
+    [string]$LedgerPath = '',
     # Comma-separated IDs of rows already known to be malformed (the project lists them in project-values.md).
-    [string]$KnownMalformedIds = ''
+    [string]$KnownMalformedIds = '',
+    [string]$ProjectPath = '.',
+    [string]$RecordsDirectory = ''
 )
 
-# Ledger validator.
-# ERROR (script fails): duplicate ID, malformed row not on the known list, no rows found.
-# WARN  (printed, script passes): legacy content problems the ledger already had when this check was repaired
-#       (bad date cell, unknown status word, terminal state without resolution, missing evidence, bad duplicate target).
+# Ledger validator adapter.
+# If shared validator exists in project, delegates directly to Node.js CLI.
+# Otherwise falls back to legacy single-file PowerShell validator with full-file validation.
 $ErrorActionPreference = 'Stop'
+$projectRoot = (Resolve-Path -LiteralPath $ProjectPath).Path
+$validator = Join-Path $projectRoot '.claude/tools/ai-audit/validate-bug-memory.js'
+if (Test-Path -LiteralPath $validator) {
+    $argsForNode = @($validator, '--project', $projectRoot)
+    if ($LedgerPath) { $argsForNode += @('--ledger', $LedgerPath) }
+    if ($KnownMalformedIds) { $argsForNode += @('--known-malformed-ids', $KnownMalformedIds) }
+    if ($RecordsDirectory) { $argsForNode += @('--records-dir', $RecordsDirectory) }
+    & node @argsForNode
+    exit $LASTEXITCODE
+}
+
+# Resolve values from project-values.md if LedgerPath not passed
+$valuesFile = Join-Path $projectRoot '.claude/rules/project-values.md'
+$isCollection = $false
+if (-not $LedgerPath -and (Test-Path -LiteralPath $valuesFile)) {
+    $valuesContent = Get-Content -LiteralPath $valuesFile -Raw
+    if ($valuesContent -match 'BUG_RECORDS_DIR\s*=\s*([^\r\n]+)') {
+        $RecordsDirectory = $matches[1].Trim()
+        $isCollection = $true
+    }
+    if ($valuesContent -match 'BUG_LEDGER\s*=\s*([^\r\n]+)') {
+        $LedgerPath = $matches[1].Trim()
+    }
+}
+if ($RecordsDirectory) { $isCollection = $true }
+
+if ($isCollection) {
+    throw "Collection mode requires shared validator at $validator. Run sync.ps1 pull to install."
+}
+
+if (-not $LedgerPath) {
+    $LedgerPath = '.cursor/memory/mem-known-bugs-index.md'
+}
+
+$fullLedgerPath = Join-Path $projectRoot $LedgerPath
+if (-not (Test-Path -LiteralPath $fullLedgerPath)) { throw "Ledger not found: $fullLedgerPath" }
+$content = Get-Content -LiteralPath $fullLedgerPath
+
 $allowedTypes = @('bug', 'risk', 'gap', 'planned')
 $allowedSeverities = @('critical', 'high', 'medium', 'low', 'unknown')
 $allowedStatuses = @(
@@ -17,15 +56,9 @@ $allowedStatuses = @(
     'REJECTED', 'DEFERRED', 'WONT_FIX', 'DUPLICATE'
 )
 $terminalWithReason = @('RESOLVED', 'REJECTED', 'WONT_FIX', 'DUPLICATE')
-# Old IDs are BUG-NNNN (frozen); new IDs are BUG-YYMMDD-xxxx (4 lowercase hex).
 $idPattern = 'BUG-(\d{4}|\d{6}-[0-9a-f]{4})'
-# Rows that were already structurally broken when this check was repaired (2026-10). Remove an ID once its row is fixed.
 $knownMalformed = @($KnownMalformedIds -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 
-if (-not (Test-Path -LiteralPath $LedgerPath)) { throw "Ledger not found: $LedgerPath" }
-$content = Get-Content -LiteralPath $LedgerPath
-
-# Split a row on '|' that is neither backslash-escaped nor inside a `code span`.
 function Split-LedgerRow([string]$row) {
     $cells = New-Object System.Collections.Generic.List[string]
     $cur = New-Object System.Text.StringBuilder
@@ -42,13 +75,23 @@ function Split-LedgerRow([string]$row) {
     return , @($cells)
 }
 
-# Only rows under "## Ledger": the renumbering logs further down repeat old IDs on purpose.
+$inHistorical = $false
 $inLedger = $false
-$rows = @(foreach ($line in $content) {
-    if ($line -match '^## Ledger\s*$') { $inLedger = $true; continue }
-    if ($inLedger -and $line -match '^## ') { break }
-    if ($inLedger -and $line -match "^\| $idPattern \|") { $line }
-})
+$rows = @()
+foreach ($line in $content) {
+    if ($line -match '^##\s*(?:ID renumbering|Historical ID Mapping|Renumbering)') { $inHistorical = $true; $inLedger = $false; continue }
+    if ($line -match '^##\s*Ledger\s*$') { $inLedger = $true; $inHistorical = $false; continue }
+    if ($line -match '^##\s+') { $inLedger = $false; $inHistorical = $false }
+
+    if ($inHistorical) { continue }
+
+    if ($line -match "^\|\s*$idPattern\s*\|") {
+        if (-not $inLedger) {
+            throw "Record found outside canonical ## Ledger table: $line"
+        }
+        $rows += $line
+    }
+}
 if ($rows.Count -eq 0) { throw 'No ledger rows found under ## Ledger' }
 
 $seen = @{}
@@ -68,7 +111,6 @@ foreach ($row in $rows) {
         Title = $cells[4]; Source = $cells[5]; Evidence = $cells[6]
         Found = $cells[7]; Updated = $cells[8]; Resolution = $cells[9]
     }
-    # Status cell is wrapped in a colour span: <span class="st-resolved">RESOLVED</span>
     $record.Status = $record.Status -replace '^<span class="st-[a-z]+">([A-Z_]+)</span>$', '$1'
     if ($record.Type -notin $allowedTypes) { $warnings.Add("$rowId invalid type: $($record.Type)") }
     if ($record.Severity -notin $allowedSeverities) { $warnings.Add("$rowId invalid severity: $($record.Severity)") }
