@@ -144,7 +144,7 @@ namespace Hung.IAP
         private async Task<PurchaseRequestResult> ProcessObservedCoreAsync(StorePurchaseRecord record, PurchaseSource source, CancellationToken token)
         {
             if (ledger.ContainsCompletedTransaction(record.TransactionId))
-                return CompletedDuplicate(record);
+                return await ConfirmCompletedDuplicateAsync(record, token).ConfigureAwait(false);
 
             if (!catalog.TryResolveStoreId(record.StoreName, record.StoreProductId, out PurchaseCatalogEntry entry))
                 return new PurchaseRequestResult(PurchaseRequestStatus.Rejected, PurchaseIntegrityCodes.StoreProductNotFound);
@@ -170,7 +170,7 @@ namespace Hung.IAP
             if (observed.Status == PurchaseLedgerWriteStatus.Unavailable || observed.Status == PurchaseLedgerWriteStatus.PersistenceFailed)
                 return new PurchaseRequestResult(PurchaseRequestStatus.RetryableFailure, observed.Code);
             if (observed.Status == PurchaseLedgerWriteStatus.Duplicate && ledger.ContainsCompletedTransaction(record.TransactionId))
-                return CompletedDuplicate(record);
+                return await ConfirmCompletedDuplicateAsync(record, token).ConfigureAwait(false);
 
             Publish(Snapshot(observedRecord));
 
@@ -235,6 +235,26 @@ namespace Hung.IAP
         private void OnPurchaseObserved(StorePurchaseRecord record)
         {
             _ = ProcessObservedAsync(record, PurchaseSource.Redelivery, serviceLifetime.Token);
+        }
+
+        // The ledger marks Completed once ConfirmAsync reports success, but the store may still fail the
+        // consume or acknowledge afterwards. A Completed transaction that the store delivers again is
+        // therefore confirmed once more (never validated or granted again); an already finished order
+        // makes this a no-op.
+        private async Task<PurchaseRequestResult> ConfirmCompletedDuplicateAsync(StorePurchaseRecord record, CancellationToken token)
+        {
+            try
+            {
+                StoreConfirmationResult confirmation = await store.ConfirmAsync(record.TransactionId, token).ConfigureAwait(false);
+                if (!confirmation.IsSuccess)
+                    diagnostics?.Report(confirmation.Code ?? PurchaseIntegrityCodes.ConfirmationRetryable, record.TransactionId, "re-confirm of a completed transaction");
+            }
+            catch (Exception ex)
+            {
+                diagnostics?.Report(PurchaseIntegrityCodes.ConfirmationRetryable, record.TransactionId, ex.Message);
+            }
+
+            return CompletedDuplicate(record);
         }
 
         private PurchaseRequestResult CompletedDuplicate(StorePurchaseRecord record)

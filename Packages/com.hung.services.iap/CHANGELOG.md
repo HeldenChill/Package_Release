@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.7] - 2026-10-15
+
+### Fixed
+
+- A transaction already `Completed` in the ledger is confirmed again when the store delivers it again (reconcile, redelivery, restore). The ledger records `Completed` as soon as `ConfirmAsync` reports success, but the store can still fail the consume or acknowledge afterwards; such an order stayed owned at the store forever (consumable re-buy blocked with `ItemAlreadyOwned`). The repeat confirm never validates or grants again, and a failure is reported to diagnostics without changing the `Completed` result.
+
 ## [0.7.6] - 2026-10-15
 
 ### Fixed

@@ -35,7 +35,7 @@ namespace Hung.IAP.Tests
         }
 
         [Test]
-        public async Task CompletedDuplicate_SkipsValidatorGrantAndConfirm()
+        public async Task CompletedDuplicate_SkipsValidatorAndGrantButConfirmsAgain()
         {
             var rig = Rig();
             rig.Ledger.CompletedTransactions.Add("tx-1");
@@ -45,7 +45,20 @@ namespace Hung.IAP.Tests
             Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
             Assert.That(rig.Validator.CallCount, Is.EqualTo(0));
             Assert.That(rig.Grant.CallCount, Is.EqualTo(0));
-            Assert.That(rig.Store.ConfirmCount, Is.EqualTo(0));
+            Assert.That(rig.Store.ConfirmCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task CompletedDuplicate_FailedReconfirmStillCompletes()
+        {
+            var rig = Rig();
+            rig.Ledger.CompletedTransactions.Add("tx-1");
+            rig.Store.NextConfirmation = StoreConfirmationResult.RetryableFailure("UNITY_PENDING_ORDER_NOT_FOUND");
+
+            PurchaseRequestResult result = await rig.Service.ProcessObservedForTestsAsync(StoreRecord("tx-1"), PurchaseSource.Redelivery);
+
+            Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+            Assert.That(rig.Grant.CallCount, Is.EqualTo(0));
         }
 
         [Test]
