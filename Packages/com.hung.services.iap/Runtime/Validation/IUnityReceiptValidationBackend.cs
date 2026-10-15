@@ -112,7 +112,7 @@ namespace Hung.IAP
                 IPurchaseReceipt[] receipts = validator.Validate(unityReceipt);
                 var normalized = new UnityValidatedReceipt[receipts.Length];
                 for (int i = 0; i < receipts.Length; i++)
-                    normalized[i] = Normalize(receipts[i]);
+                    normalized[i] = Normalize(receipts[i], applicationId);
 
                 return normalized;
             }
@@ -122,19 +122,28 @@ namespace Hung.IAP
             }
         }
 
-        private UnityValidatedReceipt Normalize(IPurchaseReceipt receipt)
+        public static UnityValidatedReceipt Normalize(IPurchaseReceipt receipt, string applicationId)
         {
             string receiptType = receipt is GooglePlayReceipt ? UnityReceiptTypes.GooglePlay : UnityReceiptTypes.AppleAppStore;
             string storeName = receiptType == UnityReceiptTypes.GooglePlay ? PurchaseStoreNames.GooglePlay : PurchaseStoreNames.AppleAppStore;
             string appId = applicationId;
+            string transactionId = receipt.transactionID;
 
-            if (receipt is GooglePlayReceipt google && !string.IsNullOrEmpty(google.packageName))
-                appId = google.packageName;
+            if (receipt is GooglePlayReceipt google)
+            {
+                if (!string.IsNullOrEmpty(google.packageName))
+                    appId = google.packageName;
+
+                // Unity IAP 5 keys a Google order by its purchaseToken (Order.Info.TransactionID), while
+                // GooglePlayReceipt.transactionID is the orderID. Match the order's id, or every purchase
+                // fails the transaction check.
+                transactionId = google.purchaseToken;
+            }
 
             return new UnityValidatedReceipt(
                 storeName,
                 receipt.productID,
-                receipt.transactionID,
+                transactionId,
                 appId,
                 receipt.purchaseDate,
                 receiptType);

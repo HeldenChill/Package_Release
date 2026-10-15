@@ -96,6 +96,25 @@ namespace Hung.IAP.Tests
             StringAssert.Contains("\"receiptType\":\"" + receiptType + "\"", result.MetadataJson);
         }
 
+        [Test]
+        public void Normalize_GoogleReceiptUsesPurchaseToken()
+        {
+            // Unity IAP 5 keys Google orders by purchaseToken, not orderID. Reflection: the test asmdef
+            // does not reference Unity.Purchasing.SecurityCore.
+            Type receiptType = Type.GetType("UnityEngine.Purchasing.Security.GooglePlayReceipt, Unity.Purchasing.SecurityCore", true);
+            Type stateType = Type.GetType("UnityEngine.Purchasing.Security.GooglePurchaseState, Unity.Purchasing.SecurityCore", true);
+            object receipt = Activator.CreateInstance(receiptType, "google-starter", "GPA.1234", "com.test.game", "token-abc",
+                new DateTime(2026, 7, 24, 0, 0, 0, DateTimeKind.Utc), Enum.ToObject(stateType, 0));
+
+            var normalized = (UnityValidatedReceipt)typeof(UnityCrossPlatformReceiptValidationBackend)
+                .GetMethod(nameof(UnityCrossPlatformReceiptValidationBackend.Normalize))
+                .Invoke(null, new[] { receipt, "com.test.game" });
+
+            Assert.That(normalized.TransactionId, Is.EqualTo("token-abc"));
+            Assert.That(normalized.ApplicationId, Is.EqualTo("com.test.game"));
+            Assert.That(normalized.ReceiptType, Is.EqualTo(UnityReceiptTypes.GooglePlay));
+        }
+
         private static StorePurchaseRecord Record(string transactionId, string storeName, string storeProductId)
         {
             return new StorePurchaseRecord(

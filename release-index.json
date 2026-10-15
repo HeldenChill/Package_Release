@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T04:44:19Z",
+  "generatedAt": "2026-10-15T09:59:32Z",
   "packages": {
     "com.hung.autotest": "0.4.4",
     "com.hung.base": "0.26.0",
@@ -12,7 +12,7 @@
     "com.hung.persistence": "0.1.0",
     "com.hung.services.ads": "0.8.3",
     "com.hung.services.analytics": "0.5.1",
-    "com.hung.services.iap": "0.7.5",
+    "com.hung.services.iap": "0.7.6",
     "com.hung.sync": "0.1.0",
     "com.hung.sync.simulator": "0.1.0",
     "com.hung.tools": "0.11.0",
@@ -38,7 +38,7 @@
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.10.10.1",
+  "releaseTag": "release-2026.10.15.1",
   "schemaVersion": 1,
-  "sourceCommit": "56b9b5e33439c055253f6c303f49b00a2308dee1"
+  "sourceCommit": "22525781a60c333318454b4e5960ea7f4ed21437"
 }

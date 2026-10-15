@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.6] - 2026-10-15
+
+### Fixed
+
+- Google Play receipts now normalize their transaction id to the `purchaseToken`, which is the id Unity IAP 5 gives the order. It used the `orderID`, so `UnityLocalPurchaseValidator` rejected every real Google purchase with `PURCHASE_RECEIPT_TRANSACTION_MISMATCH` (no grant, order never confirmed). `UnityCrossPlatformReceiptValidationBackend.Normalize` is now public static for testing.
+
 ## [0.7.5] - 2026-10-08
 
 ### Documentation
