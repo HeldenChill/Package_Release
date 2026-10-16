@@ -48,7 +48,7 @@ namespace Hung.Ads.Integration.Max
                 Debug.LogWarning("Reward Max Reward Ad is already loading.");
                 return;
             }
-            MaxSdk.LoadRewardedAd(adUnitId);
+            MaxSdkGate.Run(() => MaxSdk.LoadRewardedAd(adUnitId));
             IsLoading = true;
         }
 

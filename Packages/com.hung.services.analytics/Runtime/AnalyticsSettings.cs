@@ -14,6 +14,13 @@ namespace Hung.Analytics
         /// <summary>Verbose SDK and routing logs.</summary>
         public bool debugLog;
 
+        /// <summary>
+        /// When true, <c>AnalyticsBootstrap</c> installs a holding proxy before the first scene and starts no SDK until the
+        /// game calls <c>AnalyticsBootstrap.StartDeferred</c> (after consent). Off keeps the automatic start.
+        /// </summary>
+        [Tooltip("Start SDKs only when the game calls AnalyticsBootstrap.StartDeferred (after consent).")]
+        public bool deferInitialization;
+
         /// <summary>One row per backend id.</summary>
         public List<AnalyticsBackendEntry> backends = AnalyticsBackendEntry.CreateDefaults();
 

@@ -42,6 +42,8 @@ namespace Hung.Analytics.Backends
         public void Initialize(AnalyticsBackendEntry entry, bool debugLog)
         {
             _debugLog = debugLog;
+            var readySignal = AnalyticsBootstrap.ReadySignal(Id);
+            string launchUserId = AnalyticsBootstrap.LaunchUserId;
 #if UNITY_ANDROID
             if (!Permission.HasUserAuthorizedPermission("android.permission.POST_NOTIFICATIONS"))
                 Permission.RequestUserPermission("android.permission.POST_NOTIFICATIONS");
@@ -64,6 +66,8 @@ namespace Hung.Analytics.Backends
                 lock (_gate)
                 {
                     _ready = true;
+                    if (!string.IsNullOrEmpty(launchUserId)) FirebaseAnalytics.SetUserId(launchUserId);
+                    readySignal(!string.IsNullOrEmpty(launchUserId));
                     bool reported = false;
                     while (_pending.Count > 0)
                     {

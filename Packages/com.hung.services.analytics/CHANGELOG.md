@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.4] - 2026-10-16
+### Added
+- Opt-in deferred startup: `AnalyticsSettings.deferInitialization` installs a holding proxy before the first scene; no SDK starts until the game calls `AnalyticsBootstrap.StartDeferred(launchUserId)` (or `DiscardDeferred()` when consent is refused). Held calls keep their call-time values, replay in order, and are capped at 512. Default off: automatic startup is unchanged.
+- `AnalyticsBootstrap.LaunchUserId`: AppsFlyer sets it as customer user id before `startSDK`, AppMetrica as `UserProfileID`, Firebase as user id.
+- `AppsFlyerConversionListener`: logs an allow-listed conversion summary (af_status, media_source, campaign, is_first_launch) in debug or development builds.
+### Changed
+- AppMetrica activation also sets `LocationTracking = false`, `SessionTimeout = 300`, `CrashReporting = true`.
+
 ## [0.5.3] - 2026-10-16
 
 ### Fixed

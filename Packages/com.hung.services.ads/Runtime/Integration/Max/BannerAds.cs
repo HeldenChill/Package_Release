@@ -22,7 +22,9 @@ namespace Hung.Ads.Integration.Max
         public void SetAdUnitId(string id) { if (!string.IsNullOrEmpty(id)) bannerAdUnitId = id; }
 
         // Start is called before the first frame update
-        public void InitBanner()
+        public void InitBanner() => MaxSdkGate.Run(InitBannerNow);
+
+        void InitBannerNow()
         {
             MaxSdk.CreateBanner(bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
 

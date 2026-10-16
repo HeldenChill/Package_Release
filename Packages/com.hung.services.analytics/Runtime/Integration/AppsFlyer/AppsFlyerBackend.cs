@@ -33,8 +33,11 @@ namespace Hung.Analytics.Backends
             if (string.IsNullOrEmpty(entry.apiKey))
                 throw new InvalidOperationException("AppsFlyer dev key (apiKey) is empty in HungAnalyticsSettings.");
             AppsFlyer.setIsDebug(debugLog);
-            AppsFlyer.initSDK(entry.apiKey, entry.appId ?? "");
+            AppsFlyer.initSDK(entry.apiKey, entry.appId ?? "", AppsFlyerConversionListener.Create(debugLog));
+            // After initSDK (it creates the native instance) and before startSDK (install tracking).
+            if (!string.IsNullOrEmpty(AnalyticsBootstrap.LaunchUserId)) AppsFlyer.setCustomerUserId(AnalyticsBootstrap.LaunchUserId);
             AppsFlyer.startSDK();
+            AnalyticsBootstrap.ReadySignal(Id)(!string.IsNullOrEmpty(AnalyticsBootstrap.LaunchUserId));
         }
 
         /// <inheritdoc/>

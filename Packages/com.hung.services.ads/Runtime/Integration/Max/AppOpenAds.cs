@@ -20,7 +20,7 @@ namespace Hung.Ads.Integration.Max
 
         public void Load()
         {
-            MaxSdk.LoadAppOpenAd(adUnitId);
+            MaxSdkGate.Run(() => MaxSdk.LoadAppOpenAd(adUnitId));
         }
 
         public void Show()

@@ -55,7 +55,7 @@ namespace Hung.Ads.Integration.Max
             Debug.Log("[MAX]: Load Interestial Ads");
             IsLoading = true;   
             Locator.Analytics.AdsInterLoad();
-            MaxSdk.LoadInterstitial(adUnitId);
+            MaxSdkGate.Run(() => MaxSdk.LoadInterstitial(adUnitId));
         }
 
         public virtual void Show(Placement placement)

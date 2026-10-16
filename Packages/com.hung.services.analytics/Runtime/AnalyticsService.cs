@@ -27,6 +27,9 @@ namespace Hung.Analytics
         }
 
         readonly List<Route> _routes = new List<Route>();
+        readonly List<Action> _held = new List<Action>();
+        bool _holding;
+        int _droppedWhileHolding;
         readonly HashSet<string> _reportedFailures = new HashSet<string>();
         readonly Func<float> _clock;
         readonly float _startTime;
@@ -53,6 +56,12 @@ namespace Hung.Analytics
         /// <inheritdoc/>
         public void LogEvent(string name, AnalyticsCategory category, IReadOnlyDictionary<string, object> parameters = null)
         {
+            if (_holding)
+            {
+                var snapshot = CopyOf(parameters);
+                Keep(() => LogEvent(name, category, snapshot));
+                return;
+            }
             foreach (var route in _routes)
             {
                 if ((route.Categories & category) == 0) continue;
@@ -64,6 +73,11 @@ namespace Hung.Analytics
         /// <inheritdoc/>
         public void SetUserProperty(string key, string value)
         {
+            if (_holding)
+            {
+                Keep(() => SetUserProperty(key, value));
+                return;
+            }
             foreach (var route in _routes)
             {
                 try { route.Backend.SetUserProperty(key, value); }
@@ -74,6 +88,12 @@ namespace Hung.Analytics
         /// <summary>Routes ad revenue to backends subscribed to <see cref="AnalyticsCategory.Revenue"/>.</summary>
         public void OnRevenue(string source, double value, string currency, IReadOnlyDictionary<string, string> extra = null)
         {
+            if (_holding)
+            {
+                var snapshot = CopyOf(extra);
+                Keep(() => OnRevenue(source, value, currency, snapshot));
+                return;
+            }
             foreach (var route in _routes)
             {
                 if ((route.Categories & AnalyticsCategory.Revenue) == 0) continue;
@@ -200,6 +220,53 @@ namespace Hung.Analytics
 
         void Log(string name, AnalyticsCategory category, string key, string value) =>
             LogEvent(name, category, new Dictionary<string, object> { { key, value } });
+
+        /// <summary>Most calls kept while holding; later ones are dropped and counted.</summary>
+        public const int MaxHeldCalls = 512;
+
+        /// <summary>True while calls are kept for a later <see cref="ReleaseHeld"/>.</summary>
+        public bool IsHolding => _holding;
+
+        /// <summary>
+        /// Keeps every later event, user property and revenue call, with its values copied at call time, until
+        /// <see cref="ReleaseHeld"/> or <see cref="DiscardHeld"/>. Used to wait for consent before any SDK sends.
+        /// </summary>
+        public void Hold() => _holding = true;
+
+        /// <summary>Stops holding and replays the kept calls, in order, through the current backends.</summary>
+        // ponytail: replays in one frame; the 512 cap bounds it. Spread across frames if a profile ever shows a hitch.
+        public void ReleaseHeld()
+        {
+            _holding = false;
+            var calls = _held.ToArray();
+            _held.Clear();
+            foreach (var call in calls) call();
+            if (_droppedWhileHolding > 0)
+                Debug.LogWarning($"[Analytics] {_droppedWhileHolding} calls over the {MaxHeldCalls} hold limit were dropped before release.");
+            _droppedWhileHolding = 0;
+        }
+
+        /// <summary>Stops holding and drops the kept calls unsent (consent refused).</summary>
+        public void DiscardHeld()
+        {
+            _holding = false;
+            _held.Clear();
+            _droppedWhileHolding = 0;
+        }
+
+        void Keep(Action call)
+        {
+            if (_held.Count < MaxHeldCalls) _held.Add(call);
+            else _droppedWhileHolding++;
+        }
+
+        static Dictionary<string, T> CopyOf<T>(IReadOnlyDictionary<string, T> source)
+        {
+            if (source == null) return null;
+            var copy = new Dictionary<string, T>(source.Count);
+            foreach (var kv in source) copy[kv.Key] = kv.Value;
+            return copy;
+        }
 
         void ReportFailure(IAnalyticsBackend backend, Exception e)
         {

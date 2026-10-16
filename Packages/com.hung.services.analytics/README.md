@@ -1,5 +1,7 @@
 # Hung Services Analytics
 
+Deferred startup API for analytics 0.5.4: AnalyticsSettings.deferInitialization defaults false. AnalyticsService.Hold/ReleaseHeld/DiscardHeld keeps up to 512 copied calls. AnalyticsBootstrap.InstallDeferred/StartDeferred/DiscardDeferred controls startup. IsBackendStarted, IsBackendReady and IsIdentityApplied report this launch only; ReadySignal returns a generation-bound callback for integrations. Readiness is local SDK readiness, not destination delivery. See Docs/adr/adr-e5-analytics-deferred-startup.md for serialized compatibility.
+
 One analytics proxy (`Locator.Analytics`) that fans every tracked event out to any combination of Firebase, AppsFlyer, AppMetrica and GameAnalytics. Each backend is switchable at build time by a scripting define and at edit time by `Hung/Analytics/Settings`.
 
 Contracts (`IAnalyticsService`, `IRevenueEventSink`, `AnalyticsCategory`, Locator slots) live in `com.hung.base` `Runtime/Services/Contracts`. Game code only ever calls `Locator.Analytics`.

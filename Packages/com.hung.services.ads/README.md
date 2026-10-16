@@ -1,5 +1,7 @@
 # Hung Services Ads
 
+Startup API for ads 0.8.6: ReadyGate.Run queues until its readiness predicate is true; Release rechecks it. AdsStartupGate defaults authorized; PvM opts in with Hold before scene loads and calls Authorize only after consent resolution. MAX loads require both current-launch authorization and SDK readiness. Other games keep automatic behavior. Warm SDK state cannot bypass a fresh hold.
+
 Ads service wrapper, mediation-vendor-isolated (Ph6, paper §11.2).
 
 Contracts (`IAdsService`/`IAdsRequestService`/`IAds`/`IRewardAds`/`IInterAds`/`IBannerAds`/`IRevenueEventSink` + Locator slots + enums) live in `com.hung.base` `Runtime/Services/Contracts/Ads`.

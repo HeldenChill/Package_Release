@@ -24,7 +24,17 @@ namespace Hung.Analytics.Backends
         {
             if (string.IsNullOrEmpty(entry.apiKey))
                 throw new InvalidOperationException("AppMetrica API key (apiKey) is empty in HungAnalyticsSettings.");
-            AppMetrica.Activate(new AppMetricaConfig(entry.apiKey) { Logs = debugLog });
+            // Publisher settings: launch identity as UserProfileID, no location, 300 s sessions, crash reports.
+            var config = new AppMetricaConfig(entry.apiKey)
+            {
+                Logs = debugLog,
+                LocationTracking = false,
+                SessionTimeout = 300,
+                CrashReporting = true,
+            };
+            if (!string.IsNullOrEmpty(AnalyticsBootstrap.LaunchUserId)) config.UserProfileID = AnalyticsBootstrap.LaunchUserId;
+            AppMetrica.Activate(config);
+            AnalyticsBootstrap.ReadySignal(Id)(!string.IsNullOrEmpty(AnalyticsBootstrap.LaunchUserId));
         }
 
         /// <inheritdoc/>

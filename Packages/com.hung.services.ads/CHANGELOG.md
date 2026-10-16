@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.6] - 2026-10-16
+
+### Added
+
+- `ReadyGate` and opt-in `AdsStartupGate` hold MAX loads (rewarded, interstitial, app open, banner creation) until current-launch authorization and `MaxSdk.IsInitialized()` are both true. Warm SDK state cannot bypass a fresh consent hold. A game that initializes MAX after consent no longer loses its first loads.
+
 ## [0.8.5] - 2026-10-16
 
 ### Fixed
