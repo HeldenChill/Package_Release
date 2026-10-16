@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Hung.Base;
 using UnityEngine;
 
 namespace Hung.Analytics
@@ -18,5 +19,24 @@ namespace Hung.Analytics
 
         /// <summary>Entry for <paramref name="id"/>, or null.</summary>
         public AnalyticsBackendEntry Get(string id) => backends?.Find(e => e != null && e.id == id);
+
+        /// <summary>
+        /// Clears category bits no <see cref="AnalyticsCategory"/> flag defines, such as the -1 that Unity's
+        /// "Everything" writes. Returns true when any row changed.
+        /// </summary>
+        public bool NormalizeCategories()
+        {
+            if (backends == null) return false;
+            bool changed = false;
+            foreach (var entry in backends)
+            {
+                if (entry == null) continue;
+                var clean = entry.categories & AnalyticsCategory.All;
+                if (clean == entry.categories) continue;
+                entry.categories = clean;
+                changed = true;
+            }
+            return changed;
+        }
     }
 }

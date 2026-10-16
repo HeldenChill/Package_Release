@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+- Optional `Hung.Character.AI` assembly (compiles only with com.hung.ai 0.1.0+): `AIBrainModule`, `CharacterMover`, `BrainDataMap`, and perception nodes Sense World, See Target, Hear Sound, Track Target, Lose Target, Look Around. EditMode tests in `Hung.Character.AI.Tests`. The existing BrainGraph is unchanged.
+
+
 ## [0.2.8] - 2026-09-27
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0; com.hung.data 0.12.5 -> 0.12.6.
 

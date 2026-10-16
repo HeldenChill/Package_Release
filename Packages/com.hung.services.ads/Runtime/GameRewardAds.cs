@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,6 +38,7 @@ namespace Hung.Ads
         readonly AdsRequestController requests = new AdsRequestController();
         AdsRequestContext activeRequest;
         RewardedRequestSession activeSession;
+        bool videoAdsStarted;
         PauseLeaseId activePauseLeaseId;
         bool hasActivePauseLease;
 
@@ -190,6 +191,11 @@ namespace Hung.Ads
                     activeRequest = null;
                     activeSession = null;
                     isShowingAds = false;
+                    if (videoAdsStarted)
+                    {
+                        videoAdsStarted = false;
+                        VideoAdsAnalytics.Watch(VideoAdsAnalytics.Rewarded, request.Placement, result);
+                    }
                     onCompleted?.Invoke(result);
                     ReleaseAdsLease();
                 }, out var context, out var rejection))
@@ -220,6 +226,9 @@ namespace Hung.Ads
                     if (IsCanShowFor(request.Placement))
                     {
                         AcquireAdsLease(request);
+                        VideoAdsAnalytics.Available(VideoAdsAnalytics.Rewarded, request.Placement, true);
+                        VideoAdsAnalytics.Started(VideoAdsAnalytics.Rewarded, request.Placement);
+                        videoAdsStarted = true;
                         activeProvider.Show(request.Placement);
                         EventBus<ResetAoaCapEvent>.Raise(new ResetAoaCapEvent());
                         maxTryAttempt = 0;
@@ -230,6 +239,7 @@ namespace Hung.Ads
                     else
                     {
                         isShowOnLoad = true;
+                        VideoAdsAnalytics.Available(VideoAdsAnalytics.Rewarded, request.Placement, false);
                         DevLog.Log(DevId.Hung, "Reward Ads is not ready to show. Attempting to load.");
                         _OnAddLoadAds?.Invoke(LoadAds);
                         activeSession.OnUnavailable();

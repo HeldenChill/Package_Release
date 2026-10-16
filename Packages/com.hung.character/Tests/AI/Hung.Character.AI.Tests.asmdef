@@ -1,0 +1,33 @@
+{
+    "name": "Hung.Character.AI.Tests",
+    "rootNamespace": "Gameplay.Character.AIBridge.Tests",
+    "references": [
+        "Hung.Character",
+        "Hung.AI",
+        "Hung.Character.AI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS",
+        "HUNG_AI"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.hung.ai",
+            "expression": "0.1.0",
+            "define": "HUNG_AI"
+        }
+    ],
+    "noEngineReferences": false
+}

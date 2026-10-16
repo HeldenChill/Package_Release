@@ -1,0 +1,25 @@
+{
+    "name": "Hung.Character.AI",
+    "rootNamespace": "Gameplay.Character.AIBridge",
+    "references": [
+        "Hung.Character",
+        "Hung.AI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "HUNG_AI"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.hung.ai",
+            "expression": "0.1.0",
+            "define": "HUNG_AI"
+        }
+    ],
+    "noEngineReferences": false
+}

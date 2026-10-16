@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Hung.DesignPattern;
@@ -39,6 +39,7 @@ namespace Hung.Ads
         readonly AdsRequestController requests = new AdsRequestController();
         AdsRequestContext activeRequest;
         InterstitialRequestSession activeSession;
+        bool videoAdsStarted;
         PauseLeaseId activePauseLeaseId;
         bool hasActivePauseLease;
         EventBinding<ResetInterCapEvent> _resetInterBinding;
@@ -158,6 +159,11 @@ namespace Hung.Ads
                     activeRequest = null;
                     activeSession = null;
                     isShowingAds = false;
+                    if (videoAdsStarted)
+                    {
+                        videoAdsStarted = false;
+                        VideoAdsAnalytics.Watch(VideoAdsAnalytics.Interstitial, request.Placement, result);
+                    }
                     onCompleted?.Invoke(result);
                     ReleaseAdsLease();
                 }, out var context, out var rejection))
@@ -214,6 +220,9 @@ namespace Hung.Ads
                         if (canShow)
                         {
                             AcquireAdsLease(request);
+                            VideoAdsAnalytics.Available(VideoAdsAnalytics.Interstitial, request.Placement, true);
+                            VideoAdsAnalytics.Started(VideoAdsAnalytics.Interstitial, request.Placement);
+                            videoAdsStarted = true;
                             activeProvider.Show(request.Placement);
                             if (Config != null) cappingTimer.Start(Config.InterCappingTime);
                             EventBus<ResetAoaCapEvent>.Raise(new ResetAoaCapEvent());
@@ -224,6 +233,7 @@ namespace Hung.Ads
                         }
                         else
                         {
+                            VideoAdsAnalytics.Available(VideoAdsAnalytics.Interstitial, request.Placement, false);
                             _OnAddLoadAds?.Invoke(LoadAds);
                             activeSession.OnUnavailable();
                         }

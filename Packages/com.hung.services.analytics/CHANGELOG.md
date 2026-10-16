@@ -1,4 +1,10 @@
-# Changelog
+﻿# Changelog
+
+## [0.5.2] - 2026-10-16
+### Fixed
+- Hung/Analytics/Settings shows the four category flags (Ads, Product, Design, Revenue). Unity's flags popup also listed the composite `All` and wrote `-1` for "Everything"; stored values are now cleaned to defined bits when the window loads (`AnalyticsSettings.NormalizeCategories`).
+### Added
+- The AppMetrica row says when MAX/IronSource ad revenue already reaches AppMetrica through its auto ad-revenue adapters.
 
 ## [0.5.1] - 2026-10-01
 ### Added

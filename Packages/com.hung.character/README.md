@@ -61,3 +61,29 @@ Spawning: `Awake` initializes from the serialized definition. To inject one inst
 - `rootNamespace` is empty and types live under `Gameplay.Character.*`, **not** `Hung.Character` — that is the assembly name only. Character was excluded from the framework-wide namespace rename; it is still pending.
 - `Trigger.cs` is a third copy of that type in the repo (alongside `com.hung.base`'s `Base.Trigger` and `com.hung.tutorial`'s global-namespace `Trigger`). No collision today; unification deferred.
 - No automated tests exist yet for this package.
+
+## Hung.AI bridge (optional)
+
+`Hung.Character.AI` compiles only when the `com.hung.ai` package (0.1.0 or newer) is installed. It lets a character be driven by a Hung.AI behavior-tree graph instead of the built-in BrainGraph.
+
+Setup on a character:
+
+1. Add `AIAgent` (from `com.hung.ai`) and assign the graph. Its Auto Tick is turned off at runtime; the brain ticks with the character.
+2. Add `AIBrainModule` and assign it to the character's Navigation (Brain) module slot.
+3. Optional: a `NavMeshAgent` on the same object gives NavMesh paths. Without it the mover heads straight at the target. The NavMeshAgent never moves the body; Logic/Physic do, from `BrainData.MoveDirection`.
+4. Optional: in `AIBrainModule > Brain Data Map`, bind blackboard keys to `BrainData` fields that game code reads (for example a bool key to `IsSeePosition`).
+
+| Node (Character/Perception) | Does |
+|---|---|
+| Sense World | Reads sight and hearing sensors every tick; always Running. Put it in a Parallel beside the decision branch |
+| See Target | True while a target is seen or remembered; writes target Transform and last seen position |
+| Hear Sound | True while a sound is heard or remembered; writes sound position |
+| Track Target | Writes the seen target's live position every tick |
+| Lose Target | Forgets the target (and sound), clears keys |
+| Look Around | Stops and turns on the spot for a while |
+
+Movement uses the core `Move To`, `Patrol` and `Stop Move` nodes through `CharacterMover`.
+
+The bridge skips blackboard mapping while navigation is paused. Successful Move To and non-looping Patrol nodes use the optional `IAIMovementCompletion` interface to stop movement while retaining `HasArrivedAtDestination` and the final `RemainingDistance` for character logic. Explicit Stop, pause, reset, or aborted movement clears that completion state. Existing movers implementing only `IAIMover` continue to receive `Stop()`.
+
+The NavMesh mover waits for pending path calculation, then rejects partial or invalid paths and clears movement intent. A failed path is reported to the graph rather than retried before its result can be read.

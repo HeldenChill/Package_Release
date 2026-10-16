@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +20,11 @@ namespace Hung.Analytics.Editor
         const string AppMetricaAutoRevenuePrefix = "APPMETRICA_FEATURES_ADREVENUE_";
 
         static readonly NamedBuildTarget[] Targets = { NamedBuildTarget.Android, NamedBuildTarget.iOS, NamedBuildTarget.Standalone };
+
+        // Index i names bit 1 << i of AnalyticsCategory. Listing only the single flags keeps Unity's popup from
+        // also showing the composite All next to its own Everything (which writes -1).
+        static readonly string[] CategoryNames = { "Ads", "Product", "Design", "Revenue" };
+        static readonly GUIContent CategoriesLabel = new GUIContent("Categories", "Event categories this backend receives.");
 
         // Probe type (assembly-qualified) proves the SDK compiles here; folder is what must be deleted to strip natives.
         static readonly Dictionary<string, (string probeType, string folder)> Sdks = new Dictionary<string, (string, string)>
@@ -48,6 +53,7 @@ namespace Hung.Analytics.Editor
             }
             foreach (var id in AnalyticsBackendIds.All)
                 if (settings.Get(id) == null) settings.backends.Add(AnalyticsBackendEntry.CreateDefault(id));
+            settings.NormalizeCategories();
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
             return settings;
@@ -91,7 +97,9 @@ namespace Hung.Analytics.Editor
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField($"{id}  ({AnalyticsBackendIds.Define(id)})", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(enabled);
-                EditorGUILayout.PropertyField(categories);
+                int all = (int)AnalyticsCategory.All;
+                int mask = EditorGUILayout.MaskField(CategoriesLabel, categories.intValue & all, CategoryNames) & all;
+                if (mask != categories.intValue) categories.intValue = mask;
                 if (id == AnalyticsBackendIds.AppsFlyer || id == AnalyticsBackendIds.AppMetrica)
                     EditorGUILayout.PropertyField(row.FindPropertyRelative(nameof(AnalyticsBackendEntry.apiKey)));
                 if (id == AnalyticsBackendIds.AppsFlyer)
@@ -123,6 +131,9 @@ namespace Hung.Analytics.Editor
             if (id == AnalyticsBackendIds.AppMetrica && enabled && (categories & AnalyticsCategory.Revenue) != 0
                 && Targets.Any(t => PlayerSettings.GetScriptingDefineSymbols(t).Contains(AppMetricaAutoRevenuePrefix)))
                 yield return ("AppMetrica auto ad-revenue adapters are on (APPMETRICA_FEATURES_ADREVENUE_*). Routing Revenue here too double-counts MAX/IronSource revenue.", MessageType.Warning);
+            if (id == AnalyticsBackendIds.AppMetrica && enabled && (categories & AnalyticsCategory.Revenue) == 0
+                && Targets.Any(t => PlayerSettings.GetScriptingDefineSymbols(t).Contains(AppMetricaAutoRevenuePrefix)))
+                yield return ("MAX/IronSource ad revenue already reaches AppMetrica through its auto ad-revenue adapters (APPMETRICA_FEATURES_ADREVENUE_*). Keep Revenue off here.", MessageType.Info);
         }
     }
 }

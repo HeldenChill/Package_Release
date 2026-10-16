@@ -1,4 +1,10 @@
-# Changelog
+﻿# Changelog
+
+## [0.8.4] - 2026-10-16
+
+### Added
+
+- `VideoAdsAnalytics`: `video_ads_available`, `video_ads_started` and `video_ads_watch` (ad_type, placement, result, connection) from `GameRewardAds` and `GameInterAds` show requests, logged as `AnalyticsCategory.Product`. Rewarded `not_available` repeats per placement are suppressed for 60 s. Existing ad events are unchanged.
 
 ## [0.8.3] - 2026-10-08
 
@@ -44,7 +50,7 @@
 ## [0.7.0] - 2026-09-29
 ### Added
 - Multi-provider ads routing: `AdsRouter`, `AdsRoutingConfig`/`AdsRoutingData`/`AdsRoutingOverride`, `AdsProviderSet`, `IAdsProviderInstaller`/`AdsInstallers`, `RoutedLoadCycle`, `RoutedRewardedProvider`, `RoutedInterstitialProvider`, `RoutedBannerProvider`, `AdsRoutedComposer`. Lets rewarded/interstitial/banner serve from MAX, AdMob and Yandex, alone or combined (chain, per-format, parallel, per-placement), switchable at compile time and at runtime. See README "Routed mode".
-- `AdMobRewarded`/`AdMobInterstitial`/`AdMobBanner`/`AdMobAdsInstaller` — AdMob integration rewritten on Google Mobile Ads Unity 9.1.0 (was fully dead/commented-out code).
+- `AdMobRewarded`/`AdMobInterstitial`/`AdMobBanner`/`AdMobAdsInstaller` â€” AdMob integration rewritten on Google Mobile Ads Unity 9.1.0 (was fully dead/commented-out code).
 - `MaxAdsInstaller` and `SetAdUnitId(string)` on the MAX rewarded/interstitial/banner providers, for routed mode.
 - `AdsManager.routingConfig` (optional `AdsRoutingConfig` field) and `AdsManager.RoutingOverrideJson` (static remote-override seam).
 - Requires `com.hung.base` `0.24.0` (adds `IRewardAds.IsCanShowFor(Placement)`).
@@ -104,7 +110,7 @@
 - Aligned package dependencies and serialized manager data with the ItemId migration release; no ads API changed.
 
 ## [0.4.0] - 2026-07-14
-- Adopted `ResetAoaCapEvent` and `ResetInterCapEvent` (new `Runtime/AdsEvents.cs`, namespace `Hung.Ads`). They previously lived in `com.hung.designpattern`'s `EVENTS.cs`, which was deleted in designpattern 0.4.0 — this package's `GameAppOpenAds`/`GameInterAds`/`GameRewardAds` were their only consumers, so ownership moves here.
+- Adopted `ResetAoaCapEvent` and `ResetInterCapEvent` (new `Runtime/AdsEvents.cs`, namespace `Hung.Ads`). They previously lived in `com.hung.designpattern`'s `EVENTS.cs`, which was deleted in designpattern 0.4.0 â€” this package's `GameAppOpenAds`/`GameInterAds`/`GameRewardAds` were their only consumers, so ownership moves here.
 - No behavior change. Consumers already in `namespace Hung.Ads` need no `using` update; any outside consumer must now `using Hung.Ads;` instead of `using Hung.DesignPattern;` for these two types.
 
 ## [0.3.0] - 2026-07-11
