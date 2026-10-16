@@ -77,10 +77,12 @@ namespace Hung.Analytics.Tests.Tracking
             var h = new TrackingHarness(_ => new IRule[0]).Launch();
             int afterBoot = h.Store.SaveCount;
             h.Do(Fact.StageStart(1, false));
+            Assert.AreEqual(afterBoot + 1, h.Store.SaveCount, "Attempt state must survive a crash before Blur.");
             h.Play(1);
-            Assert.AreEqual(afterBoot, h.Store.SaveCount);
+            Assert.AreEqual(afterBoot + 1, h.Store.SaveCount, "Ticks must not save every frame.");
+            h.Do(Fact.Progress(9));
             h.Do(Fact.StageEnd(StageResult.Fail));
-            Assert.AreEqual(afterBoot + 1, h.Store.SaveCount);
+            Assert.AreEqual(afterBoot + 2, h.Store.SaveCount);
         }
 
         [Test]

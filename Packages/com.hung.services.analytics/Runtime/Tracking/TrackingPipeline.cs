@@ -7,7 +7,7 @@ namespace Hung.Analytics.Tracking
     /// <summary>
     /// Runs facts through the context and the rules (spec section 2). Facts dispatched before <see cref="Start"/> are queued and replayed,
     /// because persistence may not be configured at BeforeSceneLoad. A throwing rule is logged once and never stops the others.
-    /// State is saved at ColdStart, Blur and StageEnd.
+    /// State is saved at ColdStart, StageStart, Blur and StageEnd.
     /// </summary>
     public sealed class TrackingPipeline
     {
@@ -95,7 +95,7 @@ namespace Hung.Analytics.Tracking
             return true;
         }
 
-        static bool IsSavePoint(FactKind k) => k == FactKind.ColdStart || k == FactKind.Blur || k == FactKind.StageEnd;
+        static bool IsSavePoint(FactKind k) => k == FactKind.ColdStart || k == FactKind.StageStart || k == FactKind.Blur || k == FactKind.StageEnd;
 
         void Warn(string key, string message)
         {

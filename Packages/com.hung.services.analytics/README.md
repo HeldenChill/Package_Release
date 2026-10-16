@@ -119,7 +119,7 @@ Game code sends facts; rules turn them into events. Design: `.cursor/plans/analy
 | `Fact`, `FactKind`, `StageResult`, `MonetizeKind`, `TutorialPhase` | `Hung.Analytics` | Immutable fact and its enums |
 | `IRule` | `Hung.Analytics` | Rule contract: `Declare` events, handle `OnFact` |
 | `TrackingContext` | `Hung.Analytics` | FTU, stage, wave, replay, attempt, focus, away time, install day, state |
-| `TrackingPipeline` | `Hung.Analytics` | Queues facts until Start, runs context and rules, isolates failures, saves at ColdStart/Blur/StageEnd |
+| `TrackingPipeline` | `Hung.Analytics` | Queues facts until Start, runs context and rules, isolates failures, saves at ColdStart/StageStart/Blur/StageEnd |
 | `EventEmitter` | `Hung.Analytics` | ftu_ prefix, A/B mode, 40-char fallback, B-name budget; all events Design |
 | `TrackingSettings`, `OutputMode`, `ModeOverride` | `Hung.Analytics` | Optional asset `Resources/HungTrackingSettings`: thresholds, modes, feature list |
 | `Counter`, `Since`, `Accum`, `Pending`, `PendingRecord`, `OncePer` | `Hung.Analytics` | Persisted operators over one state key |

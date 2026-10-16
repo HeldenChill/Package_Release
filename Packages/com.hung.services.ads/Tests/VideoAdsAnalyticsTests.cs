@@ -79,6 +79,36 @@ namespace Hung.Ads.Tests
         }
 
         [Test]
+        public void Rewarded_DisplayFailure_CompletesFailedWatchOnceAndAllowsNextShow()
+        {
+            var go = new UnityEngine.GameObject(nameof(VideoAdsAnalyticsTests));
+            try
+            {
+                var provider = new FakeRewardedProvider { IsCanShow = true };
+                var ads = Create(go, provider);
+                int completions = 0;
+                AdsShowResult observed = default;
+                ads.Show(Request("failed"), result => { completions++; observed = result; });
+                provider.FailDisplay();
+                Assert.AreEqual(1, completions, "First display failure must finish immediately, without Hidden.");
+                provider.FailDisplay();
+                provider.Hide();
+
+                CollectionAssert.AreEqual(new[] { "success", "success", "failed" }, Results());
+                Assert.AreEqual(1, completions);
+                Assert.AreEqual(AdsRequestOutcome.Failed, observed.Outcome);
+                Assert.IsFalse(observed.IsEarnedReward);
+                provider.IsCanShow = true;
+                ads.Show(Request("next"), _ => completions++);
+                provider.EarnReward();
+                provider.Hide();
+                Assert.AreEqual(2, completions);
+                CollectionAssert.AreEqual(new[] { "success", "success", "failed", "success", "success", "watched" }, Results());
+            }
+            finally { UnityEngine.Object.DestroyImmediate(go); }
+        }
+
+        [Test]
         public void Rewarded_Unavailable_IsSuppressedFor60SecondsPerPlacement()
         {
             var go = new UnityEngine.GameObject(nameof(VideoAdsAnalyticsTests));
@@ -159,6 +189,7 @@ namespace Hung.Ads.Tests
             public void Load() { IsLoading = true; }
             public void EarnReward() => OnAdsReceiveReward?.Invoke();
             public void Hide() => OnAdsHidden?.Invoke();
+            public void FailDisplay() => OnAdsDisplayFail?.Invoke();
             public event Action OnAdsReceiveReward;
             public event Action OnAdsHidden;
 #pragma warning disable 67

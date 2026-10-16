@@ -1,4 +1,10 @@
-﻿# Changelog
+# Changelog
+
+## [0.8.5] - 2026-10-16
+
+### Fixed
+
+- First rewarded/interstitial display failure completes the active request immediately and reports `video_ads_watch` with `failed` once, releasing the request and pause lease while inventory reload retries continue. Duplicate failure/hidden callbacks cannot change the completed outcome.
 
 ## [0.8.4] - 2026-10-16
 

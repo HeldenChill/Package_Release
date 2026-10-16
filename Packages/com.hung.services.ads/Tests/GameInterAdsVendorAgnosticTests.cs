@@ -39,6 +39,46 @@ namespace Hung.Ads.Tests
         }
 
         [Test]
+        public void DisplayFailure_CompletesFailedWatchOnceAndAllowsNextShow()
+        {
+            var events = new System.Collections.Generic.List<string>();
+            var previousSink = VideoAdsAnalytics.Sink;
+            VideoAdsAnalytics.Sink = (name, args) => events.Add(name + ":" + args["result"]);
+            var go = new GameObject(nameof(GameInterAds));
+            try
+            {
+                var ads = CreateAwake(go);
+                var provider = new FakeInterstitialProvider { IsCanShow = true };
+                var registry = new AdsProviderRegistry();
+                registry.RegisterInterstitial(ADS_TYPE.MAX, provider);
+                ads.ConfigureProviders(registry);
+                int completions = 0;
+                AdsShowResult observed = default;
+                var first = new AdsShowRequest(AdsRequestId.Create("failure-test", AdsRequestKind.Interstitial, Placement.IN_GAME, "first"));
+                ads.Show(first, result => { completions++; observed = result; });
+                provider.FailDisplay();
+                Assert.AreEqual(1, completions, "First display failure must finish immediately, without Hidden.");
+                provider.FailDisplay();
+                provider.Hidden();
+                CollectionAssert.AreEqual(new[] { "video_ads_available:success", "video_ads_started:success", "video_ads_watch:failed" }, events);
+                Assert.AreEqual(1, completions);
+                Assert.AreEqual(AdsRequestOutcome.Failed, observed.Outcome);
+                provider.IsCanShow = true;
+                var next = new AdsShowRequest(AdsRequestId.Create("failure-test", AdsRequestKind.Interstitial, Placement.IN_GAME, "next"));
+                ads.Show(next, _ => completions++);
+                provider.Hidden();
+                Assert.AreEqual(2, completions);
+                Assert.AreEqual(2, provider.ShowCallCount);
+                Assert.AreEqual("video_ads_watch:watched", events[events.Count - 1]);
+            }
+            finally
+            {
+                VideoAdsAnalytics.Sink = previousSink;
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
         public void Show_RoutesToProviderRegisteredForActiveType()
         {
             var go = new GameObject(nameof(GameInterAds));
@@ -146,6 +186,7 @@ namespace Hung.Ads.Tests
             public System.Action BeforeLoad;
             public void Load() { BeforeLoad?.Invoke(); LoadCallCount++; }
             public void Hidden() => OnAdsDone?.Invoke();
+            public void FailDisplay() => OnAdsDisplayFail?.Invoke();
 
             public void Show(Placement placement)
             {

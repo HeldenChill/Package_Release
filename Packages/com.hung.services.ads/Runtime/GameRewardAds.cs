@@ -355,6 +355,9 @@ namespace Hung.Ads
 
         protected void OnProviderDisplayFail()
         {
+            // A failed display ends this request now; retries below only reload inventory.
+            // Completion clears videoAdsStarted, so duplicate failure/hidden callbacks cannot report twice.
+            if (videoAdsStarted) activeSession?.OnDisplayFailed();
             if (!AdsEnabled)
             {
                 _OnTriggerLoadAds?.Invoke();

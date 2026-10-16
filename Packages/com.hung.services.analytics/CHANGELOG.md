@@ -1,4 +1,10 @@
-﻿# Changelog
+# Changelog
+
+## [0.5.3] - 2026-10-16
+
+### Fixed
+
+- Save tracking state at StageStart so an open attempt and lifetime counter survive a foreground crash before Blur. Ticks remain in memory; recovery uses the last saved time/progress snapshot.
 
 ## [0.5.2] - 2026-10-16
 ### Fixed
