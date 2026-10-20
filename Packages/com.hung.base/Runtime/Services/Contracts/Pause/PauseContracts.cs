@@ -21,6 +21,14 @@ namespace Hung.Base
         bool Acquire(PauseLease lease);
         bool Release(PauseLeaseId id);
         void ReleaseOwner(string owner);
+
+        /// <summary>
+        /// While any lease is held, records <paramref name="scale"/> as the speed to resume at when
+        /// the last lease is released, instead of the caller writing it now and unpausing the world
+        /// (e.g. a rewarded-ad grant that changes game speed before the ad has closed). Returns false
+        /// when nothing is paused; the caller then applies the scale itself.
+        /// </summary>
+        bool TryDeferResumeScale(float scale) => false;
     }
 
     public readonly struct PauseLeaseId : IEquatable<PauseLeaseId>

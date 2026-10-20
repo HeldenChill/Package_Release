@@ -54,6 +54,8 @@ Base owns the vendor-neutral Ads request/result surface. `AdsRequestId`, `AdsSho
 
 `IPauseService` coordinates pause ownership through `PauseLease` values. Releasing an Ads lease releases only that Ads request and never clears active popup, tutorial, gameplay, application, or debug pauses.
 
+The first lease captures the current scale; the last release restores it only if the scale is still 0, so a pause never changes the game speed and never overwrites a speed another owner set meanwhile. `TryDeferResumeScale(scale)` lets a caller change the resume speed while paused without unpausing (returns false when nothing is paused, so the caller writes the scale itself).
+
 `PauseService` writes through `ITimeScale`; production composition can use `UnityTimeScale`, while tests can inject a deterministic scale wrapper. `Locator.Pause` is a compatibility slot during composition migration.
 
 ## Time And Reward Integrity Contracts

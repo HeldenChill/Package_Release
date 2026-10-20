@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.26.1] - 2026-10-20
+### Fixed
+- `PauseService` resumed at the constructor's `runningScale` (captured once when `AdsManager` booted, usually 1) after every pause, so any ad reset a 1.8x game speed to 1 (PVM BUG-261019-b68c). It now captures the scale at the first `Acquire` and restores it on the last `Release` only while the scale is still 0; a speed another owner wrote during the pause is kept. The `runningScale` constructor argument is ignored and kept for source compatibility.
+### Added
+- `IPauseService.TryDeferResumeScale(float)` (default interface method, returns false): while paused, records the speed to resume at instead of writing it and unpausing the world, e.g. a rewarded-ad grant that changes game speed before the ad closes (PVM BUG-261020-889f).
+
 ## [0.26.0] - 2026-09-30
 ### Added
 - `IAdsEntitlements` (`IsRemoveAds`, `IsPremiumRemoveAds`, `LevelIndex`), `NullAdsEntitlements`, and the `Locator.AdsEntitlements` slot: the host tells the ads module about remove-ads and progression without the ads module reading `GameData`.
