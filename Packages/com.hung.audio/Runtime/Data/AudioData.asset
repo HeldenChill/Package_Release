@@ -1,0 +1,824 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90e15a92fb3da83418045639c12f9c4a, type: 3}
+  m_Name: AudioData
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects:
+    - {fileID: 8300000, guid: 613b00a87a6ba394ea3802cd7adc9c68, type: 3}
+    - {fileID: 8300000, guid: bf7a9571e788cab4b8a5f3c7472a4901, type: 3}
+    - {fileID: 8300000, guid: 60d7b5abdeba4d14c9ca7000fe929fc9, type: 3}
+    - {fileID: 8300000, guid: d468f4407bd77b44596d0da511bca756, type: 3}
+    - {fileID: 8300000, guid: f95c19a77ff5acd44b12282a07f60e0b, type: 3}
+    - {fileID: 8300000, guid: 92a240b72f89d3b49803b96936d2d0bc, type: 3}
+    - {fileID: 8300000, guid: dc3810d5895dec748aa8efaecbf2ed6c, type: 3}
+    - {fileID: 8300000, guid: 691b9a090c19f934884dcf9a99dafe58, type: 3}
+    - {fileID: 8300000, guid: 19ace71985ad77141a3ebb1e704358ab, type: 3}
+    - {fileID: 8300000, guid: 5e371771f5ebe6545926c645c986c4b7, type: 3}
+    - {fileID: 8300000, guid: c555d5add680e7d48bdf4d9fd33b0174, type: 3}
+    - {fileID: 8300000, guid: 7f02f9d98334d484ba284cdf6c294303, type: 3}
+    - {fileID: 8300000, guid: 26a4cf7403a037940a802aec7bf5b6e1, type: 3}
+    - {fileID: 8300000, guid: cd169e62398c7954e8a53727c9eeb9fb, type: 3}
+    - {fileID: 8300000, guid: b4d23b937740ee54598bffb5df64b3d8, type: 3}
+    - {fileID: 8300000, guid: 235958c3de08ff4428bd9cb8307b454d, type: 3}
+    - {fileID: 8300000, guid: 6daad8256d4403a4a8553a22420d72f9, type: 3}
+    - {fileID: 8300000, guid: c7ba8fe7559b46a49a2825eb358aef29, type: 3}
+    - {fileID: 8300000, guid: 675d1f6b00896754099a5668b06848a6, type: 3}
+    - {fileID: 8300000, guid: 73958e7becbf93443b1f49770ec5a695, type: 3}
+    - {fileID: 8300000, guid: 1c998642ae3ffa8429de7d9473ebe936, type: 3}
+    - {fileID: 8300000, guid: 1b6e548df88be7941a72f67f493f78b7, type: 3}
+    - {fileID: 8300000, guid: 7dcf0c3fcaaece64f9e3b85721df6e96, type: 3}
+    - {fileID: 8300000, guid: 353944d60d5cbe544a05fc225b062ced, type: 3}
+    - {fileID: 8300000, guid: bde8e2df705b3b34484a3d5a90267d46, type: 3}
+    - {fileID: 8300000, guid: 4455599357f108446967286c4ee8389b, type: 3}
+    - {fileID: 8300000, guid: eb82dda28511f964399a9f186000b6fb, type: 3}
+    - {fileID: 8300000, guid: b3a9494ff3932b747b7b913255335bca, type: 3}
+    - {fileID: 8300000, guid: 050f3674ecb10d34f98f390ccec6ac6b, type: 3}
+    - {fileID: 8300000, guid: d26610a005c2cad4bac24ba057de5f76, type: 3}
+    - {fileID: 8300000, guid: 39d7e255eee4a9b4bb61d77fb6d2dadc, type: 3}
+    - {fileID: 8300000, guid: 966f885dffd736346be07f6535fa3c6a, type: 3}
+    - {fileID: 8300000, guid: a95c2dac16be8a042a814d5f9d4b502b, type: 3}
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: _bgmAudioDict
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[Base.BGM_TYPE, Hung.Base],[Audio.Audio,
+        Hung.Audio]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[Base.BGM_TYPE, Hung.Base]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: 2|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 0
+    - Name: multiplier
+      Entry: 4
+      Data: 0.8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 3|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 1
+    - Name: multiplier
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 4|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 2
+    - Name: multiplier
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 5|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 3
+    - Name: multiplier
+      Entry: 4
+      Data: 0.2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _sfxAudioDict
+      Entry: 7
+      Data: 6|System.Collections.Generic.Dictionary`2[[Base.SFX_TYPE, Hung.Base],[Audio.Audio,
+        Hung.Audio]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 7|System.Collections.Generic.EnumEqualityComparer`1[[Base.SFX_TYPE, Hung.Base]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 30
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 8|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 4
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 9|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 5
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 10|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 6
+    - Name: multiplier
+      Entry: 4
+      Data: 0.7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 7
+    - Name: $v
+      Entry: 7
+      Data: 11|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 7
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 7
+      Data: 12|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 8
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 8
+    - Name: $v
+      Entry: 7
+      Data: 13|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 9
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 9
+    - Name: $v
+      Entry: 7
+      Data: 14|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 10
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 100
+    - Name: $v
+      Entry: 7
+      Data: 15|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 11
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 7
+      Data: 16|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 12
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 7
+      Data: 17|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 13
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 10
+    - Name: $v
+      Entry: 7
+      Data: 18|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 14
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 11
+    - Name: $v
+      Entry: 7
+      Data: 19|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 15
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 12
+    - Name: $v
+      Entry: 7
+      Data: 20|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 16
+    - Name: multiplier
+      Entry: 4
+      Data: 0.6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 13
+    - Name: $v
+      Entry: 7
+      Data: 21|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 17
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 23
+    - Name: $v
+      Entry: 7
+      Data: 22|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 6
+      Data: 
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 24
+    - Name: $v
+      Entry: 7
+      Data: 23|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 18
+    - Name: multiplier
+      Entry: 4
+      Data: 0.4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 25
+    - Name: $v
+      Entry: 7
+      Data: 24|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 19
+    - Name: multiplier
+      Entry: 4
+      Data: 0.6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 7
+      Data: 25|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 20
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 50
+    - Name: $v
+      Entry: 7
+      Data: 26|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 21
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 101
+    - Name: $v
+      Entry: 7
+      Data: 27|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 22
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 102
+    - Name: $v
+      Entry: 7
+      Data: 28|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 23
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 103
+    - Name: $v
+      Entry: 7
+      Data: 29|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 24
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 104
+    - Name: $v
+      Entry: 7
+      Data: 30|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 25
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 107
+    - Name: $v
+      Entry: 7
+      Data: 31|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 26
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 106
+    - Name: $v
+      Entry: 7
+      Data: 32|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 27
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 105
+    - Name: $v
+      Entry: 7
+      Data: 33|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 28
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 108
+    - Name: $v
+      Entry: 7
+      Data: 34|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 29
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 109
+    - Name: $v
+      Entry: 7
+      Data: 35|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 30
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 110
+    - Name: $v
+      Entry: 7
+      Data: 36|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 31
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 111
+    - Name: $v
+      Entry: 7
+      Data: 37|Audio.Audio, Hung.Audio
+    - Name: clip
+      Entry: 10
+      Data: 32
+    - Name: multiplier
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  BGMList: []
+  SFXList: []

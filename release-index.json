@@ -1,9 +1,11 @@
 {
-  "generatedAt": "2026-10-20T02:25:46Z",
+  "generatedAt": "2026-10-22T09:03:56Z",
   "packages": {
+    "com.hung.audio": "0.3.7",
     "com.hung.autotest": "0.4.4",
     "com.hung.base": "0.26.1",
     "com.hung.character": "0.2.8",
+    "com.hung.combat": "0.4.7",
     "com.hung.data": "0.12.6",
     "com.hung.designpattern": "0.4.5",
     "com.hung.framework": "0.1.2",
@@ -13,6 +15,7 @@
     "com.hung.services.ads": "0.8.6",
     "com.hung.services.analytics": "0.5.4",
     "com.hung.services.iap": "0.7.7",
+    "com.hung.skill": "0.3.7",
     "com.hung.sync": "0.1.0",
     "com.hung.sync.simulator": "0.1.0",
     "com.hung.tools": "0.11.0",
@@ -20,9 +23,11 @@
     "com.hung.utilities": "0.2.2"
   },
   "publicRoots": [
+    "com.hung.audio",
     "com.hung.autotest",
     "com.hung.base",
     "com.hung.character",
+    "com.hung.combat",
     "com.hung.data",
     "com.hung.designpattern",
     "com.hung.framework",
@@ -32,13 +37,14 @@
     "com.hung.services.ads",
     "com.hung.services.analytics",
     "com.hung.services.iap",
+    "com.hung.skill",
     "com.hung.sync",
     "com.hung.sync.simulator",
     "com.hung.tools",
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.10.20.1",
+  "releaseTag": "release-2026.10.22.1",
   "schemaVersion": 1,
-  "sourceCommit": "a837070cd79044d676c2ee9ef9dc42b2205a8126"
+  "sourceCommit": "9750d1911f1b6155939a29d3f88fc95171be3eff"
 }

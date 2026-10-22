@@ -1,0 +1,19 @@
+{
+    "name": "Hung.Combat.Core",
+    "rootNamespace": "Hung.Combat",
+    "references": [
+        "Hung.Base",
+        "Hung.Data",
+        "Hung.DesignPattern",
+        "Hung.Utilities.STimer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

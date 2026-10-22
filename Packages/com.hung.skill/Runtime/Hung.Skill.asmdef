@@ -1,0 +1,21 @@
+{
+    "name": "Hung.Skill",
+    "rootNamespace": "Hung.Skill",
+    "references": [
+        "Hung.Base",
+        "Hung.DesignPattern",
+        "Hung.Utilities.STimer",
+        "Hung.Combat.Core",
+        "Hung.Combat",
+        "Sirenix.OdinInspector.Attributes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
