@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.1] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.8.0] - 2026-10-07
 - **Behaviour change:** every `UIAnim` tween (`UIPositionAnim`, `UIAlphaAnim`, `UIScaleAnim`, `UIPunchAnim`) now runs with `SetUpdate(true)`: UI animation and `OnAnimExit` no longer depend on `Time.timeScale`, so a canvas can open and close while the world is paused or slowed.
 - `UISCanvas.AnyOpened` static event, raised once per open from `OnOpen` (before activation).

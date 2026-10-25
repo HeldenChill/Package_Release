@@ -1,7 +1,14 @@
 # Changelog
 
-## [Unreleased]
-- Optional `Hung.Character.AI` assembly (compiles only with com.hung.ai 0.1.0+): `AIBrainModule`, `CharacterMover`, `BrainDataMap`, and perception nodes Sense World, See Target, Hear Sound, Track Target, Lose Target, Look Around. EditMode tests in `Hung.Character.AI.Tests`. The existing BrainGraph is unchanged.
+## [0.3.1] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
+## [0.3.0] - 2026-10-18
+### Removed
+- **BrainGraph** (breaking): `Runtime/Base/BrainSystem/BrainGraph/**` (BrainGraphAsset, BrainGraphModule, BrainGraphRunner, registries, 15 node kinds) and the editor assembly `Hung.Character.Editor` (`Editor/BrainGraph/**`). Replacement: `com.hung.ai` with the optional `Hung.Character.AI` bridge (`AIBrainModule`). Assets that used `BrainGraphModule` must be rebuilt on `AIAgent` + `AIBrainModule`; there is no importer.
+### Added
+- Optional `Hung.Character.AI` assembly (compiles only with com.hung.ai 0.1.0+): `AIBrainModule`, `CharacterMover`, `BrainDataMap`, and perception nodes Sense World, See Target, Hear Sound, Track Target, Lose Target, Look Around. EditMode tests in `Hung.Character.AI.Tests`.
 
 
 ## [0.2.8] - 2026-09-27

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.8] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.3.7] - 2026-09-27
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0; com.hung.data 0.12.5 -> 0.12.6.
 

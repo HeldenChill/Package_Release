@@ -146,6 +146,14 @@ namespace Gameplay.Character.Logic
         /// the owning Character before the state machine's FixedUpdate runs, so a state's own
         /// FixedUpdate write still takes precedence over a stale buffered one.
         /// </summary>
+        public void ClearPendingVelocity()
+        {
+            hasPendingVelocity = false;
+            hasPendingLocalVelocityXZ = false;
+            pendingVelocity = Vector3.zero;
+            pendingLocalVelocityXZ = Vector3.zero;
+        }
+
         public void FlushPendingVelocity()
         {
             if (hasPendingVelocity)
@@ -262,3 +270,4 @@ namespace Gameplay.Character.Logic
         }
     }
 }
+

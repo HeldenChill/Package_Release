@@ -18,6 +18,24 @@ namespace Hung.Analytics
         /// <summary>Resources path (no extension) of the settings asset.</summary>
         public const string SettingsResourcePath = "HungAnalyticsSettings";
 
+        /// <summary>Editor harnesses may suppress only automatic startup for a scoped Editor session.</summary>
+        public const string EditorSuppressionKey = "Hung.Analytics.SuppressAutomaticStartupForEditorSession";
+
+        public static bool EditorAutomaticStartupSuppressed
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return UnityEditor.SessionState.GetBool(EditorSuppressionKey, false);
+#else
+                return false;
+#endif
+            }
+        }
+
+        public static int AutomaticBootCount { get; private set; }
+        public static int SuppressedAutomaticBootCount { get; private set; }
+
         static readonly HashSet<string> _startedBackendIds = new HashSet<string>();
         static readonly HashSet<string> _readyBackendIds = new HashSet<string>();
         static readonly HashSet<string> _identityBackendIds = new HashSet<string>();
@@ -67,6 +85,8 @@ namespace Hung.Analytics
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
+            AutomaticBootCount = 0;
+            SuppressedAutomaticBootCount = 0;
             ResetDiagnostics();
             _deferred = null;
             _deferredSettings = null;
@@ -77,6 +97,13 @@ namespace Hung.Analytics
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Boot()
         {
+            if (EditorAutomaticStartupSuppressed ||
+                !Hung.Base.Composition.AutomaticStartupPolicy.ShouldStart(Hung.Base.Composition.AutomaticStartupKind.LegacyAnalytics))
+            {
+                SuppressedAutomaticBootCount++;
+                return;
+            }
+            AutomaticBootCount++;
             var settings = Resources.Load<AnalyticsSettings>(SettingsResourcePath);
             if (settings == null)
                 Debug.LogWarning($"[Analytics] Resources/{SettingsResourcePath}.asset missing - using default routing. Open Hung/Analytics/Settings.");

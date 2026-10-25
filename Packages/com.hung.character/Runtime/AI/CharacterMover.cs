@@ -14,6 +14,7 @@ namespace Gameplay.Character.AIBridge
         const float RepathDistanceSqr = 0.01f;
         readonly BrainData data;
         readonly Transform body;
+        readonly Rigidbody rigidbody;
         readonly NavMeshAgent navMeshAgent;
         float deltaTime;
         bool arrived;
@@ -25,6 +26,7 @@ namespace Gameplay.Character.AIBridge
         {
             this.data = data;
             this.body = body;
+            rigidbody = body.GetComponent<Rigidbody>();
             this.navMeshAgent = navMeshAgent;
         }
 
@@ -114,10 +116,17 @@ namespace Gameplay.Character.AIBridge
             WriteArrival();
         }
 
+        /// <summary>Keep the rendered heading and the physics heading consistent for sensor updates.</summary>
+        public void SetRotation(Quaternion rotation)
+        {
+            if (rigidbody != null) rigidbody.rotation = rotation;
+            body.rotation = rotation;
+        }
+
         Vector3 Steer(Vector3 direction)
         {
             if (TurnSpeed > 0f && deltaTime > 0f)
-                body.rotation = Quaternion.RotateTowards(body.rotation, Quaternion.LookRotation(direction), TurnSpeed * deltaTime);
+                SetRotation(Quaternion.RotateTowards(body.rotation, Quaternion.LookRotation(direction), TurnSpeed * deltaTime));
             Vector3 facing = body.forward;
             facing.y = 0f;
             float angle = Vector3.Angle(facing, direction);

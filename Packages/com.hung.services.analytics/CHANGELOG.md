@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0] - Unreleased
+
+- Respect product-owned automatic startup selection before backend, Locator, tracking or store activity.
+
+## [Unreleased]
+### Fixed
+- Editor harnesses can suppress automatic analytics/tracking startup through the scoped SessionState key exposed by AnalyticsBootstrap.EditorSuppressionKey. The guard runs before settings, backends, tracking or persistence access. Ordinary Editor launches and all player builds retain automatic startup; explicit Install APIs are unchanged. AutomaticBootCount and SuppressedAutomaticBootCount expose the observed startup path for harness assertions.
+
 ## [0.5.4] - 2026-10-16
 ### Added
 - Opt-in deferred startup: `AnalyticsSettings.deferInitialization` installs a holding proxy before the first scene; no SDK starts until the game calls `AnalyticsBootstrap.StartDeferred(launchUserId)` (or `DiscardDeferred()` when consent is refused). Held calls keep their call-time values, replay in order, and are capped at 512. Default off: automatic startup is unchanged.

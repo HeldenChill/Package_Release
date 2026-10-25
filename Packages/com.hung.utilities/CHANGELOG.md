@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.3] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.2.2] - 2026-08-09
 - Dependency-only patch: align exact package constraints for the approved F3B propagation; no runtime or API behavior changed.
 - Dependency alignment: com.hung.designpattern 0.4.2 -> 0.4.3.

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.0] - Unreleased
+
+- Publish reviewed scoped pooling/state-machine additions with retained legacy compatibility.
+
+## [Unreleased]
+### Fixed
+- Scoped Spawn/Play revalidate ownership after Unity callbacks, rejecting returned, disposed or reused checkouts without affecting a nested valid checkout.
+- Destroyed scoped instances now retire from all ownership indexes, inactive queues, pending return requests and particle completion tracking.
+### Added
+- Additive scoped component and particle pooling (`Hung.DesignPattern.ScopedPooling`): `PoolScope`, `PoolDefinition`, `UnitPoolId`, `ParticlePoolId`, `PoolCheckout`, `ReturnRequest`, `IPoolCatalogResolver`, `PoolCatalogAsset`, `PoolScopeRunner`.
+- Additive generic state machine (`Hung.DesignPattern`): `IState<TKey>`, `StateMachine<TKey>`, `StateStatus` with explicit replacement, same-key re-entry and idempotent Start/Stop.
+- PlayMode lifecycle test suite (`Hung.DesignPattern.ScopedPooling.PlayModeTests`).
+### Changed
+- Legacy routes (`SimplePool`, `ParticlePool`, `PoolController`, `GameUnit`, `STATE`, `BaseState`) remain unchanged with full backwards compatibility.
+
 ## [0.4.5] - 2026-09-29
 ### Fixed
 - `EventBus` bindings are cleared on `SubsystemRegistration` (new `EventBusRegistry.ClearAllBindings`).

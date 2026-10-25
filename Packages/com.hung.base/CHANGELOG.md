@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.27.0] - Unreleased
+
+- Add opt-in automatic startup selection and include the reviewed focused composition contracts.
+
+## [Unreleased]
+### Added
+- Horizon 1 P2-A focused audio-settings, item-balance and durable-spend contracts.
+- Instance-owned explicit feature lifecycle with dependency preflight, readiness reports, required/optional failure handling and guarded cleanup.
+### Fixed
+- Guard callback exception formatting so diagnostic failures cannot interrupt partial initialization cleanup or reverse shutdown; retain safe exception type details when formatting fails.
+### Compatibility
+- Legacy GameData, item/presentation APIs and automatic host paths remain unchanged. Product extraction and consumer cutovers are separate work.
+
 ## [0.26.1] - 2026-10-20
 ### Fixed
 - `PauseService` resumed at the constructor's `runningScale` (captured once when `AdsManager` booted, usually 1) after every pause, so any ad reset a 1.8x game speed to 1 (PVM BUG-261019-b68c). It now captures the scale at the first `Acquire` and restores it on the last `Release` only while the scale is still 0; a speed another owner wrote during the pause is kept. The `runningScale` constructor argument is ignored and kept for source compatibility.

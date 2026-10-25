@@ -59,6 +59,7 @@ namespace Hung.Data.Persistence
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InstallDefault()
         {
+            if (!Hung.Base.Composition.AutomaticStartupPolicy.ShouldStart(Hung.Base.Composition.AutomaticStartupKind.LegacyPersistence)) return;
             if (Database.ServiceFactory == null)
                 Database.ServiceFactory = CreateDefault;
         }

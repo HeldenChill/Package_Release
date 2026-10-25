@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.13.0] - Unreleased
+
+- Respect product-owned automatic startup selection before installing default persistence.
+
+## [Unreleased]
+### Added
+- Explicit selected-persistence composition documentation and isolated integration tests using the existing PersistenceBuilder and product-owned test state.
+### Compatibility
+- Legacy Database bootstrap, PackageSaveDefinitions and DataManager behavior are preserved; no save schema, package dependency or consumer backend changes.
+
 ## [0.12.6] - 2026-09-27
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0.
 

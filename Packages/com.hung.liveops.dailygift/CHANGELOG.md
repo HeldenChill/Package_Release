@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.9] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.4.8] - 2026-09-28
 - Dependency alignment: com.hung.ui 0.7.1 -> 0.7.2.
 

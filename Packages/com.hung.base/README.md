@@ -1,5 +1,13 @@
 # Hung Base (L1)
 
+## Product-owned automatic startup selection
+
+`Hung.Base.Composition.AutomaticStartupKind`, `AutomaticStartupProfile`, and `AutomaticStartupPolicy` select only legacy automatic Data/Analytics startup. A product may own exactly one `Resources/HungAutomaticStartup.asset`. Its independent `legacyPersistence` and `legacyAnalytics` flags default true; absence also enables both. Set a flag false only when product composition owns that startup path. Packages ship no profile instance.
+
+`AutomaticStartupPolicy.ShouldStart(kind)` loads the asset at every callback, with no cross-play cache. `Evaluate(profile, kind)` exposes the same decision and rejects unknown selectors. Data returns before installing its default factory; Analytics returns before backend, Locator, tracking or store work. Explicit `PersistenceBootstrap.CreateDefault`, Analytics `Install` and `InstallDeferred` remain available. Opt-out does not shut down existing services or control unrelated SDK hooks.
+
+Before rolling package/composition versions back, coordinate the profile too: older packages ignore it and resume automatic startup. See [serialized configuration ADR](../../Docs/adr/adr-e5-p2c-automatic-startup-profile.md) and [P2-C execution evidence](../../Docs/reports/horizon1-boundaries/p2c-shared/gap-closure/README.md). Player/provider/device verification is separate from the Editor proof.
+
 ## UI Scope Contract
 
 `IUIAcquisitionService` and `UIAcquireResult<T>` provide an optional addressed acquisition contract with `UIAcquireFailure` categories. `IUIService` remains source compatible; consumers that need an addressed result can use an implementation that also exposes `IUIAcquisitionService`.
@@ -67,3 +75,77 @@ Base owns the neutral UTC clock and reward claim contracts used by LiveOps packa
 `RewardClaimId.Create(feature, track, cycle, slot, definition, profile)` creates deterministic profile-scoped IDs with FNV-1a 64-bit lowercase hex over canonical UTF-8 parts. Domain callers own stable identity; retryable claims must not use runtime-generated GUIDs.
 
 `IRewardClaimCoordinator` describes the recoverable reward claim protocol. It persists intent, calls an idempotent `IRewardGrantService`, and finalizes feature state, but it is not a physical cross-store transaction. The consuming game must persist item balance and reward receipt together for exactly-once value.
+
+## Explicit feature composition (Horizon 1 P2-A, unreleased)
+
+`Hung.Base.Composition.FeatureHost` is an instance-owned synchronous lifecycle
+coordinator. Products explicitly register selected features and supply typed
+capabilities through constructors or closures. Feature dependencies use exact
+ordinal keys; there is no reflection discovery, automatic dependency installation,
+service resolution or global feature host. Unselected features remain inactive.
+
+Required failure blocks product readiness and unwinds initialized features.
+Optional failure blocks its dependent branch while independent features continue;
+a required dependent makes that failure fatal. Missing dependencies/cycles are
+checked before callbacks. Shutdown cleans partial initialization and runs once,
+in reverse successful-start order; cleanup exceptions are recorded and fatal.
+Shutdown does not undo committed saves, grants, purchases or external effects.
+
+`Start()` caches the historical startup report. `GetReport()` returns current
+immutable states and diagnostics, including after disposal. Repeated Start has no
+callbacks; registration freezes on first Start. Dispose is idempotent; Start or
+Register after disposal throws. Callback reentry into lifecycle operations is
+rejected. Use a fresh host for retry and durable replay guards for first-run work.
+
+`IAudioSettings` exposes live BGM/SFX mute facts. `IItemBalanceReader` returns
+detached `ItemBalance` snapshots, with zero distinguished from unavailable or
+unknown items. `IItemSpendService` is a separate durable capability: a query-only
+adapter must not advertise successful spend. Products own catalogs, lock/economy
+policy, settings commands, persistence and presentation. Reuse IRewardGrantService
+and IAdsEntitlements; do not change shipped IDs or existing enum values.
+
+This helper shows the host seam with a product-supplied playback adapter. It does
+not adapt the existing AudioManager automatically:
+
+```csharp
+using System;
+using Hung.Base;
+using Hung.Base.Composition;
+
+public static class ProductAudioCompositionExample
+{
+    public static FeatureHost Start(IAudioSettings settings,
+        Action<IAudioSettings> initializePlayback, Action shutdownPlayback)
+    {
+        if (initializePlayback == null) throw new ArgumentNullException(nameof(initializePlayback));
+        if (shutdownPlayback == null) throw new ArgumentNullException(nameof(shutdownPlayback));
+        var host = new FeatureHost();
+        host.Register(new FeatureRegistration("settings", true, Array.Empty<string>(),
+            () => new FeatureStartResult(settings != null, "AUDIO_SETTINGS_MISSING"),
+            () => { })); // Borrowed settings: this callback owns no resource.
+        host.Register(new FeatureRegistration("audio", true, new[] { "settings" },
+            () =>
+            {
+                initializePlayback(settings);
+                return new FeatureStartResult(true);
+            }, shutdownPlayback));
+        FeatureBootReport report = host.Start();
+        if (!report.ProductReady)
+        {
+            host.Dispose();
+            throw new InvalidOperationException("Required audio composition failed; inspect the report diagnostics.");
+        }
+        return host; // Caller publishes gameplay entry and disposes at host teardown.
+    }
+}
+```
+
+Keep one initialization owner: disable/replace the old automatic owner during a
+separately verified host cutover. Do not combine explicit startup with the same
+component's Awake/Start startup. Publish legacy Locator bridges only after the
+required readiness barrier; clear only registrations owned by that bridge.
+
+P2-A retains GameData, DataManager, IItemService and legacy serialized contracts.
+It does not extract TemplateGame, migrate consumers, integrate typed audio cues
+or remove Base's existing vendor dependencies. See boundary design section 18.45
+and the P2-A report for exact evidence and remaining adoption gates.

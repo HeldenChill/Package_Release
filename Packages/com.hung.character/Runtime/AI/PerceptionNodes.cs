@@ -35,6 +35,9 @@ namespace Gameplay.Character.AIBridge
     public sealed class SeeTargetNode : ConditionNode
     {
         [SerializeField, Min(0f)] float memorySeconds = 6f;
+        [SerializeField, Tooltip("When sight is lost, a sound heard later overrides the remembered sight position.")] bool yieldToNewerSound;
+
+        public bool YieldToNewerSound { get => yieldToNewerSound; set => yieldToNewerSound = value; }
         [SerializeField] BlackboardRef<Transform> targetKey = new BlackboardRef<Transform>();
         [SerializeField] BlackboardRef<Vector3> positionKey = new BlackboardRef<Vector3>();
         [NonSerialized] AIBrainModule module;
@@ -63,6 +66,7 @@ namespace Gameplay.Character.AIBridge
             if (m == null) return false;
             CharacterPerception perception = m.Perception;
             if (!perception.RemembersSeen(context.Time, memorySeconds)) return false;
+            if (yieldToNewerSound && !perception.SeesNow && perception.LastHeardTime > perception.LastSeenTime) return false;
             if (targetKey != null && targetKey.IsAssigned)
                 context.Blackboard.Set(targetKey, perception.SeenCollider != null ? perception.SeenCollider.transform : null);
             if (positionKey != null && positionKey.IsAssigned) context.Blackboard.Set(positionKey, perception.SeenPosition);
@@ -195,7 +199,7 @@ namespace Gameplay.Character.AIBridge
         {
             AIBrainModule m = CharacterAI.Resolve(context, this, ref module);
             if (m == null) return NodeStatus.Failure;
-            m.Body.Rotate(0f, direction * turnSpeed * context.DeltaTime, 0f, Space.World);
+            m.Mover.SetRotation(Quaternion.AngleAxis(direction * turnSpeed * context.DeltaTime, Vector3.up) * m.Body.rotation);
             return context.Time >= endTime ? NodeStatus.Success : NodeStatus.Running;
         }
     }

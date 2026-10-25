@@ -4,27 +4,27 @@
 
 Character core framework: a modular `Character<TDef,TStats>` composed of Logic / Physic / WorldInterface / Brain systems. Canon source: Horror1Game — the package is a refresh of that game's live core, and Horror1Game is its first consumer.
 
-Ships with **BrainGraph**, a self-contained node-graph AI *and its editor*. It needs no external graph package — see Quick start.
+AI is optional: install `com.hung.ai` and the `Hung.Character.AI` bridge assembly compiles (see "Hung.AI bridge" below). The old built-in BrainGraph was removed in 0.3.0.
 
 ## Layer + dependencies
 
 - Layer: `3`
 - Dependencies: `com.hung.designpattern` 0.4.1, `com.hung.utilities` 0.2.0, `com.hung.base` 0.14.0, `com.hung.data` 0.8.0, `com.unity.inputsystem` 1.18.0
-- Assemblies: `Hung.Character` (runtime), `Hung.Character.Editor` (Editor-only, BrainGraph authoring)
+- Assemblies: `Hung.Character` (runtime), `Hung.Character.AI` (optional, only with `com.hung.ai`)
 
 ## Prerequisites
 
 - DOTween (Asset Store, `DOTween.Modules` asmdef)
 - Unity Input System (`com.unity.inputsystem` 1.18.0, declared dependency)
 
-**`com.unity.behavior` is not required.** If you read that anywhere, it is stale — BrainGraph does not use it (see Design notes).
+**`com.unity.behavior` is not required.**
 
 ## Quick start
 
 1. Derive a concrete `CharacterDefinition` / `CharacterStats` pair.
 2. Attach a `Character<TDef,TStats>` subclass to your GameObject and compose the modules it needs — Logic, Physic, WorldInterface, Brain, Visual are each a separate component on the same object.
 3. **Player-controlled?** Add `PlayerInput` and assign your own `.inputactions` asset to its `actions` field. Defaults expect a `"Movement"` map with `Move` / `Look` / `Jump` / `Crouch` / `Run` actions; override the serialized names to match your asset. `PlayerInput` does **not** enable action maps — your game owns enable/disable (Horror does it through `Locator.Input.SetInput`).
-4. **AI-controlled?** Add `BrainGraphModule` and assign a `BrainGraphAsset`. Author graphs via **Tools → Character → Create Default Enemy BrainGraph**, or the BrainGraph editor window.
+4. **AI-controlled?** Install `com.hung.ai`, then add `AIAgent` + `AIBrainModule` (see "Hung.AI bridge").
 
 Spawning: `Awake` initializes from the serialized definition. To inject one instead, call `OnInit(definition)` before the object activates — it is guarded, so the later `Awake` is a no-op.
 
@@ -36,19 +36,17 @@ Spawning: `Awake` initializes from the serialized definition. To inject one inst
 - `BaseLogicState` / `Logic.States` — state-machine building blocks for character logic
 - `BrainModule` / `BrainData` / `BrainParameter` — navigation/AI hookup point
 - `PlayerInput` — asset-driven input brain module (`InputActionAsset` + serialized map/action names)
-- `BrainGraphAsset` / `BrainGraphModule` / `BrainGraphRunner` — the node-graph AI
+- `AIBrainModule` / `CharacterMover` / `BrainDataMap` / perception nodes — optional Hung.AI bridge (`Runtime/AI/`)
 - `BaseSensor` (`WorldInterface/`) — perception sensor base for ground/wall/edge detection
 - `RegenStatModule` — stat regeneration over time
 - `Trigger.cs` — collider-trigger event relay
 
 ## Design notes
 
-**BrainGraph needs no external graph package.** It is a hand-rolled node graph written as a *replacement* for Unity Behavior Graph, not a consumer of it — it references `Unity.Behavior` in zero files. Package 0.1.0 exiled it to `Samples~` on the mistaken belief that it required `com.unity.behavior`; 0.2.0 restores it to core. There is no `HUNG_CHARACTER_BEHAVIOR` define and no gated assembly, because there is nothing to gate.
-
 **Two governing laws** (from `character-core-glue-split.md`), worth respecting when extending:
 
 1. **Core holds zero game-specific types.** Your game's `Enemy1AI`, `PlayerDefinition`, `PlayerStats` and similar belong in your own glue assembly, not here. Horror keeps them in `Hung.Character.Game`.
-2. **BrainGraph nodes read `BrainParameter` and write `BrainData` only.** That constraint is what keeps graphs reusable across games.
+2. **AI nodes read `BrainParameter` and write `BrainData` only** (through `CharacterMover` and `BrainDataMap`). That constraint is what keeps graphs reusable across games.
 
 **Extension seams:** override the `Create*System` / `Create*Data` factory virtuals on `Character<TDef,TStats>` to swap in your own system or data types; add a glue assembly referencing `Hung.Character` for game-specific modules (see Horror's `Hung.Character.Game`).
 
@@ -64,7 +62,7 @@ Spawning: `Awake` initializes from the serialized definition. To inject one inst
 
 ## Hung.AI bridge (optional)
 
-`Hung.Character.AI` compiles only when the `com.hung.ai` package (0.1.0 or newer) is installed. It lets a character be driven by a Hung.AI behavior-tree graph instead of the built-in BrainGraph.
+`Hung.Character.AI` compiles only when the `com.hung.ai` package (0.1.0 or newer) is installed. It lets a character be driven by a Hung.AI behavior-tree graph.
 
 Setup on a character:
 

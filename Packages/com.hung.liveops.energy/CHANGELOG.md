@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.9] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.2.8] - 2026-10-08
 
 ### Documentation

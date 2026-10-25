@@ -6,6 +6,19 @@ One analytics proxy (`Locator.Analytics`) that fans every tracked event out to a
 
 Contracts (`IAnalyticsService`, `IRevenueEventSink`, `AnalyticsCategory`, Locator slots) live in `com.hung.base` `Runtime/Services/Contracts`. Game code only ever calls `Locator.Analytics`.
 
+### Isolated Editor harnesses (unreleased)
+
+An Editor harness can set `UnityEditor.SessionState` at
+`AnalyticsBootstrap.EditorSuppressionKey` before entering Play Mode to suppress
+only the automatic analytics/tracking bootstrap. The owner must capture and
+restore the previous value, including across domain reload and failed proof runs.
+The default is false; player builds always retain their existing automatic path.
+This does not change explicit `Install`, `InstallDeferred` or consent APIs.
+`AutomaticBootCount` and `SuppressedAutomaticBootCount` reset at subsystem
+registration and report the chosen automatic path. The TemplateGame dedicated
+slice has an Editor-only bridge that owns this selection without editing global
+analytics/tracking assets. Suppressing error logs is not an isolation mechanism.
+
 ## Install
 
 1. Import the SDKs you want (Firebase, AppsFlyer, AppMetrica, GameAnalytics). The GameAnalytics SDK ships as plain source with no asmdef, so the project adds `Assets/GameAnalytics/Plugins/Scripts/GameAnalyticsSDK.asmdef`; re-add it after re-importing the SDK. Enter GameAnalytics game/secret keys in `Window/GameAnalytics/Select Settings`.

@@ -1,6 +1,6 @@
 {
   "name": "com.hung.services.analytics",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "displayName": "Hung Services Analytics",
   "description": "One analytics proxy fanning out to Firebase, AppsFlyer, AppMetrica and GameAnalytics backends, each switchable by scripting define.",
   "unity": "2022.3",
@@ -8,6 +8,6 @@
     "layer:4"
   ],
   "dependencies": {
-    "com.hung.base": "0.26.1"
+    "com.hung.base": "0.27.0"
   }
 }
