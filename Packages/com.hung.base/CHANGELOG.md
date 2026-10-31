@@ -1,22 +1,23 @@
-## Unreleased - Horizon 1 BW4
+# Changelog
+
+## [0.28.0] - 2026-10-31
 
 - Add explicit focused Item/reward composition with immutable offers, unavailable defaults and selected recoverable DailyReward/SpinWheel sessions/views.
 - Preserve shipped IDs, historical claim/fingerprint bytes and legacy APIs/assets. Selected feature schema 2 requires explicit composition and its own rollback disposition.
 - Package evidence is distinct from deferred game/player/consumer adoption.
-
-# Changelog
-
-## [0.27.0] - Unreleased
-
 - Add shared typed-id infrastructure: `IStableId`, strict `StableIdGrammar`, generic Json/Type converter bases, generic editor registry with one shared definition scan, `StableIdConstantsSource`, `StableIdField` drawing helper and `StableIdCodeGenerator`. `ItemId` editor tooling now runs on it with an unchanged public API. Add `AudioId`, `BaseAudioIds` (six package cues) and `AudioIdDrawer`; `SFX_TYPE`/`BGM_TYPE` and `IAudioService` are unchanged. Remove unused `ItemIdDropdownOption` and internal `ItemIdAdvancedDropdown`.
 - Add explicit automatic-plugin declaration collection over FeatureHost, one ordered Base reset, validated product plugin suppression and Editor asset/reload proof. Production plugin descriptor migrations remain separate cohorts.
 - Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
 - Add owner-checked ServiceSlots/ServiceRegistration registry foundation with focused ownership/reset tests; existing Locator storage remains unchanged in this additive stage.
+
+## [0.27.0] - Unreleased
+
 - Add opt-in automatic startup selection and include the reviewed focused composition contracts.
 
 ## [Unreleased]
 ### Added
-- Horizon 1 P2-A focused audio-settings, item-balance and durable-spend contracts.
+- Horizon 1 P2-A focused audio-settings composition: add `IAudioSettings`, `AudioSettingsComposition`, runtime `AudioSettingsService` implementation, and opt-in locator registration without changing default framework assembly references or auto-bootstrap behavior.
+, item-balance and durable-spend contracts.
 - Instance-owned explicit feature lifecycle with dependency preflight, readiness reports, required/optional failure handling and guarded cleanup.
 ### Fixed
 - Guard callback exception formatting so diagnostic failures cannot interrupt partial initialization cleanup or reverse shutdown; retain safe exception type details when formatting fails.

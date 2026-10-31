@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.9] - 2026-10-31
+
+- Dependency alignment: com.hung.combat 0.4.8 -> 0.4.9
+- Dependency alignment: com.hung.base 0.27.0 -> 0.28.0
+
+
 ## [0.3.8] - Unreleased
 
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.

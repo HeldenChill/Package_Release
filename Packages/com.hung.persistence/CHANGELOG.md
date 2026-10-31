@@ -1,16 +1,15 @@
 # Changelog
 
-## Unreleased - Horizon 1 Data-first
+## [0.2.0] - 2026-10-31
 
 - Restore validated backup bytes before schema rewrites, check restoration failures, and retain a valid backup across failed migration promotion. Add real-file-store recovery/restart regressions.
-
 - Define the explicit selected-definition composition path and retain legacy compatibility.
 - Add SaveDefinitionSet preflight and atomic builder registration; qualify migration/import commit failures with focused evidence.
-
 
 All notable changes to `com.hung.persistence` are documented in this file.
 
 ## [0.1.0] - 2026-08-17
+
 
 ### Added
 

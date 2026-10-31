@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.9] - 2026-10-31
+
+- Dependency alignment: com.hung.data 0.13.0 -> 0.14.0
+- Dependency alignment: com.hung.base 0.27.0 -> 0.28.0
+
+
 ## [0.4.8] - Unreleased
 
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.

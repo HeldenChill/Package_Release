@@ -1,10 +1,9 @@
 # Changelog
 
-## [0.4.0] - Unreleased
+## [0.4.0] - 2026-10-31
 
 - Fixed player configuration validation to match runtime Resources lookup, reject nested duplicates, exclude Editor-only configurations, and preserve named diagnostic codes.
 - Removed synthetic cue injection from production smoke tests; missing mapped clips now report an inconclusive configuration gap.
-
 - **Horizon 1 Stage D Cutover:**
   - Converted `Hung.Audio` to an automatic opt-in plugin (`services.audio`) managed via `AutomaticPluginHost`.
   - Replaced legacy `AudioManager` singleton, `AudioData` Odin asset, and `AudioManager.prefab` with `AudioPlayback`, `AudioCatalog`, and `AudioPluginConfiguration`.
@@ -13,7 +12,12 @@
   - Retired `Hung.Data.asmref` and internal empty `IAudioService.cs`.
   - Removed assembly reference to `Hung.Data`, making `Hung.Audio` depend only on `Hung.Base`.
 
+## [0.3.8] - Unreleased
+
+- Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
+
 ## [0.3.7] - 2026-09-27
+
 - Dependency alignment: com.hung.base 0.22.0 -> 0.23.0; com.hung.data 0.12.5 -> 0.12.6.
 
 ## [0.3.6] - 2026-09-26

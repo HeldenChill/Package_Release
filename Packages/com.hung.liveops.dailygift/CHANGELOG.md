@@ -1,11 +1,15 @@
 # Changelog
 
-## [0.4.9] - Unreleased
+## [0.5.0] - 2026-10-31
 
 - Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
+
+## [0.4.9] - Unreleased
+
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
 
 ## [0.4.8] - 2026-09-28
+
 - Dependency alignment: com.hung.ui 0.7.1 -> 0.7.2.
 
 ## [0.4.7] - 2026-09-28
