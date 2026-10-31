@@ -9,16 +9,16 @@ namespace Hung.Base.Init
     public class DebugManager : SimpleSingleton<DebugManager>
     {
         [SerializeField]
-        GameObject FpsDebug;
+        protected GameObject FpsDebug;
         [SerializeField]
-        GameObject LogDebug;
+        protected GameObject LogDebug;
         [SerializeField]
-        bool isShowAds = false;
+        protected bool isShowAds = false;
         [SerializeField]
-        bool isUseIap = false;
+        protected bool isUseIap = false;
         List<UICanvas> DebugCanvass = new List<UICanvas>();
 
-        int level = -1;
+        protected int level = -1;
         public int Level => level;
         public bool IsShowAds => isShowAds;
         public bool IsUseIap => isUseIap;
@@ -39,7 +39,7 @@ namespace Hung.Base.Init
         //    }
 
         //}
-        public void OnInit(bool isDebugFps, bool isDebugLog, bool isShowAds, bool isUseIap, int level = -1)
+        public virtual void OnInit(bool isDebugFps, bool isDebugLog, bool isShowAds, bool isUseIap, int level = -1)
         {
             _instance = this;
 

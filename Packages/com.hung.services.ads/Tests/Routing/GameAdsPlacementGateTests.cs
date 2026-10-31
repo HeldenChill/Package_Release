@@ -19,7 +19,7 @@ namespace Hung.Ads.Tests.Routing
             gameData.InitData(new[] { BaseItemIds.RemoveAds, BaseItemIds.PremiumRemoveAds });
             AdsSessionCounters.Reset();
             AdsSessionCounters.PlayGameAds = 1;
-            Locator.Data = new FakeDataService(gameData);
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(new FakeDataService(gameData));
         }
 
         [TearDown]

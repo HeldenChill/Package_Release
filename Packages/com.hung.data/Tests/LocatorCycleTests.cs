@@ -4,10 +4,7 @@ using UnityEngine;
 
 namespace Hung.Data.Tests
 {
-    // Locator.Data is a private static field behind a public get/set property (Base
-    // namespace, partial class spread across per-domain files) - ResetDataForTests()
-    // was added to Locator.Data.cs (Packages/com.hung.data/Runtime/Base/Locator.Data.cs)
-    // specifically to give tests a clean-slate hook, user-approved production change.
+    // Data reset removes only the current explicit registration.
     public class LocatorCycleTests
     {
         private class FakeDataService : IDataService
@@ -29,7 +26,7 @@ namespace Hung.Data.Tests
         {
             var service = new FakeDataService();
 
-            Hung.Base.Locator.Data = service;
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(service);
 
             Assert.AreSame(service, Hung.Base.Locator.Data);
         }
@@ -37,7 +34,7 @@ namespace Hung.Data.Tests
         [Test]
         public void Reset_ClearsRegisteredInstance()
         {
-            Hung.Base.Locator.Data = new FakeDataService();
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(new FakeDataService());
 
             Hung.Base.Locator.ResetDataForTests();
 
@@ -48,11 +45,11 @@ namespace Hung.Data.Tests
         public void RegisterAfterReset_ResolvesNewInstance()
         {
             var first = new FakeDataService();
-            Hung.Base.Locator.Data = first;
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(first);
             Hung.Base.Locator.ResetDataForTests();
 
             var second = new FakeDataService();
-            Hung.Base.Locator.Data = second;
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(second);
 
             Assert.AreSame(second, Hung.Base.Locator.Data);
             Assert.AreNotSame(first, Hung.Base.Locator.Data);

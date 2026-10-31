@@ -2,18 +2,9 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static ILevelService level;
-        public static ILevelService Level
-        {
-            get => level;
-            set => level = value;
-        }
+        /// <summary>Resolves Level through the framework registry.</summary>
+        public static ILevelService Level => ServiceSlots.Get<ILevelService>();
 
-        private static IGameplayService gameplay;
-        public static IGameplayService Gameplay
-        {
-            get => gameplay;
-            set => gameplay = value;
-        }
+        
     }
 }

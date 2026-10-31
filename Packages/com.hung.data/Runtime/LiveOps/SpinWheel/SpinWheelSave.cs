@@ -1,9 +1,14 @@
 using System;
+using Newtonsoft.Json;
 using UnityEngine;
 
 [Serializable]
 public class SpinWheelSaveData
 {
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public Hung.Data.Rewards.PendingRewardData bw4Pending;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public string bw4ConsumedClaimId;
     public bool isDoneSpinFreeToday;
     public int adsSpinToday;
     public int dayOfYear;
@@ -19,4 +24,3 @@ public class SpinWheelSaveData
         return false;
     }
 }
-

@@ -1,0 +1,9 @@
+{
+  "name": "Hung.Audio.Editor.Tests",
+  "references": ["Hung.Audio", "Hung.Base", "Hung.Audio.Editor", "Hung.Base.Editor", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": ["Editor"],
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll"],
+  "autoReferenced": false,
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+}

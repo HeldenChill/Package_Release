@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IUIService ui;
-        public static IUIService UI
-        {
-            get => ui;
-            set => ui = value;
-        }
+        /// <summary>Resolves UI through the framework registry.</summary>
+        public static IUIService UI => ServiceSlots.Get<IUIService>();
     }
 }

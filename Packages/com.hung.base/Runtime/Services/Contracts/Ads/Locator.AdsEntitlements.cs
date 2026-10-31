@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IAdsEntitlements adsEntitlements;
-        public static IAdsEntitlements AdsEntitlements
-        {
-            get => adsEntitlements;
-            set => adsEntitlements = value;
-        }
+        /// <summary>Resolves AdsEntitlements through the framework registry.</summary>
+        public static IAdsEntitlements AdsEntitlements => ServiceSlots.Get<IAdsEntitlements>();
     }
 }

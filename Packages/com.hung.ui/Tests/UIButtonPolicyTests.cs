@@ -3,6 +3,7 @@ using System.Reflection;
 using Hung.Base;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Hung.UI.Tests
 {
@@ -17,17 +18,23 @@ namespace Hung.UI.Tests
         private sealed class CountingAudio : IAudioService
         {
             public int Sfx;
-            public void PlayBgm(BGM_TYPE type, float fadeOut = 0.3f) { }
-            public void PlaySfx(SFX_TYPE type) => Sfx++;
-            public AudioSource PlayLoopSfx(SFX_TYPE type, float fadeIn = 0.1f) => null;
-            public void StopSfx(SFX_TYPE type = SFX_TYPE.NONE) { }
+            public void PlayBgm(AudioId type, float fadeOut = 0.3f) { }
+            public void PlaySfx(AudioId type) => Sfx++;
+            public AudioSource PlayLoopSfx(AudioId type, float fadeIn = 0.1f) => null;
+            public void StopSfx() { }
+            public void StopSfx(AudioId id) { }
             public void StopLoopSfx(AudioSource source, float fadeOut = 0.1f) { }
-            public void PlayRandomSfx(List<SFX_TYPE> sfxTypes) { }
+            public void PlayRandomSfx(List<AudioId> sfxTypes) { }
             public void PauseBgm() { }
             public void UnPauseBgm() { }
             public void StopBgm() { }
             public void ToggleBgmVolume(bool isMute) { }
             public void ToggleSfxVolume(bool isMute) { }
+            public void BindSettings(IAudioSettings settings) { }
+            public void UnbindSettings() { }
+            public void PlaySfx(AudioId id, Vector3 position, float volume = 1, float pitch = 1) { }
+            public void SetPitch(AudioSource source, float pitch) { }
+            public float ClipLength(AudioId id) => 0;
         }
 
         private GameObject gameObject;
@@ -38,10 +45,11 @@ namespace Hung.UI.Tests
         [SetUp]
         public void SetUp()
         {
+            ServiceSlots.ResetForTests();
             gameObject = new GameObject("Button", typeof(RectTransform));
             button = gameObject.AddComponent<UIButton>();
             audio = new CountingAudio();
-            Locator.Audio = audio;
+            Hung.Base.ServiceSlots.Unregister<IAudioService>(Hung.Base.ServiceSlots.Get<IAudioService>()); Hung.Base.ServiceSlots.Register<IAudioService>(audio);
             clicks = 0;
             button._OnClick = _ => clicks++;
         }
@@ -50,7 +58,7 @@ namespace Hung.UI.Tests
         public void TearDown()
         {
             UIButton.DefaultClickSfx = true;
-            Locator.Audio = null;
+            Hung.Base.ServiceSlots.Unregister<IAudioService>(Hung.Base.ServiceSlots.Get<IAudioService>());
             Object.DestroyImmediate(gameObject);
         }
 
@@ -66,6 +74,15 @@ namespace Hung.UI.Tests
         }
 
         [Test]
+        public void Migrated_none_stays_silent_while_new_button_defaults_to_click()
+        {
+            typeof(UIButton).GetField("audioId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(button, default(AudioId));
+            Click();
+            Assert.That(audio.Sfx, Is.Zero);
+            Assert.That(clicks, Is.EqualTo(1));
+        }
+
+        [Test]
         public void Silent_policy_raises_OnClick_without_sfx()
         {
             UIButton.DefaultClickSfx = false;
@@ -77,7 +94,8 @@ namespace Hung.UI.Tests
         [Test]
         public void Click_without_audio_service_still_raises_OnClick()
         {
-            Locator.Audio = null;
+            Hung.Base.ServiceSlots.Unregister<IAudioService>(Hung.Base.ServiceSlots.Get<IAudioService>());
+            LogAssert.Expect(LogType.Warning, "[Unsupported] IAudioService.PlaySfx called; no audio plugin installed.");
             Assert.DoesNotThrow(Click);
             Assert.AreEqual(1, clicks);
         }

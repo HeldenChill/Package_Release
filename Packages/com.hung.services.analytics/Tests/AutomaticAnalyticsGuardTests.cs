@@ -21,7 +21,8 @@ namespace Hung.Analytics.Tests
                 SessionState.SetBool(AnalyticsBootstrap.EditorSuppressionKey, false);
                 using (var profile = new ProfileScope())
                 {
-                    typeof(AnalyticsBootstrap).GetMethod("Boot", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null);
+                    typeof(AnalyticsBootstrap).Assembly.GetType("Hung.Analytics.AnalyticsPlugin", true)
+                        .GetMethod("Declare", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, null);
                     Assert.That(AnalyticsBootstrap.AutomaticBootCount, Is.EqualTo(boot));
                     Assert.That(AnalyticsBootstrap.SuppressedAutomaticBootCount, Is.EqualTo(suppressed + 1));
                     Assert.That(Hung.Base.Locator.Analytics, Is.SameAs(oldAnalytics));

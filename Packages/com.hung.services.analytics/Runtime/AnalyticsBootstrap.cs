@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Hung.Analytics.Tracking;
 using Hung.Base;
@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Hung.Analytics
 {
     /// <summary>
-    /// Composition root. Before the first scene loads it builds one <see cref="AnalyticsService"/> from the
+    /// Composition root. When AutomaticPluginHost starts feature <c>services.analytics</c> (see AnalyticsPlugin) it builds one <see cref="AnalyticsService"/> from the
     /// registered backends and the settings asset, then sets <c>Locator.Analytics</c> and
     /// <c>Locator.RevenueSink</c>. No prefab is needed; with zero backends the locator still holds a no-op proxy.
     /// With <see cref="AnalyticsSettings.deferInitialization"/> on, the proxy holds every call and no SDK starts
@@ -15,6 +15,64 @@ namespace Hung.Analytics
     /// </summary>
     public static class AnalyticsBootstrap
     {
+        private static void CheckOwner<T>() where T : class
+        {
+            string owner = ServiceSlots.OwnerOf<T>();
+            if (owner != null && !string.Equals(owner, typeof(AnalyticsService).Assembly.GetName().Name, StringComparison.Ordinal))
+                throw new InvalidOperationException("Analytics installation conflicts with " + typeof(T).Name + " owner " + owner + ".");
+        }
+        private static void CheckOwners()
+        {
+            CheckOwner<IAnalyticsService>();
+            CheckOwner<IRevenueEventSink>();
+        }
+        private static void RestoreSlot<T>(T previous, T attempted) where T : class
+        {
+            if (!ServiceSlots.TryGet<T>(out var current) || !ReferenceEquals(current, attempted)) return;
+            ServiceSlots.Unregister<T>(attempted);
+            if (!ReferenceEquals(previous, null)) ServiceSlots.Register<T>(previous);
+        }
+        private static void PublishPair(AnalyticsService service, Action initialize)
+        {
+            CheckOwners();
+            ServiceSlots.TryGet<IAnalyticsService>(out var previousAnalytics);
+            ServiceSlots.TryGet<IRevenueEventSink>(out var previousSink);
+            var oldDeferred = _deferred;
+            var oldSettings = _deferredSettings;
+            var oldBackends = _deferredBackends;
+            var oldUser = LaunchUserId;
+            int oldGeneration = _diagnosticGeneration;
+            var oldStarted = new List<string>(_startedBackendIds);
+            var oldReady = new List<string>(_readyBackendIds);
+            var oldIdentity = new List<string>(_identityBackendIds);
+            try
+            {
+                var first = ServiceSlots.Register<IAnalyticsService>(service);
+                var second = ServiceSlots.Register<IRevenueEventSink>(service);
+                if (first == ServiceRegistration.RefusedDuplicateOwner || first == ServiceRegistration.RefusedNull ||
+                    second == ServiceRegistration.RefusedDuplicateOwner || second == ServiceRegistration.RefusedNull)
+                    throw new InvalidOperationException("Analytics slot publication was refused.");
+                initialize();
+            }
+            catch
+            {
+                RestoreSlot<IRevenueEventSink>(previousSink, service);
+                RestoreSlot<IAnalyticsService>(previousAnalytics, service);
+                _deferred = oldDeferred;
+                _deferredSettings = oldSettings;
+                _deferredBackends = oldBackends;
+                LaunchUserId = oldUser;
+                _diagnosticGeneration = oldGeneration;
+                _startedBackendIds.Clear(); _startedBackendIds.UnionWith(oldStarted);
+                _readyBackendIds.Clear(); _readyBackendIds.UnionWith(oldReady);
+                _identityBackendIds.Clear(); _identityBackendIds.UnionWith(oldIdentity);
+                service.Retire();
+                throw;
+            }
+            if (previousAnalytics is AnalyticsService retired && !ReferenceEquals(retired, service)) retired.Retire();
+            if (previousSink is AnalyticsService oldSink && !ReferenceEquals(oldSink, previousAnalytics) && !ReferenceEquals(oldSink, service)) oldSink.Retire();
+        }
+
         /// <summary>Resources path (no extension) of the settings asset.</summary>
         public const string SettingsResourcePath = "HungAnalyticsSettings";
 
@@ -33,8 +91,8 @@ namespace Hung.Analytics
             }
         }
 
-        public static int AutomaticBootCount { get; private set; }
-        public static int SuppressedAutomaticBootCount { get; private set; }
+        public static int AutomaticBootCount { get; internal set; }
+        public static int SuppressedAutomaticBootCount { get; internal set; }
 
         static readonly HashSet<string> _startedBackendIds = new HashSet<string>();
         static readonly HashSet<string> _readyBackendIds = new HashSet<string>();
@@ -94,15 +152,9 @@ namespace Hung.Analytics
             LaunchUserId = null;
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Boot()
+        /// <summary>The former Boot body without its gate: settings, Install or InstallDeferred, tracking. Returns the published service.</summary>
+        internal static AnalyticsService StartAutomatic()
         {
-            if (EditorAutomaticStartupSuppressed ||
-                !Hung.Base.Composition.AutomaticStartupPolicy.ShouldStart(Hung.Base.Composition.AutomaticStartupKind.LegacyAnalytics))
-            {
-                SuppressedAutomaticBootCount++;
-                return;
-            }
             AutomaticBootCount++;
             var settings = Resources.Load<AnalyticsSettings>(SettingsResourcePath);
             if (settings == null)
@@ -111,22 +163,49 @@ namespace Hung.Analytics
                 ? InstallDeferred(settings, AnalyticsBackends.Registered)
                 : Install(settings, AnalyticsBackends.Registered);
 
-            var tracking = TrackingBootstrap.Install(service, Resources.Load<TrackingSettings>(TrackingSettings.ResourcePath),
-                new DatabaseTrackingStateStore(), new SystemTrackingClock());
-            if (tracking != null) TrackingRunner.Create(tracking);
+            try
+            {
+                var tracking = TrackingBootstrap.Install(service, Resources.Load<TrackingSettings>(TrackingSettings.ResourcePath),
+                    new DatabaseTrackingStateStore(), new SystemTrackingClock());
+                if (tracking != null) TrackingRunner.Create(tracking);
+            }
+            catch
+            {
+                Uninstall(service);
+                throw;
+            }
+            return service;
+        }
+
+        /// <summary>Releases what StartAutomatic published: deferred hold, runner, tracking facade, and both slots only while they hold service. Null-safe and repeatable.</summary>
+        internal static void Uninstall(AnalyticsService service)
+        {
+            if (ReferenceEquals(_deferred, service)) DiscardDeferred();
+            TrackingRunner.DestroyCurrent();
+            AnalyticsTracking.Install(null);
+            if (service == null) return;
+            ServiceSlots.Unregister<IRevenueEventSink>(service);
+            ServiceSlots.Unregister<IAnalyticsService>(service);
+            service.Retire();
         }
 
         /// <summary>
         /// Initializes each backend with its settings entry (or its default), keeps the ones that initialize,
         /// and registers the resulting proxy in the locator.
         /// </summary>
-        public static AnalyticsService Install(AnalyticsSettings settings, IReadOnlyList<IAnalyticsBackend> backends, Func<float> clock = null)
+        public static AnalyticsService Install(AnalyticsSettings settings, IReadOnlyList<IAnalyticsBackend> backends)
         {
-            ResetDiagnostics();
-            var service = new AnalyticsService(clock);
-            AddBackends(service, settings, backends);
-            Locator.Analytics = service;
-            Locator.RevenueSink = service;
+            CheckOwners();
+            var service = new AnalyticsService();
+            PublishPair(service, () =>
+            {
+                ResetDiagnostics();
+                _deferred = null;
+                _deferredSettings = null;
+                _deferredBackends = null;
+                LaunchUserId = null;
+                AddBackends(service, settings, backends);
+            });
             return service;
         }
 
@@ -136,15 +215,17 @@ namespace Hung.Analytics
         /// </summary>
         public static AnalyticsService InstallDeferred(AnalyticsSettings settings, IReadOnlyList<IAnalyticsBackend> backends, Func<float> clock = null)
         {
-            ResetDiagnostics();
+            CheckOwners();
             var service = new AnalyticsService(clock);
             service.Hold();
-            _deferred = service;
-            _deferredSettings = settings;
-            _deferredBackends = backends;
-            LaunchUserId = null;
-            Locator.Analytics = service;
-            Locator.RevenueSink = service;
+            PublishPair(service, () =>
+            {
+                ResetDiagnostics();
+                _deferred = service;
+                _deferredSettings = settings;
+                _deferredBackends = backends;
+                LaunchUserId = null;
+            });
             return service;
         }
 

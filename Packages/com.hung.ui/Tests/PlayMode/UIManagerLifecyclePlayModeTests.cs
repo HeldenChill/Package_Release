@@ -56,7 +56,7 @@ namespace Hung.UI.PlayModeTests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 if (canvas != null) UnityEngine.Object.Destroy(canvas.gameObject);
                 if (managerObject != null) UnityEngine.Object.Destroy(managerObject);
                 UnityEngine.Object.Destroy(prefab);
@@ -86,7 +86,7 @@ namespace Hung.UI.PlayModeTests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 if (popup != null) UnityEngine.Object.Destroy(popup);
                 UnityEngine.Object.Destroy(managerObject);
             }
@@ -113,7 +113,7 @@ namespace Hung.UI.PlayModeTests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 if (canvasObject != null) UnityEngine.Object.Destroy(canvasObject);
                 UnityEngine.Object.Destroy(managerObject);
             }

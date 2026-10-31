@@ -32,7 +32,7 @@ namespace Hung.UI
 		[SerializeField]
 		protected TMP_Text textButton;
 		[SerializeField]
-		protected SFX_TYPE sfxType = SFX_TYPE.CLICK;
+		protected AudioId audioId = BaseAudioIds.UiClick;
 		[SerializeField]
 		protected UIButtonComponent[] buttonComponents;
 		protected STATE state;
@@ -81,7 +81,7 @@ namespace Hung.UI
 		}
 		protected virtual void OnClick()
 		{
-			if (PlaysClickSfx) Locator.Audio?.PlaySfx(sfxType);
+			if (PlaysClickSfx && audioId.IsValid) Locator.Audio.PlaySfx(audioId);
 			_OnClick?.Invoke(indexID);
 		}
 

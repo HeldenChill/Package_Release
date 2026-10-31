@@ -14,13 +14,23 @@ namespace Hung.IAP
 
         protected void Awake()
         {
-            Locator.IAPService = legacyFacade ?? new NullIapService();
+            // An unconfigured manager does not claim the slot; Base supplies Unsupported.
         }
 
         public void ConfigureLegacyFacade(IPurchaseIntegrityService integrityService, LegacyPurchaseProductMap productMap)
         {
-            legacyFacade = new LegacyIapServiceAdapter(integrityService, productMap, debugBypassFailsClosed);
-            Locator.IAPService = legacyFacade;
+            if (ServiceSlots.TryGet<IIAPService>(out var current) && !ReferenceEquals(current, legacyFacade))
+                throw new InvalidOperationException("IAP slot is already owned by another installation.");
+            var candidate = new LegacyIapServiceAdapter(integrityService, productMap, debugBypassFailsClosed);
+            var result = ServiceSlots.Register<IIAPService>(candidate);
+            if (result == ServiceRegistration.RefusedDuplicateOwner || result == ServiceRegistration.RefusedNull)
+                throw new InvalidOperationException("IAP slot registration was refused.");
+            legacyFacade = candidate;
+        }
+
+        private void OnDestroy()
+        {
+            if (legacyFacade != null) ServiceSlots.Unregister<IIAPService>(legacyFacade);
         }
 
         [Obsolete("Use ConfigureLegacyFacade with IPurchaseIntegrityService composition.")]

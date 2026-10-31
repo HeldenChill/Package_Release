@@ -56,7 +56,7 @@ namespace Hung.LiveOps.DailyGift
         public void ClaimReward(int code)
         {
             if (!frameActive.activeSelf) return;
-            Locator.Audio?.PlaySfx(SFX_TYPE.ITEM_CLAIM);
+            Locator.Audio?.PlaySfx(BaseAudioIds.ItemClaim);
             // AudioManager.Ins.PlaySound(AudioId.UnlockItem);
             Locator.Items?.SetSpawnPosition(frameActive.transform);
             _OnItemClick?.Invoke(this);

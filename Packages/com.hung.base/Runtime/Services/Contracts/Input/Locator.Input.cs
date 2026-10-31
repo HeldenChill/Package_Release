@@ -2,6 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        public static IInputService Input { get; set; }
+        /// <summary>Resolves Input through the framework registry.</summary>
+        public static IInputService Input => ServiceSlots.Get<IInputService>();
     }
 }

@@ -29,7 +29,7 @@ namespace Hung.Ads.Tests
             // via the level-step cap before ever reaching the provider.
             AdsSessionCounters.Reset();
             AdsSessionCounters.PlayGameAds = 1;
-            Locator.Data = new FakeDataService(gameData);
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(new FakeDataService(gameData));
         }
 
         [TearDown]

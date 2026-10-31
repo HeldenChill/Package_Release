@@ -2,12 +2,8 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IDailyGiftService dailyGift;
-        public static IDailyGiftService DailyGift
-        {
-            get => dailyGift;
-            set => dailyGift = value;
-        }
+        /// <summary>Resolves DailyGift through the framework registry.</summary>
+        public static IDailyGiftService DailyGift => ServiceSlots.Get<IDailyGiftService>();
     }
 }
 

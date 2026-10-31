@@ -91,8 +91,10 @@ namespace Hung.Data.Persistence
             SaveStoreReadResult primary = store.ReadPrimary(definition.Key);
             if (primary.Success && primary.Exists)
             {
-                LoadResult<T> result = TryLoadBytes(definition, primary.Content.ToArray(), SaveDataSource.Primary);
-                if (result.Success || result.Recovery == SaveRecoveryState.UnsupportedNewerVersion)
+                LoadResult<T> result = TryLoadBytes(definition, primary.Content.ToArray(), SaveDataSource.Primary, out bool requiresRewrite);
+                if (result.Success)
+                    return CommitMigration(definition, result, requiresRewrite);
+                if (result.Recovery == SaveRecoveryState.UnsupportedNewerVersion || result.Recovery == SaveRecoveryState.Unrecoverable)
                     return result;
 
                 store.QuarantinePrimary(definition.Key, primary.Content.ToArray(), result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT");
@@ -101,10 +103,20 @@ namespace Hung.Data.Persistence
             SaveStoreReadResult backup = store.ReadBackup(definition.Key);
             if (backup.Success && backup.Exists)
             {
-                LoadResult<T> result = TryLoadBytes(definition, backup.Content.ToArray(), SaveDataSource.Backup);
+                LoadResult<T> result = TryLoadBytes(definition, backup.Content.ToArray(), SaveDataSource.Backup, out bool requiresRewrite);
+                if (result.Recovery == SaveRecoveryState.Unrecoverable)
+                    return result;
                 if (result.Success)
                 {
-                    store.RestoreBackup(definition.Key);
+                    // Restore validated source bytes before a migration save can rotate primary
+                    // into backup. Otherwise a corrupt primary can destroy the good backup,
+                    // and restoring after migration can overwrite the migrated primary again.
+                    SaveStoreWriteResult restored = store.RestoreBackup(definition.Key);
+                    if (!restored.Success)
+                        return new LoadResult<T>(false, default, restored.ErrorCode, SaveDataSource.Backup, SaveRecoveryState.Unrecoverable);
+                    result = CommitMigration(definition, result, requiresRewrite);
+                    if (!result.Success)
+                        return result;
                     return new LoadResult<T>(true, result.Value, "SAVE_BACKUP_RESTORED", SaveDataSource.Backup, SaveRecoveryState.BackupRestored);
                 }
 
@@ -149,7 +161,12 @@ namespace Hung.Data.Persistence
                         return true;
                     }
 
-                    Save(value is null ? definition.CreateDefault() : value, definition);
+                    SaveResult imported = Save(value is null ? definition.CreateDefault() : value, definition);
+                    if (!imported.Success)
+                    {
+                        result = new LoadResult<T>(false, default, imported.DiagnosticCode, SaveDataSource.LegacyPlayerPrefs, SaveRecoveryState.Unrecoverable);
+                        return true;
+                    }
                     result = new LoadResult<T>(true, value, "SAVE_LEGACY_IMPORTED", SaveDataSource.LegacyPlayerPrefs, SaveRecoveryState.Migrated);
                     return true;
                 }
@@ -159,8 +176,19 @@ namespace Hung.Data.Persistence
             return false;
         }
 
-        private LoadResult<T> TryLoadBytes<T>(SaveDefinition<T> definition, byte[] bytes, SaveDataSource source) where T : new()
+        private LoadResult<T> CommitMigration<T>(SaveDefinition<T> definition, LoadResult<T> loaded, bool requiresRewrite) where T : new()
         {
+            if (!requiresRewrite)
+                return loaded;
+            SaveResult rewritten = Save(definition, loaded.Value);
+            return rewritten.Success
+                ? loaded
+                : new LoadResult<T>(false, default, rewritten.DiagnosticCode, loaded.Source, SaveRecoveryState.Unrecoverable);
+        }
+
+        private LoadResult<T> TryLoadBytes<T>(SaveDefinition<T> definition, byte[] bytes, SaveDataSource source, out bool requiresRewrite) where T : new()
+        {
+            requiresRewrite = false;
             try
             {
                 string json = Encoding.UTF8.GetString(bytes);
@@ -191,8 +219,8 @@ namespace Hung.Data.Persistence
                 if (!validation.Success)
                     return new LoadResult<T>(false, default, validation.DiagnosticCode, source, SaveRecoveryState.PrimaryQuarantined);
 
-                if (envelope.PayloadSchemaVersion != definition.CurrentSchemaVersion)
-                    Save(definition, value);
+                // Decoding and migration do not write; Load owns recovery/commit ordering.
+                requiresRewrite = envelope.PayloadSchemaVersion != definition.CurrentSchemaVersion;
                 return new LoadResult<T>(true, value, null, source, SaveRecoveryState.None);
             }
             catch

@@ -1,10 +1,15 @@
 using System;
+using Newtonsoft.Json;
 using UnityEngine;
 
 
 [Serializable]
 public class DailyRewardSaveData
 {
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public Hung.Data.Rewards.PendingRewardData bw4Pending;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public string bw4ConsumedClaimId;
     public int currentProgress;
     public int dayOfYear;
     public int rewardDayKey;
@@ -18,5 +23,3 @@ public class DailyRewardSaveData
         return false;
     }
 }
-
-

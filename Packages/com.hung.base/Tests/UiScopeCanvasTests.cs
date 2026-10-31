@@ -78,13 +78,13 @@ namespace Hung.Base.Tests
             canvas.Registry = registry;
             canvas.DeclaredScope = UiScope.At(UiScopePath.Of("Home"));
             service = new FakeUiService();
-            Locator.UI = service;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>()); Hung.Base.ServiceSlots.Register<IUIService>(service);
         }
 
         [TearDown]
         public void TearDown()
         {
-            Locator.UI = null;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
             UnityEngine.Object.DestroyImmediate(gameObject);
         }
 

@@ -12,13 +12,41 @@ namespace Hung.Analytics.Tracking
         TrackingPipeline _pipeline;
         bool _focused = true;
 
+        /// <summary>Runner made by the last Create; null after DestroyCurrent or session reset.</summary>
+        internal static TrackingRunner Current { get; private set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetCurrent() => Current = null;
+
         internal static TrackingRunner Create(TrackingPipeline pipeline)
         {
             var go = new GameObject("[HungAnalyticsTracking]");
-            DontDestroyOnLoad(go);
+            if (Application.isPlaying) DontDestroyOnLoad(go);
             var runner = go.AddComponent<TrackingRunner>();
             runner._pipeline = pipeline;
+            Current = runner;
             return runner;
+        }
+
+        /// <summary>Dispatches the quit Blur when still focused, then destroys the runner GameObject. Safe when none exists.</summary>
+        internal static void DestroyCurrent()
+        {
+            if (Current == null) return;
+            var runner = Current;
+            if (runner._focused && runner._pipeline != null && runner._pipeline.Started)
+            {
+                runner._focused = false;
+                runner._pipeline.Dispatch(Fact.Blur());
+            }
+            var go = runner.gameObject;
+            Current = null;
+            if (Application.isPlaying) Destroy(go);
+            else DestroyImmediate(go);
+        }
+
+        void OnDestroy()
+        {
+            if (Current == this) Current = null;
         }
 
         void Start() => _pipeline.Start();

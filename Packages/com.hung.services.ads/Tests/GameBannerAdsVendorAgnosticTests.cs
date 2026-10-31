@@ -12,14 +12,14 @@ namespace Hung.Ads.Tests
         {
             var gameData = new GameData();
             gameData.InitData(new[] { BaseItemIds.RemoveAds, BaseItemIds.PremiumRemoveAds });
-            Locator.Data = new FakeDataService(gameData);
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(new FakeDataService(gameData));
         }
 
         [TearDown]
         public void TearDown()
         {
             Locator.ResetDataForTests();
-            Locator.AdsEntitlements = null;
+            Hung.Base.ServiceSlots.Unregister<IAdsEntitlements>(Hung.Base.ServiceSlots.Get<IAdsEntitlements>());
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace Hung.Ads.Tests
                 var registry = new AdsProviderRegistry();
                 registry.RegisterBanner(ADS_TYPE.MAX, maxProvider);
                 bannerAds.ConfigureProviders(registry);
-                Locator.AdsEntitlements = new FakeEntitlements { IsRemoveAds = true };
+                Hung.Base.ServiceSlots.Unregister<IAdsEntitlements>(Hung.Base.ServiceSlots.Get<IAdsEntitlements>()); Hung.Base.ServiceSlots.Register<IAdsEntitlements>(new FakeEntitlements { IsRemoveAds = true });
 
                 bannerAds.Show(ADS_TYPE.MAX);
 

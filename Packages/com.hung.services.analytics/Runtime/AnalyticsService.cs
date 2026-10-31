@@ -14,6 +14,16 @@ namespace Hung.Analytics
     /// </summary>
     public sealed class AnalyticsService : IAnalyticsService, IRevenueEventSink
     {
+        /// <summary>Releases this retired proxy's routes and held delegates; SDK lifetime remains backend-owned.</summary>
+        internal void Retire()
+        {
+            _routes.Clear();
+            _held.Clear();
+            _holding = false;
+            _droppedWhileHolding = 0;
+            _reportedFailures.Clear();
+        }
+
         readonly struct Route
         {
             public readonly IAnalyticsBackend Backend;

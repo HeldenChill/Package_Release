@@ -26,13 +26,13 @@ namespace Hung.UI
         protected override void OnOpen(object param)
         {
             base.OnOpen(param);
-            Locator.Audio?.PlaySfx(SFX_TYPE.POPUP_SHOW);
+            Locator.Audio?.PlaySfx(BaseAudioIds.UiPopupShow);
         }
 
         public override void Hide()
         {
             base.Hide();
-            Locator.Audio?.PlaySfx(SFX_TYPE.POPUP_HIDE);
+            Locator.Audio?.PlaySfx(BaseAudioIds.UiPopupHide);
         }
         
         protected void LockBgCloseInteractable(bool isLock)

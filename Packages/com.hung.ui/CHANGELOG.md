@@ -2,6 +2,11 @@
 
 ## [0.8.1] - Unreleased
 
+- Repair UI-C0 test isolation: require an explicitly armed Editor repeat-play protocol, record actual entry flags, exclude the witness with an exact normal-fixture selector, and reject unexpected passing PlayMode identities. Add an unarmed-state regression; production UI behavior is unchanged by these review repairs.
+
+- UI-C0: reset back-push/click-sound policies and global canvas-open observers at session start, including disabled-domain play. Products reapply policies/subscriptions after SubsystemRegistration. Add focused session, acquisition, composition and lifecycle qualification fixtures; see the UI README for evidence limits.
+
+- Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
 
 ## [0.8.0] - 2026-10-07

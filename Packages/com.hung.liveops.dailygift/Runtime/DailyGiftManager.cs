@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,6 +11,8 @@ namespace Hung.LiveOps.DailyGift
     using Hung.DesignPattern;
     public class DailyGiftManager : Singleton<DailyGiftManager>, IDailyGiftService
     {
+        private void OnDestroy() => ServiceSlots.Unregister<IDailyGiftService>(this);
+
         private IClock clock = new SystemClock();
         private RewardDayPolicy dayPolicy = new(0);
         private IRewardClaimCoordinator rewardCoordinator;
@@ -31,9 +33,11 @@ namespace Hung.LiveOps.DailyGift
         [HideInInspector] public bool initialized = false;
         private void Start()
         {
+            if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IDailyGiftService>(this, this)) return;
+
             DontDestroyOnLoad(gameObject);
             StartCoroutine(IEStart());
-            Locator.DailyGift = this;
+            ServiceSlots.Register<IDailyGiftService>(this);
         }
         private IEnumerator IEStart()
         {

@@ -32,6 +32,8 @@ public sealed class RewardClaimCoordinator : IRewardClaimCoordinator
 
     public RewardClaimResult Claim(RewardClaimRequest request)
     {
+        if (request.Items == null || request.Items.Count == 0 || string.IsNullOrWhiteSpace(request.ClaimId.Value))
+            return new RewardClaimResult(RewardGrantOutcome.InvalidReward, "INVALID_REWARD_REQUEST");
         DateTime utcNow = ReadUtc();
         LoadResult<RewardIntegrityStateData> load = persistence.Load(definition);
         if (!load.Success)
@@ -45,6 +47,8 @@ public sealed class RewardClaimCoordinator : IRewardClaimCoordinator
         if (existing != null)
         {
             if (!string.Equals(existing.payloadFingerprint, request.PayloadFingerprint, StringComparison.Ordinal))
+                return new RewardClaimResult(RewardGrantOutcome.Conflict, "CLAIM_PAYLOAD_CONFLICT");
+            if (!SamePayload(existing, request))
                 return new RewardClaimResult(RewardGrantOutcome.Conflict, "CLAIM_PAYLOAD_CONFLICT");
             if (existing.state == (int)RewardClaimStateData.Finalized || existing.state == (int)RewardClaimStateData.Granted)
                 return new RewardClaimResult(RewardGrantOutcome.IdempotentReplay);
@@ -143,8 +147,24 @@ public sealed class RewardClaimCoordinator : IRewardClaimCoordinator
         }
 
         if (recovered > 0)
-            persistence.Save(definition, Clone(state));
+        {
+            SaveResult save = persistence.Save(definition, Clone(state));
+            if (!save.Success) return new RewardRecoveryReport(0, failed + recovered);
+        }
         return new RewardRecoveryReport(recovered, failed);
+    }
+
+    private static bool SamePayload(RewardClaimRecordData record, RewardClaimRequest request)
+    {
+        if (!string.Equals(record.feature, request.Feature, StringComparison.Ordinal)) return false;
+        // Some historical finalized records have no payload. Their exact fingerprint remains authoritative.
+        if (record.state == (int)RewardClaimStateData.Finalized && record.items.Count == 0) return true;
+        var old = record.items.OrderBy(x => x.itemId, StringComparer.Ordinal).ThenBy(x => x.quantity).ToArray();
+        var next = request.Items.OrderBy(x => x.ItemId.Value, StringComparer.Ordinal).ThenBy(x => x.Quantity).ToArray();
+        if (old.Length != next.Length) return false;
+        for (int i = 0; i < old.Length; i++)
+            if (!string.Equals(old[i].itemId, next[i].ItemId.Value, StringComparison.Ordinal) || old[i].quantity != next[i].Quantity) return false;
+        return true;
     }
 
     private DateTime ReadUtc()

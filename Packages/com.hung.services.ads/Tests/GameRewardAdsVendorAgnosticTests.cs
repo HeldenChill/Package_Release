@@ -12,7 +12,7 @@ namespace Hung.Ads.Tests
         {
             var gameData = new GameData();
             gameData.InitData(new[] { BaseItemIds.RemoveAds, BaseItemIds.PremiumRemoveAds });
-            Locator.Data = new FakeDataService(gameData);
+            Hung.Base.ServiceSlots.Unregister<IDataService>(Hung.Base.ServiceSlots.Get<IDataService>()); Hung.Base.ServiceSlots.Register<IDataService>(new FakeDataService(gameData));
         }
 
         [TearDown]

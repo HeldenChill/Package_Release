@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IIAPService iAPService;
-        public static IIAPService IAPService
-        {
-            get => iAPService;
-            set => iAPService = value;
-        }
+        /// <summary>Resolves IAPService through the framework registry.</summary>
+        public static IIAPService IAPService => ServiceSlots.Get<IIAPService>();
     }
 }

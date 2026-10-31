@@ -17,9 +17,16 @@ namespace Hung.Base
             if (string.IsNullOrWhiteSpace(fingerprint))
                 throw new ArgumentException("Reward payload fingerprint cannot be empty.", nameof(fingerprint));
 
+            if (string.IsNullOrWhiteSpace(id.Value)) throw new ArgumentException("Invalid claim ID.", nameof(id));
+            var copy = new RewardGrantItem[items.Count];
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (!items[i].ItemId.IsValid || items[i].Quantity <= 0) throw new ArgumentException("Invalid reward line.", nameof(items));
+                copy[i] = items[i];
+            }
             ClaimId = id;
             Feature = feature;
-            Items = items;
+            Items = Array.AsReadOnly(copy);
             PayloadFingerprint = fingerprint;
         }
 

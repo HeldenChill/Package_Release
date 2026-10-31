@@ -2,13 +2,9 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IDataService data;
-        public static IDataService Data
-        {
-            get => data;
-            set => data = value;
-        }
+        /// <summary>Resolves Data through the framework registry.</summary>
+        public static IDataService Data => ServiceSlots.Get<IDataService>();
 
-        public static void ResetDataForTests() => data = null;
+        public static void ResetDataForTests() => ServiceSlots.Unregister<IDataService>(ServiceSlots.Get<IDataService>());
     }
 }

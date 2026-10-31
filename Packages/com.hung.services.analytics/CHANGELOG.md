@@ -2,6 +2,8 @@
 
 ## [0.6.0] - Unreleased
 
+- Automatic startup now runs as `AutomaticPluginHost` feature `services.analytics` (optional, no dependencies). It is declared at `AfterAssembliesLoaded` only when the Editor suppression key, `AutomaticStartupProfile.legacyAnalytics` and `PluginStartupPolicy` all allow it. The host shuts it down on quit or the next play reset (deferred hold discarded, tracking runner destroyed, own slots released; vendor SDKs are not stopped). The `BeforeSceneLoad` `AnalyticsBootstrap.Boot` hook is removed. Explicit `Install` and `InstallDeferred` are unchanged.
+- Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
 - Respect product-owned automatic startup selection before backend, Locator, tracking or store activity.
 
 ## [Unreleased]

@@ -2,6 +2,7 @@
 
 ## [0.7.8] - Unreleased
 
+- Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.
 
 ## [0.7.7] - 2026-10-15

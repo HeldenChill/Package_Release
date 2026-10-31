@@ -123,13 +123,13 @@ namespace Hung.UI.Tests
             canvas.Configure(new UIAnim[] { first, second }, true, legacyButton,
                 new List<Button> { extraButton, legacyButton, extraButton });
             service = new UiServiceStub();
-            Locator.UI = service;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>()); Hung.Base.ServiceSlots.Register<IUIService>(service);
         }
 
         [TearDown]
         public void TearDown()
         {
-            Locator.UI = null;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
             UnityEngine.Object.DestroyImmediate(gameObject);
         }
 

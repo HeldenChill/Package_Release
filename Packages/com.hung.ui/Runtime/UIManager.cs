@@ -43,9 +43,11 @@ namespace Hung.UI
 
         private void Awake()
         {
+            if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IUIService>(this, this)) return;
+
             if (Application.isPlaying) DontDestroyOnLoad(this);
             EnsureInitialized();
-            Locator.UI = this;
+            ServiceSlots.Register<IUIService>(this);
         }
 
         private void EnsureInitialized()
@@ -59,7 +61,7 @@ namespace Hung.UI
         private void OnDestroy()
         {
             asyncRegistry?.Dispose();
-            if (ReferenceEquals(Locator.UI, this)) Locator.UI = null;
+            ServiceSlots.Unregister<IUIService>(this);
         }
 
         /// <summary>Configure addressed prefab loading before the first acquisition.</summary>

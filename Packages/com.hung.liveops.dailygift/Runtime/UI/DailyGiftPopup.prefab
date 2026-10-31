@@ -573,7 +573,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   indexID: 0
   button: {fileID: 7982496545201163925}
+  tf: {fileID: 0}
   textButton: {fileID: 0}
+  sfxType: 1
+  audioId:
+    value: base.ui.click
   buttonComponents: []
 --- !u!1 &2674542421479920227
 GameObject:
@@ -665,16 +669,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fa6030c9bbb9884f8d2ca09a081b5fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAnimQueue: 0
   RectTransform: {fileID: 4717925846120917311}
   datas:
   - Id: 1
     Time: 0.25
     Ease: 27
-    Size: {x: 0.9, y: 0.9}
+    StartSize: {x: 0, y: 0}
+    EndSize: {x: 0, y: 0}
+    IsSetStartSize: 0
   - Id: 2
     Time: 0.25
     Ease: 26
-    Size: {x: 0, y: 0}
+    StartSize: {x: 0, y: 0}
+    EndSize: {x: 0, y: 0}
+    IsSetStartSize: 0
 --- !u!1 &2920846029799437923
 GameObject:
   m_ObjectHideFlags: 0
@@ -965,6 +974,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1464,6 +1474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c02ef54056f343d47902b424729e68b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAnimQueue: 0
   canvasGroup: {fileID: 1745011981706271998}
   datas:
   - Id: 1
@@ -1526,12 +1537,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDestroyOnClose: 1
-  useAnimator: 0
   rectTf: {fileID: 3139195142703517099}
   anims:
   - {fileID: 4163733003656358484}
   - {fileID: 5797459350569198312}
   closeButton: {fileID: 9111209826437917665}
+  closeBtns: []
   data:
     SetActiveByAnim: 1
   canvasComponent: []
@@ -1879,6 +1890,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

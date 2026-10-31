@@ -2,6 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        public static IPauseService Pause { get; set; }
+        /// <summary>Resolves Pause through the framework registry.</summary>
+        public static IPauseService Pause => ServiceSlots.Get<IPauseService>();
     }
 }

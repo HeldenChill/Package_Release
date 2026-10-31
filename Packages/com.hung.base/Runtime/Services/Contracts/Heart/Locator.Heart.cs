@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static global::IHeartService heart;
-        public static global::IHeartService Heart
-        {
-            get => heart;
-            set => heart = value;
-        }
+        /// <summary>Resolves Heart through the framework registry.</summary>
+        public static global::IHeartService Heart => ServiceSlots.Get<global::IHeartService>();
     }
 }

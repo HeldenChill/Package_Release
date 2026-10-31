@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static ITutorialService tutorial;
-        public static ITutorialService Tutorial
-        {
-            get => tutorial;
-            set => tutorial = value;
-        }
+        /// <summary>Resolves Tutorial through the framework registry.</summary>
+        public static ITutorialService Tutorial => ServiceSlots.Get<ITutorialService>();
     }
 }

@@ -9,7 +9,7 @@ namespace Hung.Base
     [JsonConverter(typeof(ItemIdJsonConverter))]
     [TypeConverter(typeof(ItemIdTypeConverter))]
     [Serializable]
-    public struct ItemId : IEquatable<ItemId>, IComparable<ItemId>
+    public struct ItemId : IStableId, IEquatable<ItemId>, IComparable<ItemId>
     {
         // Namespace segment ("base.gold") is optional and case is unrestricted, so catalog
         // ids authored straight from CSV display names ("Pump_Shotgun") parse as-is.

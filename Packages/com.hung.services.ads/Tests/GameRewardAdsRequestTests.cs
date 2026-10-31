@@ -108,7 +108,8 @@ namespace Hung.Ads.Tests
         public void ManagerFormatSwitches_DisableLoadingAndCompleteSkippedRequests()
         {
             var go = new UnityEngine.GameObject(nameof(AdsFormatEnableTests));
-            var previous = Locator.Ads;
+            ServiceSlots.TryGet<IAdsService>(out var previous);
+            ServiceSlots.Unregister<IAdsService>(previous);
             try
             {
                 var reward = go.AddComponent<GameRewardAds>();
@@ -155,7 +156,7 @@ namespace Hung.Ads.Tests
                 Assert.AreEqual(0, provider.ShowCalls);
                 Assert.AreEqual(0, provider.BannerInitCalls);
             }
-            finally { UnityEngine.Object.DestroyImmediate(go); Locator.Ads = previous; }
+            finally { UnityEngine.Object.DestroyImmediate(go); Hung.Base.ServiceSlots.Unregister<IAdsService>(Hung.Base.ServiceSlots.Get<IAdsService>()); if (!object.ReferenceEquals(previous, null)) Hung.Base.ServiceSlots.Register<IAdsService>(previous); }
         }
 
         static void Set(object target, string name, object value)

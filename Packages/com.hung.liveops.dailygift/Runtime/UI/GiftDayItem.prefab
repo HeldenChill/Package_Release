@@ -402,6 +402,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -681,7 +682,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   indexID: 0
   button: {fileID: 4354177244701674745}
+  tf: {fileID: 0}
   textButton: {fileID: 4000228950549710914}
+  sfxType: 1
+  audioId:
+    value: base.ui.click
   buttonComponents: []
 --- !u!1 &8267594069191432578
 GameObject:

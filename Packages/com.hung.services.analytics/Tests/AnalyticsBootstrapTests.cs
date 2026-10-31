@@ -18,14 +18,16 @@ namespace Hung.Analytics.Tests
         {
             _previousAnalytics = Locator.Analytics;
             _previousSink = Locator.RevenueSink;
+            ServiceSlots.Unregister<IAnalyticsService>(_previousAnalytics);
+            ServiceSlots.Unregister<IRevenueEventSink>(_previousSink);
             AnalyticsBackends.Clear();
         }
 
         [TearDown]
         public void RestoreLocator()
         {
-            Locator.Analytics = _previousAnalytics;
-            Locator.RevenueSink = _previousSink;
+            Hung.Base.ServiceSlots.Unregister<IAnalyticsService>(Hung.Base.ServiceSlots.Get<IAnalyticsService>()); if (!object.ReferenceEquals(_previousAnalytics, null)) Hung.Base.ServiceSlots.Register<IAnalyticsService>(_previousAnalytics);
+            Hung.Base.ServiceSlots.Unregister<IRevenueEventSink>(Hung.Base.ServiceSlots.Get<IRevenueEventSink>()); if (!object.ReferenceEquals(_previousSink, null)) Hung.Base.ServiceSlots.Register<IRevenueEventSink>(_previousSink);
             AnalyticsBackends.Clear();
         }
 

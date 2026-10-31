@@ -105,3 +105,8 @@ Pre-existing Unity console noise may include old unrelated test errors. Trust fr
 ## AI adoption playbook
 
 [Adopt this package](AI~/playbooks/adopt.md) covers reusable host composition and evidence requirements. Product-specific setup and runtime proof belong in the consuming project.
+
+### Service slot registration (unreleased)
+
+`IAPManager` registers only its configured `LegacyIapServiceAdapter` in `ServiceSlots`. An unconfigured
+manager leaves the real slot empty, and `Locator.IAP` deterministically resolves Base's Unsupported default.

@@ -65,6 +65,8 @@ namespace Hung.Ads
 
         void Awake()
         {
+            if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IAdsService>(this, this)) return;
+
             DontDestroyOnLoad(gameObject);
             appOpen = appOpenBehaviour as IAds;
             banner = bannerBehaviour as IAds;
@@ -74,7 +76,7 @@ namespace Hung.Ads
 
             // Self-registration: the consuming game holds IAdsService (a Hung.Base contract),
             // so it never needs an assembly reference to Hung.Ads. See the class comment.
-            Locator.Ads = this;
+            ServiceSlots.Register<IAdsService>(this);
         }
 
         void ApplyFormatSettings()
@@ -104,10 +106,7 @@ namespace Hung.Ads
         {
             routed?.Dispose();
             routed = null;
-            if (ReferenceEquals(Locator.Ads, this))
-            {
-                Locator.Ads = null;
-            }
+            ServiceSlots.Unregister<IAdsService>(this);
         }
 
         public void ShowRewarded(AdsShowRequest request, Action<AdsShowResult> onCompleted)

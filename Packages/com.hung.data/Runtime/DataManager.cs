@@ -9,6 +9,8 @@ namespace Hung.Data
     [DefaultExecutionOrder(-100)]
     public partial class DataManager : Singleton<DataManager>, IDataService
     {
+        private void OnDestroy() => ServiceSlots.Unregister<IDataService>(this);
+
         [SerializeField]
         private PoolData poolData;
         [SerializeField]
@@ -55,7 +57,9 @@ namespace Hung.Data
 
         private void Awake()
         {
-            Locator.Data = this;
+            if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IDataService>(this, this)) return;
+
+            ServiceSlots.Register<IDataService>(this);
             DontDestroyOnLoad(this);
         }
 

@@ -10,7 +10,7 @@ namespace Hung.Ads.Tests
         {
             var time = new FakeTimeScale();
             var pause = new PauseService(time, 1f);
-            Locator.Pause = pause;
+            Hung.Base.ServiceSlots.Unregister<IPauseService>(Hung.Base.ServiceSlots.Get<IPauseService>()); Hung.Base.ServiceSlots.Register<IPauseService>(pause);
             var popup = new PauseLease(PauseLeaseId.Create(PauseLeaseKind.Popup, "popup", "1"), PauseLeaseKind.Popup, "popup");
             pause.Acquire(popup);
 

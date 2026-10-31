@@ -1,0 +1,7 @@
+{
+  "name": "Hung.Audio.Editor",
+  "rootNamespace": "Hung.Audio.Editor",
+  "references": ["Hung.Audio", "Hung.Base", "Hung.Base.Editor"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

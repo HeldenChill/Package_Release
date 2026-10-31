@@ -69,7 +69,7 @@ flowchart TD
     Ed --> Core
 ```
 
-Startup: each integration assembly registers its backend with `AnalyticsBackends` at `AfterAssembliesLoaded`; `AnalyticsBootstrap` (`BeforeSceneLoad`) reads the settings asset, initializes every registered backend, keeps the ones that initialize, builds one `AnalyticsService` and assigns `Locator.Analytics` and `Locator.RevenueSink`. No prefab is needed. With zero backends the locator still holds a no-op proxy.
+Startup: each integration assembly registers its backend with `AnalyticsBackends` at `AfterAssembliesLoaded`; `AnalyticsPlugin` declares automatic startup as `AutomaticPluginHost` feature `services.analytics` at `AfterAssembliesLoaded`, gated by the Editor suppression key, `AutomaticStartupProfile.legacyAnalytics` and `PluginStartupPolicy`. The host initializes it before scenes load (reading settings, initializing registered backends, publishing `Locator.Analytics` and `Locator.RevenueSink`, and creating the tracking runner) and shuts it down on quit or session reset. No prefab is needed. With zero backends the locator still holds a no-op proxy.
 
 ## Categories
 
@@ -94,6 +94,7 @@ AppMetrica defaults to `Product` only: its plugin already auto-tracks MAX and Ir
 | `AnalyticsSettings` | `Hung.Analytics` | ScriptableObject at `Resources/HungAnalyticsSettings`: debugLog + one entry per backend |
 | `AnalyticsBackendEntry` | `Hung.Analytics` | Per-backend row: id, enabled, categories, apiKey, appId; default routing |
 | `AnalyticsBackendIds` | `Hung.Analytics` | Backend id constants, define names, define rewrite |
+| `AnalyticsPlugin` | `Hung.Analytics` | AutomaticPluginHost feature descriptor for `services.analytics` |
 | `AnalyticsBootstrap` | `Hung.Analytics` | Composition root; `Install(settings, backends)` is the testable seam |
 | `AnalyticsText` | `Hung.Analytics` | Culture-invariant helpers: name sanitizing, value strings, flat JSON |
 | `RecordingAnalyticsBackend` | `Hung.Analytics` | Test double backend; records events, can be told to throw |
@@ -147,8 +148,15 @@ Game code sends facts; rules turn them into events. Design: `.cursor/plans/analy
 
 ## Tests
 
-EditMode `Hung.Analytics.Tests`: `CoreHelpersTests`, `AnalyticsServiceTests`, `AnalyticsBootstrapTests`, `TrackingStateTests`, `OperatorTests`, `EventEmitterTests`, `TrackingPipelineTests`, `SessionRulesTests`, `StageRulesTests`, `StreakRulesTests`, `GachaRulesTests`, `FeatureRulesTests`, `TrackingFacadeTests`. They exercise the real proxy against `RecordingAnalyticsBackend`. SDK-bound backends have no EditMode test; they are verified by compile with the define on plus Play Mode, device and dashboard DebugView unverified.
+EditMode `Hung.Analytics.Tests`: `CoreHelpersTests`, `AnalyticsServiceTests`, `AnalyticsBootstrapTests`, `AnalyticsPluginGateTests`, `AnalyticsPluginLifecycleTests`, `TrackingStateTests`, `OperatorTests`, `EventEmitterTests`, `TrackingPipelineTests`, `SessionRulesTests`, `StageRulesTests`, `StreakRulesTests`, `GachaRulesTests`, `FeatureRulesTests`, `TrackingFacadeTests`. They exercise the real proxy against `RecordingAnalyticsBackend`. SDK-bound backends have no EditMode test; they are verified by compile with the define on plus Play Mode, device and dashboard DebugView unverified.
 
 ### Optional wire naming profile
 
 Call `AnalyticsTracking.SetNamingProfile(profile)` before the first frame; installation applies it before queued facts replay. Pass null to restore canonical output. `TrackingPipeline.SetNamingProfile` and `EventEmitter.SetNamingProfile` provide the same seam for direct construction. Fixed names are mapped before the FTU prefix; B templates are mapped before rendering and length checks. Successfully rendered B holes are consumed before remaining parameter keys are mapped. Parameter values retain their types. Invalid names or key collisions fall back to canonical output with a warning. User properties and canonical facts/state are unaffected. Games own their maps and validation; the package has no PVM dependency.
+
+### Service slot ownership (unreleased)
+
+AnalyticsService publishes `IAnalyticsService` and `IRevenueEventSink` coherently into `ServiceSlots`.
+If registration of either slot fails, both registrations are rolled back to their previous owners and
+held deferred diagnostics are preserved. When replacement succeeds, the retired proxy detaches its held
+backend references and callbacks. Individual backend SDK lifetimes remain owned by each backend implementation.

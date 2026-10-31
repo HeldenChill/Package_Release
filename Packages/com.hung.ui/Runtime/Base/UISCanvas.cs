@@ -25,6 +25,9 @@ namespace Hung.UI
         /// </summary>
         public static event Action<UISCanvas> AnyOpened;
 
+        // Called only at the start of a new play/player session, before product subscriptions.
+        internal static void ResetSessionObservers() => AnyOpened = null;
+
         [Serializable]
         protected class Propertys
         {

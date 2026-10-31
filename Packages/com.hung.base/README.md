@@ -28,6 +28,43 @@ Item identity is `ItemId`: a serialized, namespaced value such as `base.gold` or
 
 Use `Locator.Items.GetPresentation(id)` for icons, display names, and rarity. Do not read metadata from `GameplayData.Items`; that legacy catalog has been removed.
 
+## Typed Ids
+
+Shared infrastructure for strongly-typed string identifiers conforming to stable recipes across runtime and editor tooling.
+
+Generated constant names reject unescaped C# reserved keywords; use `@` to escape them.
+Escaped and unescaped spellings of the same identifier cannot both be generated.
+Registry conflict diagnostics refresh when the shared definition scan is invalidated.
+
+### Public Types Index
+
+| Type | Kind | Assembly | File |
+|---|---|---|---|
+| `IStableId` | Interface | `Hung.Base` | `Runtime/Services/Contracts/Ids/IStableId.cs` |
+| `StableIdGrammar` | Static class | `Hung.Base` | `Runtime/Services/Contracts/Ids/StableIdGrammar.cs` |
+| `StableIdJsonConverter<TId>` | Abstract generic class | `Hung.Base` | `Runtime/Services/Contracts/Ids/StableIdConverters.cs` |
+| `StableIdTypeConverter<TId>` | Abstract generic class | `Hung.Base` | `Runtime/Services/Contracts/Ids/StableIdConverters.cs` |
+| `AudioId` | Struct | `Hung.Base` | `Runtime/Services/Contracts/Audio/AudioId.cs` |
+| `AudioIdJsonConverter` | Sealed class | `Hung.Base` | `Runtime/Services/Contracts/Audio/AudioId.cs` |
+| `AudioIdTypeConverter` | Sealed class | `Hung.Base` | `Runtime/Services/Contracts/Audio/AudioId.cs` |
+| `BaseAudioIds` | Static class | `Hung.Base` | `Runtime/Services/Contracts/Audio/BaseAudioIds.cs` |
+| `StableIdEditorOption<TId>` | Readonly struct | `Hung.Base.Editor` | `Editor/Ids/StableIdEditorOption.cs` |
+| `IStableIdEditorSource<TId>` | Interface | `Hung.Base.Editor` | `Editor/Ids/IStableIdEditorSource.cs` |
+| `StableIdEditorConflict<TId>` | Sealed class | `Hung.Base.Editor` | `Editor/Ids/StableIdEditorConflict.cs` |
+| `StableIdConstantsSource<TId>` | Sealed class | `Hung.Base.Editor` | `Editor/Ids/StableIdConstantsSource.cs` |
+| `StableIdEditorRegistry<TId>` | Sealed class | `Hung.Base.Editor` | `Editor/Ids/StableIdEditorRegistry.cs` |
+| `StableIdField` | Static class | `Hung.Base.Editor` | `Editor/Ids/StableIdField.cs` |
+| `StableIdCodeGenerator` | Static class | `Hung.Base.Editor` | `Editor/Ids/StableIdCodeGenerator.cs` |
+| `AudioIdDrawer` | Sealed class | `Hung.Base.Editor` | `Editor/Audio/AudioIdDrawer.cs` |
+
+### How to add a new `<Thing>Id`
+
+1. **Struct:** Create `<Thing>Id : IStableId, IEquatable<<Thing>Id>, IComparable<<Thing>Id>` copying `AudioId` (serialized `string value`, strict grammar validation, Parse/TryParse, equality, comparisons).
+2. **Converters:** Create `<Thing>IdJsonConverter : StableIdJsonConverter<<Thing>Id>` and `<Thing>IdTypeConverter : StableIdTypeConverter<<Thing>Id>` subclasses.
+3. **Constants:** Create a public static class `Base<Thing>Ids` with standard package id constants.
+4. **Drawer:** Create `<Thing>IdDrawer : OdinValueDrawer<<Thing>Id>` copying `AudioIdDrawer` (using `StableIdField.Draw` and `StableIdEditorRegistry<<Thing>Id>.Shared`).
+5. **Registration:** Create `[InitializeOnLoad] internal static class Base<Thing>IdsEditorRegistration` that registers `new StableIdConstantsSource<<Thing>Id>(typeof(Base<Thing>Ids))` with `StableIdEditorRegistry<<Thing>Id>.RegisterSource`.
+
 ## Persistence Contract
 
 `Hung.Base.Persistence` owns the DI-neutral contracts used by save consumers. Existing synchronous calls remain valid:
@@ -149,3 +186,53 @@ P2-A retains GameData, DataManager, IItemService and legacy serialized contracts
 It does not extract TemplateGame, migrate consumers, integrate typed audio cues
 or remove Base's existing vendor dependencies. See boundary design section 18.45
 and the P2-A report for exact evidence and remaining adoption gates.
+
+## Service slot registry foundation
+
+ServiceSlots is an additive main-thread registry for framework contracts. Register<T> derives its
+owner from the implementation assembly and returns ServiceRegistration: Registered, Replaced,
+AlreadyRegistered, RefusedDuplicateOwner or RefusedNull. Unregister<T> removes only the current
+exact reference. Get<T>/TryGet<T> resolve explicit registrations; OwnerOf<T> returns their owner.
+ResetForTests clears references/owners without disposing services; since stage C the
+AutomaticPluginHost SubsystemRegistration reset clears it before each play (see Automatic plugin
+composition). Existing Locator properties and startup hooks did not move in stage A.
+
+Editor-only ServiceArchitectureTestRunner in Hung.Base.Tests exports focused real test results;
+it is not runtime service API. Unsupported defaults, typed accessor migration and automatic plugin
+composition belong to stages B/C.
+
+## Owner-checked Locator integration
+
+Locator properties are read-only ServiceSlots accessors. Register<T> derives the owner from the
+implementation assembly; Unregister<T> removes only the current exact reference. Get<T> resolves
+real registration before fallback; TryGet<T> and OwnerOf<T> exclude defaults. SetFallback<T>
+rejects null or a different default within one session. ResetForTests clears real owners and
+recreates session defaults. ServiceSlotLifecycle.CanInitialize prevents a second active scene
+owner from starting work; scene owners unregister in OnDestroy.
+
+UnsupportedAdsService returns Unsupported outcomes, never grants rewards and completes legacy
+continuations once. UnsupportedIapService invokes failure callbacks. These defaults cover Ads/IAP
+only; remaining service contracts migrate in their own waves. IGameplayService and Locator.Gameplay
+were removed from Base. TemplateGame presentation uses its product-owned ITemplateGameplay binding.
+Automatic plugin collection and general suppression are a later source stage, not part of this cutover.
+
+## Automatic plugin composition
+
+AutomaticPluginHost.Collect accepts explicit FeatureRegistration declarations before boot. Plugins
+submit during AfterAssembliesLoaded; one BeforeSceneLoad callback validates/freezes declarations and
+starts existing FeatureHost in dependency order. GetReport returns actual post-boot state; Shutdown
+is reverse and idempotent. The host owns Base's runtime reset, disposing its old session before
+clearing ServiceSlots. Collection/lookup never initializes SDKs implicitly.
+
+Optional product Resources/HungPluginStartup.asset uses PluginStartupProfile.DisabledFeatureIds.
+PluginStartupPolicy.ShouldStart/Evaluate validate stable lowercase IDs; missing profile enables
+new-policy plugins. OverrideForTests is scoped and resets between sessions. Build validation rejects
+duplicate Resources identities and invalid entries. Packages ship no profile instance. Existing
+AutomaticStartupProfile legacy flags keep their meaning; future Analytics migration must combine
+legacyAnalytics AND new-policy enablement. No production bootstrap was migrated in this stage.
+
+## Horizon 1 BW4 explicit Items/rewards
+
+Opt-in focused presentation, immutable flat reward offers, frozen pending payloads and checked recoverable feature finalization. Existing managers, assets, ItemId values and aggregate Item/IAP APIs remain compatibility paths. Schema 2 applies only to the selected explicit DailyReward/SpinWheel definitions; never compose legacy owners against that same selected root. No game integration or release acceptance is claimed.
+
+See [explicit composition, schema and recovery contract](../com.hung.data/Documentation~/bw4-explicit-rewards.md). Evidence: `Docs/reports/horizon1-boundaries/service-architecture/bw4-items-rewards/`.

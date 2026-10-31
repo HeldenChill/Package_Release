@@ -75,14 +75,14 @@ namespace Hung.Base.Tests
             gameObject = new GameObject("Semantics canvas");
             canvas = gameObject.AddComponent<SemanticsCanvasProbe>();
             service = new TestUiService();
-            Locator.UI = service;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>()); Hung.Base.ServiceSlots.Register<IUIService>(service);
         }
 
         [TearDown]
         public void TearDown()
         {
             UICanvas.BackPushPolicy = UIBackPushPolicy.OnOpen;
-            Locator.UI = null;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
             UnityEngine.Object.DestroyImmediate(gameObject);
         }
 
@@ -162,7 +162,7 @@ namespace Hung.Base.Tests
         [Test]
         public void Lifecycle_calls_do_not_throw_without_ui_service()
         {
-            Locator.UI = null;
+            Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
 
             Assert.DoesNotThrow(() => canvas.Open());
             Assert.DoesNotThrow(() => canvas.Setup());

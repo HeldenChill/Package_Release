@@ -53,3 +53,49 @@ Public addressed acquisition types: `IUIAsyncPrefabProvider`, `IUIAddressResolve
 ## Samples
 
 None.
+
+
+## Horizon 1 UI-C0 conformance contract (2026-10-28)
+
+The existing UIManager, UICanvas, UIBackStack, transitions and provider/resolver APIs remain authoritative.
+No new UI framework, package dependency, serialized field, product canvas or public API is introduced.
+At SubsystemRegistration the UI package resets UICanvas.BackPushPolicy to OnOpen,
+UIButton.DefaultClickSfx to true, and clears UISCanvas.AnyOpened observers. Products reapply their
+chosen policy and subscriptions afterward, in BeforeSceneLoad or ordered scene composition before
+the first open/input. Do not subscribe during another unordered SubsystemRegistration callback.
+An ordinary canvas close or manager destruction does not clear the process-wide event.
+
+UI has no Unsupported fallback. Optional UI actions use ServiceSlots.TryGet<IUIService>; required
+composition reports an explicit initialization failure before allowing UI interaction. Do not create
+a fake successful Open or a fallback back stack. Existing Locator.UI may be null by this approved exception.
+
+The package default pushes on Open. A product retaining Setup-then-Open selects ExplicitSetup and
+routes both interface and concrete calls through its qualified adapter. A UIManager-typed reference
+to an adapter with a hidden OpenUI method bypasses that method; census and reroute those callers.
+Keep the existing private package Awake/OnDestroy lifecycle intact in subclasses.
+
+Resources and addressed loading remain distinct. GetUIAsync without an address resolver uses the
+Resources path and may callback immediately. AcquireAsync does not open the acquired inactive canvas.
+Addressables remains a mandatory compile/package dependency. A fake provider does not prove a real
+Addressables catalog. Successful prefab leases remain owned until cache/manager disposal, not close.
+
+UIItem receives resolved presentation; inventory/reward mutations and product gameplay remain outside
+widgets. Product adapters own camera, raycast and banner policy. Retain GUIDs/serialized bindings only
+after exact inheritance/field/asset verification in each consumer cohort.
+
+Implementation acceptance evidence: Docs/reports/horizon1-boundaries/service-architecture/ui-p3/README.md.
+The path is the executor's required report location, not a claim that execution has occurred. UI-C0 is
+package qualification only. BumpHero W6, ForestBloom stage 5, BW7, release/player/device evidence,
+TemplateGame Data integration and final BW8 remain separate. Historical results elsewhere in this
+document are not fresh UI-C0 evidence.
+
+### UI-C0 review repair ? 2026-10-28
+
+The standalone repeat-play witness is now Editor-only opt-in through the owned
+`Horizon1.UiC0.RepeatArmed` protocol. Ordinary selection ignores it without seeding UI state;
+only the explicitly armed proof retains its sentinel across plays. Actual per-entry reload flags
+are written to unique evidence files. The normal PlayMode selector uses exact fixture names and
+its evidence comparison requires the exact three added normal cases. Original producer evidence
+and frozen payloads remain historical; never reapply them over authorized repairs. Fresh repair
+results and raw scene/settings/policy/proof cleanup observations are recorded in
+`Docs/reports/horizon1-boundaries/service-architecture/ui-p3/review/fixes/README.md`.

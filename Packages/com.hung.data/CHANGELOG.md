@@ -1,7 +1,26 @@
+## Unreleased - H1-D GameConfig compatibility repair
+
+- Repair the package GameConfig asset's script reference to the existing GameConfig type.
+- Preserve its asset identity, policy values, serialized schema and legacy DataManager API.
+- Keep product Data integration, config ownership migration and unrelated AdsData/prefab bindings separate.
+
+## Unreleased - Horizon 1 BW4
+
+- Add explicit focused Item/reward composition with immutable offers, unavailable defaults and selected recoverable DailyReward/SpinWheel sessions/views.
+- Preserve shipped IDs, historical claim/fingerprint bytes and legacy APIs/assets. Selected feature schema 2 requires explicit composition and its own rollback disposition.
+- Package evidence is distinct from deferred game/player/consumer adoption.
+
 # Changelog
+
+## Unreleased - Horizon 1 Data-first
+
+- Define the explicit selected-definition composition path and retain legacy compatibility.
+
 
 ## [0.13.0] - Unreleased
 
+- `ItemIdCodeGenerator` delegates to Base `StableIdCodeGenerator`; output is byte-identical.
+- Migrate affected service ownership to read-only Locator/ServiceSlots registration and exact-instance cleanup. Base adds explicit Ads/IAP Unsupported defaults and removes product gameplay contracts; see Base migration notes. Unreleased source; consumers are not automatically upgraded.
 - Respect product-owned automatic startup selection before installing default persistence.
 
 ## [Unreleased]

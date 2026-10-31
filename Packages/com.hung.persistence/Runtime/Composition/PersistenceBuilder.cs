@@ -22,8 +22,7 @@ namespace Hung.Data.Persistence
         private ICanonicalEvidenceStore evidence;
         private bool protectorConfigured;
         private readonly List<Action<PersistenceService>> registrations = new List<Action<PersistenceService>>();
-        private readonly HashSet<string> registeredKeys = new HashSet<string>(StringComparer.Ordinal);
-        private readonly HashSet<Type> registeredModelTypes = new HashSet<Type>();
+        private readonly List<SaveDefinition> definitions = new List<SaveDefinition>();
 
         public PersistenceBuilder WithRoot(string rootPath)
         {
@@ -123,11 +122,14 @@ namespace Hung.Data.Persistence
         {
             if (definition == null)
                 throw new ArgumentNullException(nameof(definition));
-            if (!registeredKeys.Add(definition.Key))
-                throw new InvalidOperationException($"Persistence definition key '{definition.Key}' is already registered.");
-            if (!registeredModelTypes.Add(typeof(T)))
-                throw new InvalidOperationException($"Persistence definition model type '{typeof(T)}' is already registered.");
-
+            var candidate = new List<SaveDefinition>(definitions) { definition };
+            try { SaveDefinitionSet.Validate(candidate); }
+            catch (ArgumentException exception)
+            {
+                // Preserve the builder's existing InvalidOperationException contract.
+                throw new InvalidOperationException(exception.Message, exception);
+            }
+            definitions.Add(definition);
             registrations.Add(service => service.Register(definition));
             return this;
         }
@@ -141,6 +143,7 @@ namespace Hung.Data.Persistence
             if (!protectorConfigured)
                 throw new InvalidOperationException("Persistence protector is not configured. Call WithHmacProtection or WithProtector before Build.");
 
+            SaveDefinitionSet.Validate(definitions);
             ISaveDiagnostics resolvedDiagnostics = diagnostics ?? NullSaveDiagnostics.Instance;
             var store = new FileSaveStore(root, operations);
             var service = new PersistenceService(store, legacy, resolvedDiagnostics, evidence);

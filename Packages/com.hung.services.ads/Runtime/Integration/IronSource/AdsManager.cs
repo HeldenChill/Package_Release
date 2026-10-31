@@ -15,6 +15,8 @@ namespace Hung.Ads
     [DefaultExecutionOrder(-50)]
     public class AdsManager : Singleton<AdsManager>, IAdsService
     {
+        private IPauseService ownedPause;
+
         public Action<float> _OnLoadingProgress { get; set; }
         protected int MAX_INIT_RETRY = 5;
         protected int currentRetry = 0;
@@ -68,13 +70,16 @@ namespace Hung.Ads
 
         protected void Awake()
         {
+            if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IAdsService>(this, this)) return;
+
             DontDestroyOnLoad(gameObject);
             if (Locator.Pause == null)
             {
                 float runningScale = Time.timeScale > 0f ? Time.timeScale : 1f;
-                Locator.Pause = new PauseService(new UnityTimeScale(), runningScale);
+                ownedPause = new PauseService(new UnityTimeScale(), runningScale);
+                ServiceSlots.Register<IPauseService>(ownedPause);
             }
-            Locator.Ads = this;
+            ServiceSlots.Register<IAdsService>(this);
             timer = TimerManager.Ins.PopSTimer();
             currentRetry = 0;
 #if UNITY_ANDROID
@@ -190,6 +195,10 @@ namespace Hung.Ads
         }
         private void OnDestroy()
         {
+            if (ownedPause != null) ServiceSlots.Unregister<IPauseService>(ownedPause);
+
+            ServiceSlots.Unregister<IAdsService>(this);
+
             LevelPlay.OnInitSuccess -= LevelPlayInitializationCompletedEvent;
             LevelPlay.OnInitFailed -= LevelPlayInitializationFailedEvent;
             LevelPlay.OnImpressionDataReady -= OnImpressionDataReady;

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Hung.Base;
 using UnityEditor;
 
 namespace Hung.Base.Editor
 {
+    /// <summary>Diagnostic record for an <see cref="ItemId"/> defined across multiple sources with conflicting labels or group paths.</summary>
     public sealed class ItemIdEditorConflict
     {
         internal ItemIdEditorConflict(ItemId id, ItemIdEditorOption first, ItemIdEditorOption second)
@@ -16,152 +16,206 @@ namespace Hung.Base.Editor
             Second = second;
         }
 
+        /// <summary>Gets the conflicting item identifier.</summary>
         public ItemId Id { get; }
+
+        /// <summary>Gets the first option definition registered for this identifier.</summary>
         public ItemIdEditorOption First { get; }
+
+        /// <summary>Gets the conflicting second option definition.</summary>
         public ItemIdEditorOption Second { get; }
     }
 
+    /// <summary>Editor registry managing discovered and explicitly registered <see cref="ItemId"/> options.</summary>
     [InitializeOnLoad]
     public sealed class ItemIdEditorRegistry
     {
-        private static readonly ItemIdEditorRegistry SharedRegistry =
-            new ItemIdEditorRegistry(DiscoverSources);
+        private static readonly ItemIdEditorRegistry SharedRegistry = new ItemIdEditorRegistry(
+            new StableIdEditorRegistry<ItemId>(CreateSharedSources));
 
-        private readonly Func<IEnumerable<IItemIdEditorSource>> sourceFactory;
-        private IReadOnlyList<ItemIdEditorOption> cachedOptions;
-        private IReadOnlyList<ItemIdEditorConflict> conflicts = Array.Empty<ItemIdEditorConflict>();
-        private static readonly List<IItemIdEditorSource> RegisteredSources = new();
+        private readonly StableIdEditorRegistry<ItemId> core;
+        private IReadOnlyList<ItemIdEditorOption> cachedMappedOptions;
+        private IReadOnlyList<ItemIdEditorConflict> cachedMappedConflicts;
+        private IReadOnlyList<StableIdEditorOption<ItemId>> lastCoreOptions;
+        private IReadOnlyList<StableIdEditorConflict<ItemId>> lastCoreConflicts;
 
-        static ItemIdEditorRegistry()
-        {
-            EditorApplication.projectChanged -= InvalidateShared;
-            EditorApplication.projectChanged += InvalidateShared;
-            AssemblyReloadEvents.afterAssemblyReload -= InvalidateShared;
-            AssemblyReloadEvents.afterAssemblyReload += InvalidateShared;
-        }
-
+        /// <summary>Initializes a new instance of the <see cref="ItemIdEditorRegistry"/> class with explicit sources, prepending BaseItemIds.</summary>
+        /// <param name="sources">The sequence of sources to supply options.</param>
         public ItemIdEditorRegistry(IEnumerable<IItemIdEditorSource> sources)
-            : this(() => new[] { (IItemIdEditorSource)new BaseItemIdsEditorSource() }
-                .Concat(sources ?? Array.Empty<IItemIdEditorSource>()))
+            : this(new StableIdEditorRegistry<ItemId>(() =>
+                new IStableIdEditorSource<ItemId>[] { new StableIdConstantsSource<ItemId>(typeof(BaseItemIds)) }
+                    .Concat((sources ?? Array.Empty<IItemIdEditorSource>()).Where(s => s != null).Select(s => (IStableIdEditorSource<ItemId>)new LegacySourceAdapter(s)))))
         {
         }
 
+        /// <summary>Initializes a new instance of the <see cref="ItemIdEditorRegistry"/> class with a source factory delegate, prepending BaseItemIds.</summary>
+        /// <param name="sourceFactory">Factory delegate returning sources.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="sourceFactory"/> is null.</exception>
         public ItemIdEditorRegistry(Func<IEnumerable<IItemIdEditorSource>> sourceFactory)
+            : this(new StableIdEditorRegistry<ItemId>(() =>
+            {
+                if (sourceFactory == null) throw new ArgumentNullException(nameof(sourceFactory));
+                return new IStableIdEditorSource<ItemId>[] { new StableIdConstantsSource<ItemId>(typeof(BaseItemIds)) }
+                    .Concat((sourceFactory() ?? Array.Empty<IItemIdEditorSource>()).Where(s => s != null).Select(s => (IStableIdEditorSource<ItemId>)new LegacySourceAdapter(s)));
+            }))
         {
-            this.sourceFactory = sourceFactory ?? throw new ArgumentNullException(nameof(sourceFactory));
+            if (sourceFactory == null) throw new ArgumentNullException(nameof(sourceFactory));
         }
 
-        public static ItemIdEditorRegistry Shared => SharedRegistry;
-        public IReadOnlyList<ItemIdEditorConflict> Conflicts => conflicts;
+        internal ItemIdEditorRegistry(StableIdEditorRegistry<ItemId> core)
+        {
+            this.core = core ?? throw new ArgumentNullException(nameof(core));
+        }
 
+        /// <summary>Gets the shared default registry instance for <see cref="ItemId"/>.</summary>
+        public static ItemIdEditorRegistry Shared => SharedRegistry;
+
+        internal StableIdEditorRegistry<ItemId> Core => core;
+
+        /// <summary>Gets the list of detected conflicts across registered item options.</summary>
+        public IReadOnlyList<ItemIdEditorConflict> Conflicts
+        {
+            get
+            {
+                IReadOnlyList<StableIdEditorConflict<ItemId>> coreConflicts = core.Conflicts;
+                if (cachedMappedConflicts != null && ReferenceEquals(lastCoreConflicts, coreConflicts))
+                    return cachedMappedConflicts;
+
+                var mapped = new ItemIdEditorConflict[coreConflicts.Count];
+                for (int i = 0; i < coreConflicts.Count; i++)
+                {
+                    StableIdEditorConflict<ItemId> c = coreConflicts[i];
+                    mapped[i] = new ItemIdEditorConflict(
+                        c.Id,
+                        new ItemIdEditorOption(c.First.Id, c.First.Label, c.First.GroupPath),
+                        new ItemIdEditorOption(c.Second.Id, c.Second.Label, c.Second.GroupPath));
+                }
+
+                cachedMappedConflicts = mapped;
+                lastCoreConflicts = coreConflicts;
+                return cachedMappedConflicts;
+            }
+        }
+
+        /// <summary>Registers an explicit legacy source provider for <see cref="ItemId"/>.</summary>
+        /// <param name="source">The source provider to register.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
         public static void RegisterSource(IItemIdEditorSource source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            lock (RegisteredSources)
-            {
-                if (!RegisteredSources.Contains(source))
-                    RegisteredSources.Add(source);
-            }
-
-            SharedRegistry.Invalidate();
+            StableIdEditorRegistry<ItemId>.RegisterSource(new LegacySourceAdapter(source));
         }
 
+        internal static bool UnregisterSourceForTests(IItemIdEditorSource source)
+        {
+            if (source == null) return false;
+            return StableIdEditorRegistry<ItemId>.UnregisterSourceForTests(new LegacySourceAdapter(source));
+        }
+
+        /// <summary>Gets all resolved options for this registry, rebuilding from sources if cache is invalid.</summary>
+        /// <returns>Read-only list of item editor options.</returns>
         public IReadOnlyList<ItemIdEditorOption> GetOptions()
         {
-            if (cachedOptions != null) return cachedOptions;
-            cachedOptions = Build(sourceFactory(), out IReadOnlyList<ItemIdEditorConflict> diagnostics);
-            conflicts = diagnostics;
-            return cachedOptions;
+            IReadOnlyList<StableIdEditorOption<ItemId>> coreOptions = core.GetOptions();
+            if (cachedMappedOptions != null && ReferenceEquals(lastCoreOptions, coreOptions))
+                return cachedMappedOptions;
+
+            var mapped = new ItemIdEditorOption[coreOptions.Count];
+            for (int i = 0; i < coreOptions.Count; i++)
+            {
+                StableIdEditorOption<ItemId> opt = coreOptions[i];
+                mapped[i] = new ItemIdEditorOption(opt.Id, opt.Label, opt.GroupPath);
+            }
+
+            cachedMappedOptions = mapped;
+            lastCoreOptions = coreOptions;
+            return cachedMappedOptions;
         }
 
+        /// <summary>Determines whether the specified item identifier is unknown (valid but not registered).</summary>
+        /// <param name="id">The item identifier to check.</param>
+        /// <returns><c>true</c> if valid and not registered; otherwise, <c>false</c>.</returns>
         public bool IsUnknown(ItemId id)
         {
-            return id.IsValid && !GetOptions().Any(option => option.Id == id);
+            return core.IsUnknown(id);
         }
 
+        /// <summary>Attempts to parse a custom item identifier string.</summary>
+        /// <param name="raw">The raw string to parse.</param>
+        /// <param name="id">The parsed identifier, or default if invalid.</param>
+        /// <returns><c>true</c> if valid; otherwise, <c>false</c>.</returns>
         public bool TryParseCustomId(string raw, out ItemId id)
         {
             return ItemId.TryParse(raw, out id);
         }
 
+        /// <summary>Invalidates cached options and conflict diagnostics.</summary>
         public void Invalidate()
         {
-            cachedOptions = null;
-            conflicts = Array.Empty<ItemIdEditorConflict>();
+            core.Invalidate();
+            cachedMappedOptions = null;
+            cachedMappedConflicts = null;
+            lastCoreOptions = null;
+            lastCoreConflicts = null;
         }
 
+        /// <summary>Builds and merges options from the given sources, resolving duplicates and reporting conflicts.</summary>
+        /// <param name="sources">The sources to collect options from.</param>
+        /// <param name="conflicts">Diagnostic list of conflicting option definitions.</param>
+        /// <returns>Ordered, merged array of item editor options.</returns>
         public static IReadOnlyList<ItemIdEditorOption> Build(
             IEnumerable<IItemIdEditorSource> sources,
             out IReadOnlyList<ItemIdEditorConflict> conflicts)
         {
-            var rows = new List<ItemIdEditorOption>();
-            var diagnostics = new List<ItemIdEditorConflict>();
-            foreach (IItemIdEditorSource source in sources ?? Array.Empty<IItemIdEditorSource>())
+            IEnumerable<IStableIdEditorSource<ItemId>> adaptedSources = (sources ?? Array.Empty<IItemIdEditorSource>())
+                .Where(s => s != null)
+                .Select(s => (IStableIdEditorSource<ItemId>)new LegacySourceAdapter(s));
+
+            IReadOnlyList<StableIdEditorOption<ItemId>> coreOptions =
+                StableIdEditorRegistry<ItemId>.Build(adaptedSources, out IReadOnlyList<StableIdEditorConflict<ItemId>> coreConflicts);
+
+            var mappedOptions = new ItemIdEditorOption[coreOptions.Count];
+            for (int i = 0; i < coreOptions.Count; i++)
             {
-                if (source == null) continue;
-                IEnumerable<ItemIdEditorOption> options = source.GetOptions();
-                if (options == null) continue;
-                rows.AddRange(options.Where(option => option.Id.IsValid));
+                StableIdEditorOption<ItemId> opt = coreOptions[i];
+                mappedOptions[i] = new ItemIdEditorOption(opt.Id, opt.Label, opt.GroupPath);
             }
 
-            var selected = new Dictionary<ItemId, ItemIdEditorOption>();
-            foreach (ItemIdEditorOption row in rows.OrderBy(option => option.Id.Value, StringComparer.Ordinal)
-                                                   .ThenBy(option => option.Label, StringComparer.Ordinal)
-                                                   .ThenBy(option => option.GroupPath, StringComparer.Ordinal))
+            var mappedConflicts = new ItemIdEditorConflict[coreConflicts.Count];
+            for (int i = 0; i < coreConflicts.Count; i++)
             {
-                if (!selected.TryGetValue(row.Id, out ItemIdEditorOption existing))
-                {
-                    selected.Add(row.Id, row);
-                    continue;
-                }
-
-                if (!string.Equals(existing.Label, row.Label, StringComparison.Ordinal) ||
-                    !string.Equals(existing.GroupPath, row.GroupPath, StringComparison.Ordinal))
-                    diagnostics.Add(new ItemIdEditorConflict(row.Id, existing, row));
+                StableIdEditorConflict<ItemId> c = coreConflicts[i];
+                mappedConflicts[i] = new ItemIdEditorConflict(
+                    c.Id,
+                    new ItemIdEditorOption(c.First.Id, c.First.Label, c.First.GroupPath),
+                    new ItemIdEditorOption(c.Second.Id, c.Second.Label, c.Second.GroupPath));
             }
 
-            conflicts = diagnostics;
-            return selected.Values
-                .OrderBy(option => option.GroupPath, StringComparer.Ordinal)
-                .ThenBy(option => option.Id.Value, StringComparer.Ordinal)
-                .ToArray();
+            conflicts = mappedConflicts;
+            return mappedOptions;
         }
 
-        private static IEnumerable<IItemIdEditorSource> DiscoverSources()
+        private static IEnumerable<IStableIdEditorSource<ItemId>> CreateSharedSources()
         {
-            var sources = new List<IItemIdEditorSource>
+            var sources = new List<IStableIdEditorSource<ItemId>>
             {
-                new BaseItemIdsEditorSource()
+                new StableIdConstantsSource<ItemId>(typeof(BaseItemIds))
             };
-            lock (RegisteredSources) sources.AddRange(RegisteredSources);
+            sources.AddRange(StableIdEditorRegistry<ItemId>.DefaultSources());
 
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Type sourceType in StableIdDefinitionScan.SourceTypes)
             {
-                if (IsTestAssembly(assembly)) continue;
-                Type[] types;
-                try { types = assembly.GetTypes(); }
-                catch (ReflectionTypeLoadException exception)
+                if (typeof(IItemIdEditorSource).IsAssignableFrom(sourceType))
                 {
-                    types = exception.Types.Where(type => type != null).ToArray();
-                }
-
-                foreach (Type type in types.Where(IsDefinitionType))
-                {
-                    if (type == typeof(BaseItemIds) || type == typeof(ItemIdEditorRegistry)) continue;
-                    IItemIdEditorSource source = TryCreateSource(type);
-                    if (source != null) sources.Add(source);
-                    if (type.IsAbstract || !type.IsClass) continue;
-                    foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+                    try
                     {
-                        if (field.FieldType != typeof(ItemId)) continue;
-                        if (field.GetValue(null) is ItemId id && id.IsValid)
-                            sources.Add(new SingleItemIdEditorSource(id, field.Name));
+                        var instance = (IItemIdEditorSource)Activator.CreateInstance(sourceType);
+                        if (instance != null)
+                            sources.Add(new LegacySourceAdapter(instance));
                     }
-                    foreach (PropertyInfo property in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+                    catch
                     {
-                        if (property.PropertyType != typeof(ItemId) || property.GetMethod == null) continue;
-                        if (property.GetValue(null) is ItemId id && id.IsValid)
-                            sources.Add(new SingleItemIdEditorSource(id, property.Name));
+                        // Skip failed instantiation
                     }
                 }
             }
@@ -169,66 +223,35 @@ namespace Hung.Base.Editor
             return sources;
         }
 
-        private static bool IsDefinitionType(Type type)
+        private sealed class LegacySourceAdapter : IStableIdEditorSource<ItemId>, IEquatable<LegacySourceAdapter>
         {
-            return type.IsClass && type.IsPublic && type.Namespace != null &&
-                !type.Namespace.StartsWith("System", StringComparison.Ordinal);
-        }
+            private readonly IItemIdEditorSource inner;
 
-        private static IItemIdEditorSource TryCreateSource(Type type)
-        {
-            if (!typeof(IItemIdEditorSource).IsAssignableFrom(type) ||
-                type.IsAbstract || type.GetConstructor(Type.EmptyTypes) == null)
-                return null;
-            try { return (IItemIdEditorSource)Activator.CreateInstance(type); }
-            catch { return null; }
-        }
-
-        private static bool IsTestAssembly(Assembly assembly)
-        {
-            string name = assembly.GetName().Name ?? string.Empty;
-            return name.IndexOf("test", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                name.IndexOf("nunit", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static void InvalidateShared()
-        {
-            SharedRegistry.Invalidate();
-        }
-
-        private sealed class BaseItemIdsEditorSource : IItemIdEditorSource
-        {
-            public IEnumerable<ItemIdEditorOption> GetOptions()
+            public LegacySourceAdapter(IItemIdEditorSource inner)
             {
-                foreach (FieldInfo field in typeof(BaseItemIds).GetFields(BindingFlags.Public | BindingFlags.Static))
+                this.inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            }
+
+            public IEnumerable<StableIdEditorOption<ItemId>> GetOptions()
+            {
+                IEnumerable<ItemIdEditorOption> options = inner.GetOptions();
+                if (options == null) yield break;
+                foreach (ItemIdEditorOption o in options)
                 {
-                    if (field.GetValue(null) is ItemId id && id.IsValid)
-                        yield return new ItemIdEditorOption(id, field.Name, GetGroup(id));
+                    yield return new StableIdEditorOption<ItemId>(o.Id, o.Label, o.GroupPath);
                 }
             }
-        }
 
-        private sealed class SingleItemIdEditorSource : IItemIdEditorSource
-        {
-            private readonly ItemId id;
-            private readonly string label;
-
-            public SingleItemIdEditorSource(ItemId id, string label)
+            public bool Equals(LegacySourceAdapter other)
             {
-                this.id = id;
-                this.label = label;
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return ReferenceEquals(inner, other.inner);
             }
 
-            public IEnumerable<ItemIdEditorOption> GetOptions()
-            {
-                yield return new ItemIdEditorOption(id, label, GetGroup(id));
-            }
-        }
+            public override bool Equals(object obj) => obj is LegacySourceAdapter other && Equals(other);
 
-        private static string GetGroup(ItemId id)
-        {
-            int separator = id.Value.IndexOf('.', StringComparison.Ordinal);
-            return separator > 0 ? id.Value.Substring(0, separator) : string.Empty;
+            public override int GetHashCode() => inner != null ? inner.GetHashCode() : 0;
         }
     }
 }

@@ -174,28 +174,8 @@ namespace Hung.Data.Tests.Persistence
                 new PlainJsonSaveCodec(), new Sha256SaveProtector(), SaveFailurePolicy.FailClosed);
         }
 
-        // Product composition example. This is deliberately not a new runtime registry.
-        // Call this before constructing a builder, key provider or physical store.
-        private static void Preflight(IReadOnlyList<SaveDefinition> selected)
-        {
-            var types = new HashSet<Type>();
-            var names = new Dictionary<string, SaveDefinition>(StringComparer.Ordinal);
-            foreach (SaveDefinition definition in selected)
-            {
-                if (definition == null || !types.Add(definition.ModelType))
-                    throw new ArgumentException("Duplicate or invalid selected model type.");
-                var ownNames = new List<string> { definition.Key };
-                ownNames.AddRange(definition.LegacyPlayerPrefsKeys);
-                foreach (string name in ownNames)
-                {
-                    if (names.TryGetValue(name, out SaveDefinition owner) && !ReferenceEquals(owner, definition))
-                        throw new ArgumentException("Selected save name has multiple owners: " + name);
-                    // Own canonical key may also be its own alias. Duplicate aliases
-                    // within one definition already fail SaveDefinition construction.
-                    names[name] = definition;
-                }
-            }
-        }
+        // Use the shared metadata-only preflight before constructing any key/store dependencies.
+        private static void Preflight(IReadOnlyList<SaveDefinition> selected) => SaveDefinitionSet.Validate(selected);
 
         [Test]
         public void BuilderRegistersOnlySelectedModelAndTouchesOnlyItsLegacyAliases()

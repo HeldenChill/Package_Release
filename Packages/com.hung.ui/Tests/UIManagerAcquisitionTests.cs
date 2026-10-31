@@ -189,7 +189,7 @@ namespace Hung.UI.Tests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 if (loaded != null) UnityEngine.Object.DestroyImmediate(loaded.gameObject);
                 if (managerObject != null) UnityEngine.Object.DestroyImmediate(managerObject);
             }
@@ -222,7 +222,7 @@ namespace Hung.UI.Tests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 if (loaded != null) UnityEngine.Object.DestroyImmediate(loaded.gameObject);
                 UnityEngine.Object.DestroyImmediate(managerObject);
             }
@@ -254,7 +254,7 @@ namespace Hung.UI.Tests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 UnityEngine.Object.DestroyImmediate(managerObject);
                 UnityEngine.Object.DestroyImmediate(wrongPrefab);
             }
@@ -268,7 +268,7 @@ namespace Hung.UI.Tests
             try
             {
                 UIManager manager = managerObject.AddComponent<UIManager>();
-                Locator.UI = manager;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>()); Hung.Base.ServiceSlots.Register<IUIService>(manager);
                 var canvas = canvasObject.GetComponent<AsyncProbeCanvas>();
 
                 Assert.IsFalse(manager.IsInBackStack(canvas));
@@ -284,7 +284,7 @@ namespace Hung.UI.Tests
             }
             finally
             {
-                Locator.UI = null;
+                Hung.Base.ServiceSlots.Unregister<IUIService>(Hung.Base.ServiceSlots.Get<IUIService>());
                 UnityEngine.Object.DestroyImmediate(canvasObject);
                 UnityEngine.Object.DestroyImmediate(managerObject);
             }

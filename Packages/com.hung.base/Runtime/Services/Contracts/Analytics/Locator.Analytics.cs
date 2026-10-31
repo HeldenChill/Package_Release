@@ -2,11 +2,7 @@ namespace Hung.Base
 {
     public static partial class Locator
     {
-        private static IAnalyticsService analytics;
-        public static IAnalyticsService Analytics
-        {
-            get => analytics;
-            set => analytics = value;
-        }
+        /// <summary>Resolves Analytics through the framework registry.</summary>
+        public static IAnalyticsService Analytics => ServiceSlots.Get<IAnalyticsService>();
     }
 }
