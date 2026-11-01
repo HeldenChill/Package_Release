@@ -1,0 +1,19 @@
+{
+    "name": "Hung.Tutorial.Editor",
+    "rootNamespace": "Hung.Tutorial.EditorTools",
+    "references": [
+        "Hung.Base",
+        "Hung.Tutorial"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

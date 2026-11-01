@@ -1,0 +1,24 @@
+{
+    "name": "Hung.Tutorial",
+    "rootNamespace": "Hung.Tutorial",
+    "references": [
+        "Hung.Base",
+        "Hung.UI",
+        "Hung.Data",
+        "Hung.Utilities",
+        "Hung.Utilities.STimer",
+        "Hung.DesignPattern",
+        "DOTween.Modules",
+        "Unity.TextMeshPro",
+        "Sirenix.OdinInspector.Attributes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

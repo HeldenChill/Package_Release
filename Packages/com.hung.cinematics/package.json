@@ -1,0 +1,14 @@
+{
+  "name": "com.hung.cinematics",
+  "version": "0.1.0",
+  "displayName": "Hung Cinematics",
+  "description": "Standalone cinematic playback and camera lease package.",
+  "unity": "6000.0",
+  "keywords": [
+    "cinematics",
+    "layer:4"
+  ],
+  "dependencies": {
+    "com.unity.cinemachine": "3.1.5"
+  }
+}

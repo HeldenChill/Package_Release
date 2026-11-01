@@ -1,0 +1,18 @@
+{
+    "name": "Hung.AI.TestDoubles",
+    "rootNamespace": "Hung.AI.Tests",
+    "references": [
+        "Hung.AI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
