@@ -1,14 +1,14 @@
 {
   "name": "com.hung.character",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "displayName": "Hung Character",
   "description": "Character core: modular Character<TDef,TStats> with Logic/Physic/WorldInterface/Brain systems and asset-driven PlayerInput. AI comes from the optional com.hung.ai bridge (Hung.Character.AI). Canon source: Horror1Game.",
   "unity": "2022.3",
   "dependencies": {
-    "com.hung.designpattern": "0.5.0",
-    "com.hung.utilities": "0.2.3",
-    "com.hung.base": "0.28.0",
-    "com.hung.data": "0.14.0",
+    "com.hung.designpattern": "0.5.1",
+    "com.hung.utilities": "0.2.4",
+    "com.hung.base": "0.28.1",
+    "com.hung.data": "0.14.1",
     "com.unity.inputsystem": "1.18.0"
   },
   "keywords": [

@@ -1,11 +1,16 @@
 # Changelog
 
+## [0.5.1] - 2026-11-02
+
+- Shared `SimplePool` and `ParticlePool` now clear their static state on `SubsystemRegistration`, so Domain Reload disabled plays start with fresh pools. Additive: no public API, serialized field or enum change.
+
 ## [0.5.0] - Unreleased
 
 - Publish reviewed scoped pooling/state-machine additions with retained legacy compatibility.
 
 ## [Unreleased]
 ### Fixed
+- Shared `SimplePool` and `ParticlePool` now clear their static state on `SubsystemRegistration`, so Domain Reload disabled plays start with fresh pools.
 - Scoped Spawn/Play revalidate ownership after Unity callbacks, rejecting returned, disposed or reused checkouts without affecting a nested valid checkout.
 - Destroyed scoped instances now retire from all ownership indexes, inactive queues, pending return requests and particle completion tracking.
 ### Added

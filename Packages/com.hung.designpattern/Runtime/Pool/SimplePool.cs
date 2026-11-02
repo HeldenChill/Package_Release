@@ -21,6 +21,16 @@ namespace Hung.DesignPattern
         // All of our pools
         private static readonly Dictionary<int, Pool> PoolInstanceID = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSession()
+        {
+            Pools.Clear();
+            PoolTypes.Clear();
+            PoolInstanceID.Clear();
+            _gameUnitResources = null;
+            _root = null;
+        }
+
         private static Transform Root
         {
             get

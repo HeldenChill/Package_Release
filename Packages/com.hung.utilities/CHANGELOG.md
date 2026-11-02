@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.4] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.2.3] - Unreleased
 
 - Update declared dependency versions for the tested P2-C cohort; this does not activate optional product features.

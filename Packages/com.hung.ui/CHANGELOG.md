@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.1] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.9.0] - 2026-10-31
 
 - Repair UI-C0 test isolation: require an explicitly armed Editor repeat-play protocol, record actual entry flags, exclude the witness with an exact normal-fixture selector, and reject unexpected passing PlayMode identities. Add an unarmed-state regression; production UI behavior is unchanged by these review repairs.

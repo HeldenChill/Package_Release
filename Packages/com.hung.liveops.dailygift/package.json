@@ -1,6 +1,6 @@
 {
   "name": "com.hung.liveops.dailygift",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "displayName": "Hung LiveOps DailyGift",
   "description": "Daily gift LiveOps feature: manager, popups, install prefab. Contracts live in com.hung.base, data models in com.hung.data.",
   "unity": "2022.3",
@@ -9,10 +9,10 @@
     "liveops"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.5.0",
-    "com.hung.base": "0.28.0",
-    "com.hung.data": "0.14.0",
-    "com.hung.ui": "0.9.0"
+    "com.hung.designpattern": "0.5.1",
+    "com.hung.base": "0.28.1",
+    "com.hung.data": "0.14.1",
+    "com.hung.ui": "0.9.1"
   },
   "samples": [
     {

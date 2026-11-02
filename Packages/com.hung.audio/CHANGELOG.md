@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.1] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.4.0] - 2026-10-31
 
 - Fixed player configuration validation to match runtime Resources lookup, reject nested duplicates, exclude Editor-only configurations, and preserve named diagnostic codes.

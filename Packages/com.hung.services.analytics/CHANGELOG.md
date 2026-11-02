@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.1] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.7.0] - 2026-10-31
 
 - Automatic startup now runs as `AutomaticPluginHost` feature `services.analytics` (optional, no dependencies). It is declared at `AfterAssembliesLoaded` only when the Editor suppression key, `AutomaticStartupProfile.legacyAnalytics` and `PluginStartupPolicy` all allow it. The host shuts it down on quit or the next play reset (deferred hold discarded, tracking runner destroyed, own slots released; vendor SDKs are not stopped). The `BeforeSceneLoad` `AnalyticsBootstrap.Boot` hook is removed. Explicit `Install` and `InstallDeferred` are unchanged.

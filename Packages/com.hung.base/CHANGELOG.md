@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.28.1] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.28.0] - 2026-10-31
 
 - Add explicit focused Item/reward composition with immutable offers, unavailable defaults and selected recoverable DailyReward/SpinWheel sessions/views.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.14.1] - 2026-11-02
+
+- Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
+
 ## [0.14.0] - 2026-10-31
 
 - Repair the package GameConfig asset's script reference to the existing GameConfig type.

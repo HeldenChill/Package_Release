@@ -2,6 +2,8 @@
 Shared design patterns: Pool (SimplePool, ParticlePool, GameUnit), EventBus, StateMachine, Singleton.
 No dependencies.
 
+- SimplePool and ParticlePool clear static caches on SubsystemRegistration for domain reload safety.
+
 ## Scoped pooling and generic state machine
 
 The additive scoped API is in `Hung.DesignPattern.ScopedPooling`; legacy
