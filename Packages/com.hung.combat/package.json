@@ -1,6 +1,6 @@
 {
   "name": "com.hung.combat",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "displayName": "Hung Combat",
   "description": "Damage pipeline + status-effect system. Three assemblies: Hung.Combat.Core (shared contracts), Hung.Combat (damage calculator/pipeline), Hung.StatusEffect (effects + synergy). REQUIRES Sirenix Odin Inspector (imported asset) for the StatusEffect config SOs.",
   "unity": "2022.3",
@@ -10,7 +10,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.5.1",
     "com.hung.utilities": "0.2.4",
-    "com.hung.base": "0.29.0",
-    "com.hung.data": "0.14.2"
+    "com.hung.base": "0.30.0",
+    "com.hung.data": "0.14.3"
   }
 }

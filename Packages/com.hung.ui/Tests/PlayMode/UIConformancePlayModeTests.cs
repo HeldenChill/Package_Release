@@ -3,6 +3,7 @@ using System.Collections;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hung.Base;
+using Hung.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -45,17 +46,17 @@ namespace Hung.UI.PlayModeTests
             {
                 firstRoot = new GameObject("UI-C0 accepted owner", typeof(UIManager));
                 var first = firstRoot.GetComponent<UIManager>();
-                Assert.AreSame(first, Locator.UI);
+                Assert.AreSame(first, UILocator.Service);
                 LogAssert.Expect(LogType.Error, "[ServiceSlots] Active scene owner already exists for IUIService.");
                 secondRoot = new GameObject("UI-C0 rejected owner", typeof(UIManager));
                 Assert.IsFalse(secondRoot.GetComponent<UIManager>().enabled);
-                Assert.AreSame(first, Locator.UI);
+                Assert.AreSame(first, UILocator.Service);
                 UnityEngine.Object.Destroy(secondRoot);
                 yield return null;
-                Assert.AreSame(first, Locator.UI);
+                Assert.AreSame(first, UILocator.Service);
                 UnityEngine.Object.Destroy(firstRoot);
                 yield return null;
-                Assert.IsNull(Locator.UI);
+                Assert.IsNull(UILocator.Service);
             }
             finally
             {
@@ -86,7 +87,7 @@ namespace Hung.UI.PlayModeTests
                 Assert.AreEqual(UIAcquireFailure.ManagerDestroyed, task.Result.Failure);
                 Assert.IsNull(task.Result.Canvas);
                 Assert.AreEqual(1, provider.Releases);
-                Assert.IsNull(Locator.UI);
+                Assert.IsNull(UILocator.Service);
             }
             finally
             {

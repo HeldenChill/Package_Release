@@ -1,6 +1,6 @@
 {
   "name": "com.hung.liveops.piggybank",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "displayName": "Hung LiveOps PiggyBank",
   "description": "PiggyBank LiveOps feature: manager, popup. Contracts live in com.hung.base, data models in com.hung.data.",
   "unity": "2022.3",
@@ -11,9 +11,9 @@
   "dependencies": {
     "com.hung.designpattern": "0.5.1",
     "com.hung.utilities": "0.2.4",
-    "com.hung.base": "0.29.0",
-    "com.hung.data": "0.14.2",
-    "com.hung.ui": "0.9.2"
+    "com.hung.base": "0.30.0",
+    "com.hung.data": "0.14.3",
+    "com.hung.ui": "0.10.0"
   },
   "samples": [
     {

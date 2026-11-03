@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Hung.Base.Init
 {
     using Hung.DesignPattern;
-    using Hung.UI;
 
     public class DebugManager : SimpleSingleton<DebugManager>
     {
@@ -23,7 +22,6 @@ namespace Hung.Base.Init
         protected bool isShowAds = false;
         [SerializeField]
         protected bool isUseIap = false;
-        List<UICanvas> DebugCanvass = new List<UICanvas>();
 
         protected int level = -1;
         public int Level => level;
@@ -35,23 +33,6 @@ namespace Hung.Base.Init
         /// </summary>
         /// <param name="value">True to enable IAP; false to disable.</param>
         public void SetUseIap(bool value) => isUseIap = value;
-
-        //public void OpenDebugCanvas(UI_POSITION position)
-        //{
-        //    if(position == UI_POSITION.NONE) return;
-        //    for (int i = 0; i < DebugCanvass.Count; i++)
-        //    {
-        //        DebugCanvass[i].Close();
-        //    }
-        //    UICanvas canvas;       
-        //    switch (position)
-        //    {
-        //        case UI_POSITION.MAIN_MENU:
-        //            break;
-        //        case UI_POSITION.IN_GAME:
-        //            break;
-        //    }
-        //}
 
         public virtual void OnInit(bool isDebugFps, bool isDebugLog, bool isShowAds, bool isUseIap, int level = -1)
         {

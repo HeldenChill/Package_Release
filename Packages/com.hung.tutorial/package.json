@@ -1,6 +1,6 @@
 {
   "name": "com.hung.tutorial",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "displayName": "Hung Tutorial",
   "description": "Tutorial graph runtime: state machine, coordinate resolver, hand/callout/video UI, graph editor window.",
   "unity": "2022.3",
@@ -10,8 +10,8 @@
   "dependencies": {
     "com.hung.designpattern": "0.5.1",
     "com.hung.utilities": "0.2.4",
-    "com.hung.base": "0.29.0",
-    "com.hung.data": "0.14.2",
-    "com.hung.ui": "0.9.2"
+    "com.hung.base": "0.30.0",
+    "com.hung.data": "0.14.3",
+    "com.hung.ui": "0.10.0"
   }
 }

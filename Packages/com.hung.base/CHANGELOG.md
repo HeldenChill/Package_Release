@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.30.0] - 2026-11-03
+### Added
+- `InitToggle`: plain MonoBehaviour toggle control with `ValueChanged` event, null-safe lifecycle, and XML documentation for base init flow.
+### Removed
+- UI contract types moved to `com.hung.ui`: `IUIAcquisitionService`, `IUIService`, `UIAcquireResult`, `UIBackStack`, `UICanvas`, `UIToggle`, `UITransition`, `Scoping/IScopedUi`, `Scoping/UiScope`, `Scoping/UiScopePath`, `Scoping/UiScopeRegistry`.
+- `Locator.UI`: replaced by `Hung.UI.UILocator.Service`.
+- `DebugManager.DebugCanvass`: unused UI canvas list removed.
+### Changed
+- `InitCanvas`: now a plain `MonoBehaviour` (no longer inherits from `UICanvas`), using `InitToggle` instead of `Hung.UI.UIToggle`, removing all UI library dependencies from `com.hung.base`.
+
 ## [0.29.0] - 2026-11-03
 ### Added
 - InitManager.StartGameFromAutomation() dev tooling seam and static StartedFromAutomation property (reset on SubsystemRegistration).

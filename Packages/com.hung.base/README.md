@@ -8,26 +8,22 @@
 
 Before rolling package/composition versions back, coordinate the profile too: older packages ignore it and resume automatic startup. See [serialized configuration ADR](../../Docs/adr/adr-e5-p2c-automatic-startup-profile.md) and [P2-C execution evidence](../../Docs/reports/horizon1-boundaries/p2c-shared/gap-closure/README.md). Player/provider/device verification is separate from the Editor proof.
 
-## UI Scope Contract
+## UI Separation
 
-`IUIAcquisitionService` and `UIAcquireResult<T>` provide an optional addressed acquisition contract with `UIAcquireFailure` categories. `IUIService` remains source compatible; consumers that need an addressed result can use an implementation that also exposes `IUIAcquisitionService`.
+All UI contracts, `UICanvas`, `UIToggle`, `UIBackStack`, `UITransition`, scoping (`Hung.UI.Scoping`), and `IUIService` reside in `com.hung.ui`. Service resolution is provided via `Hung.UI.UILocator.Service`. The base package contains zero UI-library dependencies.
 
-`Hung.UI.Scoping.UiScopePath`, `UiScope`, `IScopedUi`, and `UiScopeRegistry` provide hierarchy-based canvas lifetime rules. `UICanvas.Scope` defaults to `UiScope.Global`, so existing canvases retain their old lifetime. A scoped canvas binds to the current path on open; `UiScopeRegistry.Enter(path)` closes canvases whose bound scope has ended. Product-specific path names and phase transitions remain in the consuming game.
-
-`UICanvas.OnScopeExit()` unregisters before its outro, and a later `Open()` invalidates an older close completion. The generic registry can be instantiated in tests; production code uses `UiScopeRegistry.Instance` unless a canvas overrides `ScopeRegistry`.
-
-`UICanvas.Open`/`Close` are virtual. `Setup(param)` pushes the back entry; `CloseDirectly(param)` closes with no transition and no `OnClose`. `UICanvas.BackPushPolicy` (`UIBackPushPolicy.OnOpen` default, `ExplicitSetup`) chooses whether `Open` pushes. `IUIService.CloseUIDirectly`, `IsContain`, `IsInBackStack` and `UIBackStack.Contains` query and close without the back key.
-
-Core runtime: Locator + service contracts (LocatorServices), init flow (InitManager/LoadStart), Stats, GameData, base app glue. Second assembly: Hung.Utilities.Input.
+Core runtime: Locator + service contracts (LocatorServices), init flow (InitManager/InitCanvas/InitToggle/LoadStart), Stats, GameData, base app glue. Second assembly: Hung.Utilities.Input.
 
 ## Init Flow
 
-The init flow (Hung.Base.Init) manages boot initialization, debug overlays, and scene transitions.
+The init flow (Hung.Base.Init) manages boot initialization, debug overlays, and scene transitions using plain Unity UI components.
 
 ### Public Members Index
 
 | Member | Type | Assembly | File | Description |
 |---|---|---|---|---|
+| InitToggle | Class | Hung.Base | Runtime/Init/InitToggle.cs | Base-owned plain toggle component with ValueChanged event |
+| InitCanvas | Class | Hung.Base | Runtime/Init/InitCanvas.cs | Plain MonoBehaviour boot canvas with InitToggle controls |
 | InitManager.StartGameFromAutomation() | Method | Hung.Base | Runtime/Init/InitManager.cs | Automation boot seam bypassing manual UI start |
 | InitManager.StartedFromAutomation | Property | Hung.Base | Runtime/Init/InitManager.cs | True if the game was booted via automation in this session |
 | DebugManager.Initialized | Event | Hung.Base | Runtime/Init/DebugManager.cs | Raised at the end of OnInit when debug setup completes |

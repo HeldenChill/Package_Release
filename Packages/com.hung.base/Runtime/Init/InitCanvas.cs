@@ -8,24 +8,23 @@ using TMPro;
 
 namespace Hung.Base.Init
 {
-    using Hung.UI;
     using Hung.Base;
     using Hung.Data.Persistence;
 
-    public class InitCanvas : UICanvas
+    public class InitCanvas : MonoBehaviour
     {
         public event Action<int, bool> _OnToggleValueChange;
         public event Action _OnStartGame;
         [SerializeField]
-        UIToggle gridLogicDebugToggle;
+        InitToggle gridLogicDebugToggle;
         [SerializeField]
-        UIToggle fpsDebugToggle;
+        InitToggle fpsDebugToggle;
         [SerializeField]
-        UIToggle logToggle;
+        InitToggle logToggle;
         [SerializeField]
-        UIToggle showAdsToggle;
+        InitToggle showAdsToggle;
         [SerializeField]
-        UIToggle iapToggle;
+        InitToggle iapToggle;
         [SerializeField]
         Button startButton;
         [SerializeField]
@@ -38,26 +37,28 @@ namespace Hung.Base.Init
         protected virtual void Start()
         {
             GameData.UserData data = Database.Load<GameData>(GameData.SaveKey).user;
-            if (data != null)
+            if (data != null && levelInputField != null)
                 levelInputField.text = data.normalLevelIndex.ToString();
-            gridLogicDebugToggle._OnValueChange = OnToggleValueChange;
-            fpsDebugToggle._OnValueChange = OnToggleValueChange;
-            logToggle._OnValueChange = OnToggleValueChange;
-            showAdsToggle._OnValueChange += OnToggleValueChange;
-            iapToggle._OnValueChange += OnToggleValueChange;
 
-            startButton.onClick.AddListener(OnStartButtonClick);
+            if (gridLogicDebugToggle != null) gridLogicDebugToggle.ValueChanged += OnToggleValueChange;
+            if (fpsDebugToggle != null) fpsDebugToggle.ValueChanged += OnToggleValueChange;
+            if (logToggle != null) logToggle.ValueChanged += OnToggleValueChange;
+            if (showAdsToggle != null) showAdsToggle.ValueChanged += OnToggleValueChange;
+            if (iapToggle != null) iapToggle.ValueChanged += OnToggleValueChange;
+
+            if (startButton != null)
+                startButton.onClick.AddListener(OnStartButtonClick);
             if (clearDataButton != null)
                 clearDataButton.onClick.AddListener(OnClearDataButtonClick);
         }
 
         public void SetData(bool value1, bool value2, bool value3, bool value4, bool value5)
         {
-            gridLogicDebugToggle.SetValue(value1);
-            fpsDebugToggle.SetValue(value2);
-            logToggle.SetValue(value3);
-            showAdsToggle.SetValue(value4);
-            iapToggle.SetValue(value5);
+            if (gridLogicDebugToggle != null) gridLogicDebugToggle.SetValue(value1);
+            if (fpsDebugToggle != null) fpsDebugToggle.SetValue(value2);
+            if (logToggle != null) logToggle.SetValue(value3);
+            if (showAdsToggle != null) showAdsToggle.SetValue(value4);
+            if (iapToggle != null) iapToggle.SetValue(value5);
         }
 
         protected void OnToggleValueChange(int id, bool value)
@@ -70,9 +71,14 @@ namespace Hung.Base.Init
             _OnStartGame?.Invoke();
         }
 
-        protected override void OnDestroy()
+        protected virtual void OnDestroy()
         {
-            base.OnDestroy();
+            if (gridLogicDebugToggle != null) gridLogicDebugToggle.ValueChanged -= OnToggleValueChange;
+            if (fpsDebugToggle != null) fpsDebugToggle.ValueChanged -= OnToggleValueChange;
+            if (logToggle != null) logToggle.ValueChanged -= OnToggleValueChange;
+            if (showAdsToggle != null) showAdsToggle.ValueChanged -= OnToggleValueChange;
+            if (iapToggle != null) iapToggle.ValueChanged -= OnToggleValueChange;
+
             if (startButton != null)
                 startButton.onClick.RemoveListener(OnStartButtonClick);
             if (clearDataButton != null)

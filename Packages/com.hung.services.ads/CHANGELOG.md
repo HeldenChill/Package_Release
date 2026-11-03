@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.3] - 2026-11-03
+
+- Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.
+
 ## [0.9.2] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.29.0 (init-flow seams). No code change in this package.

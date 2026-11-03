@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0] - 2026-11-03
+### Added
+- Absorbed UI contract types from com.hung.base: IUIAcquisitionService, IUIService, UIAcquireResult, UIBackStack, UICanvas, UIToggle, UITransition, Scoping/IScopedUi, Scoping/UiScope, Scoping/UiScopePath, Scoping/UiScopeRegistry.
+- UILocator: static resolver with Service => ServiceSlots.Get<IUIService>() replacing Locator.UI.
+- UIToggle.SetText(string): null-safe label assignment, and serialized [SerializeField] TMP_Text nameTxt field.
+- Absorbed test fixtures from Hung.Base.Tests: UICanvasSemanticsTests, UiScopeCanvasTests, UiScopeRegistryAllocationTests, UiScopeTests.
+
 ## [0.9.2] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.29.0 (init-flow seams). No code change in this package.

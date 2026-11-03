@@ -20,9 +20,9 @@ namespace Hung.Tutorial
         // whose canvases are already registry-resolvable.
         public void Acquire()
         {
-            Locator.UI.GetUIAsync<TutorialActionsCanvas>(x => _tutorialCanvas = x);
-            Locator.UI.GetUIAsync<CallOutCanvas>(x => _callOutCanvas = x);
-            Locator.UI.GetUIAsync<ShowContentPopup>(x => _showVideoPopup = x);
+            UILocator.Service.GetUIAsync<TutorialActionsCanvas>(x => _tutorialCanvas = x);
+            UILocator.Service.GetUIAsync<CallOutCanvas>(x => _callOutCanvas = x);
+            UILocator.Service.GetUIAsync<ShowContentPopup>(x => _showVideoPopup = x);
         }
 
         public void CloseAll()

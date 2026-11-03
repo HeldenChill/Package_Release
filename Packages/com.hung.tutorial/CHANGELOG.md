@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.15] - 2026-11-03
+
+- Replace Locator.UI with UILocator.Service (the UI contracts moved to com.hung.ui) and re-pin dependencies to com.hung.base 0.30.0 and com.hung.ui 0.10.0.
+
 ## [0.3.14] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.29.0 (init-flow seams). No code change in this package.

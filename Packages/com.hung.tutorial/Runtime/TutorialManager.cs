@@ -37,7 +37,7 @@ namespace Hung.Tutorial
             _ctx = new TutorialStepContext();
             _ui = new TutorialUIController();
             _resolver = new TutorialCoordinateResolver(
-                (world, rect) => UIScreenUtils.WorldToUI(Locator.UI.Canvas, world, rect));
+                (world, rect) => UIScreenUtils.WorldToUI(UILocator.Service.Canvas, world, rect));
             _sm = new TutorialStateMachine(_registry, _ui, _resolver, _ctx);
             _sm.GetHandInfo = step => GetHandInfo?.Invoke(step);
             _sm.StartShowVideo = desc => StartCoroutine(_ui.ShowVideo(desc));

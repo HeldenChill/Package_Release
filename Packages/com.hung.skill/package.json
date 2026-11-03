@@ -1,6 +1,6 @@
 {
   "name": "com.hung.skill",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "displayName": "Hung Skill Framework",
   "description": "Game-agnostic skill framework: BaseSkill, SkillData, projectile bases, collider/VFX controllers. Character-coupled glue (CharacterSkill, weapons, concrete skills) stays game-side in Hung.Skill.Game.",
   "unity": "2022.3",
@@ -12,7 +12,7 @@
   "dependencies": {
     "com.hung.designpattern": "0.5.1",
     "com.hung.utilities": "0.2.4",
-    "com.hung.base": "0.29.0",
-    "com.hung.combat": "0.4.11"
+    "com.hung.base": "0.30.0",
+    "com.hung.combat": "0.4.12"
   }
 }

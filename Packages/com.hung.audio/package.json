@@ -1,6 +1,6 @@
 {
   "name": "com.hung.audio",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "displayName": "Hung Audio",
   "description": "Audio playback service (AudioManager, AudioData SO).",
   "unity": "2022.3",
@@ -8,6 +8,6 @@
     "layer:4"
   ],
   "dependencies": {
-    "com.hung.base": "0.29.0"
+    "com.hung.base": "0.30.0"
   }
 }

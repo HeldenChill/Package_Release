@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Hung.Base.Init;
-using Hung.UI;
 using NUnit.Framework;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -239,11 +238,9 @@ namespace Hung.Base.Tests.Init
         // --- Task 3: InitCanvas tests ---
 
         [Test]
-        public void OnDestroy_OverridesUICanvas()
+        public void InitCanvas_IsPlainMonoBehaviour()
         {
-            var method = typeof(InitCanvas).GetMethod("OnDestroy", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.IsNotNull(method, "OnDestroy method must exist on InitCanvas");
-            Assert.AreEqual(typeof(UICanvas), method.GetBaseDefinition().DeclaringType);
+            Assert.AreEqual(typeof(MonoBehaviour), typeof(InitCanvas).BaseType);
         }
 
         [Test]

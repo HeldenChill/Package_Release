@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Hung.Base;
+using Hung.UI;
 using Hung.UI.Scoping;
 using NUnit.Framework;
 using UnityEngine;
@@ -89,7 +90,7 @@ namespace Hung.UI.Tests
         [Test]
         public void Required_ui_absence_is_explicit_and_optional_ui_is_skipped()
         {
-            Assert.IsNull(Locator.UI, "Approved UI absence exception; do not install a fake fallback.");
+            Assert.IsNull(UILocator.Service, "Approved UI absence exception; do not install a fake fallback.");
             StringAssert.Contains("required UI owner", Assert.Throws<InvalidOperationException>(() => RequireUi()).Message);
             int actions = 0;
             if (ServiceSlots.TryGet<IUIService>(out var ui)) { actions++; _ = ui.BackStack; }
@@ -104,7 +105,7 @@ namespace Hung.UI.Tests
             object parameter = new object();
             IUIService service = manager;
             Assert.AreSame(manager, RequireUi());
-            Assert.AreSame(manager, Locator.UI);
+            Assert.AreSame(manager, UILocator.Service);
             service.OpenUI<CompositionCanvas>(parameter);
             service.OpenUI<CompositionCanvas>(parameter);
             Assert.AreEqual(2, canvas.Opens);

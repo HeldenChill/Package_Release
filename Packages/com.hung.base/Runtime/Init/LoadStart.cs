@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Hung.UI;
 using Hung.DesignPattern;
 using UnityEngine;
 namespace Hung.Base.Init

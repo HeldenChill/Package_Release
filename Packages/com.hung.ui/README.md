@@ -39,6 +39,13 @@ Register canvases with `CanvasRegistry`, open/close them through `UIManager`, an
 - `UISButton` / `UIButtonComponent` — button widgets
 - `UIDropdown` — dropdown widget
 - `UISCanvasTransition` — show/hide transition driver
+- `UILocator` — static service resolver (`UILocator.Service`)
+- `IUIService` — core UI service contract
+- `UICanvas` — base canvas class with lifecycle hooks, active state, and back-stack integration
+- `UIToggle` — toggle component with `SetText` label support
+- `UIBackStack` — navigation back-stack history
+- `UITransition` — transition base class
+- `Hung.UI.Scoping` (`UiScope`, `UiScopePath`, `UiScopeRegistry`, `IScopedUi`) — hierarchical canvas lifetime scoping
 
 Public addressed acquisition types: `IUIAsyncPrefabProvider`, `IUIAddressResolver`, `UIPrefabLease`, `AddressablesUIPrefabProvider`, `AsyncCanvasRegistry`, `UIAcquireResult<T>`, and `UIAcquireFailure`. `UIManager.SetAsyncProvider` and `UIManager.AcquireAsync<T>` are the facade entry points.
 

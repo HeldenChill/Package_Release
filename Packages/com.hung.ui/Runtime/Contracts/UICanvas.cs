@@ -72,7 +72,7 @@ namespace Hung.UI
         /// <summary>Adds this canvas to the back stack with <see cref="OnBackKey"/> as its action.</summary>
         public virtual void Setup(object param = null) => PushBack();
 
-        private void PushBack() => Locator.UI?.BackStack.Push(this, OnBackKey);
+        private void PushBack() => UILocator.Service?.BackStack.Push(this, OnBackKey);
 
         /// <summary>
         /// Closes this canvas when its bound scope is no longer active. Routes through the virtual
@@ -103,7 +103,7 @@ namespace Hung.UI
             lifecycleVersion++;
             if (Transition) Transition.Interrupt();
             ScopeRegistry.Unregister(this);
-            Locator.UI?.BackStack.Remove(this);
+            UILocator.Service?.BackStack.Remove(this);
             Deactivate();
         }
 
@@ -123,7 +123,7 @@ namespace Hung.UI
         private void FinishClose(int version)
         {
             if (version != lifecycleVersion) return;
-            Locator.UI?.BackStack.Remove(this);
+            UILocator.Service?.BackStack.Remove(this);
             OnClose();
             if (version != lifecycleVersion) return;
             Deactivate();
@@ -149,7 +149,7 @@ namespace Hung.UI
         protected virtual void OnDestroy()
         {
             ScopeRegistry.Unregister(this);
-            if (Locator.UI != null) Locator.UI.BackStack.Remove(this);
+            if (UILocator.Service != null) UILocator.Service.BackStack.Remove(this);
         }
     }
 }

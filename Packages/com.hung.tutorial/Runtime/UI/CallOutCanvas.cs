@@ -59,7 +59,7 @@ namespace Hung.UI
                 }
                 else
                 {
-                    calloutRectTfs[index].sizeDelta = target.sizeDelta / Locator.UI.ParentCanvasTf.localScale.x + padding;
+                    calloutRectTfs[index].sizeDelta = target.sizeDelta / UILocator.Service.ParentCanvasTf.localScale.x + padding;
                 }
 
                 calloutRectTfs[index].rotation = target.rotation;
