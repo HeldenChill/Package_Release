@@ -2,6 +2,7 @@
   "name": "Hung.Base.Tests",
   "references": [
     "Hung.Base",
+    "Hung.DesignPattern",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

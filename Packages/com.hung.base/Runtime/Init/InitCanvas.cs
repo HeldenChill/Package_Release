@@ -11,6 +11,7 @@ namespace Hung.Base.Init
     using Hung.UI;
     using Hung.Base;
     using Hung.Data.Persistence;
+
     public class InitCanvas : UICanvas
     {
         public event Action<int, bool> _OnToggleValueChange;
@@ -33,7 +34,8 @@ namespace Hung.Base.Init
         TMP_InputField levelInputField;
         [SerializeField]
         public int StartLevel => int.Parse(levelInputField.text);
-        void Start()
+
+        protected virtual void Start()
         {
             GameData.UserData data = Database.Load<GameData>(GameData.SaveKey).user;
             if (data != null)
@@ -45,7 +47,8 @@ namespace Hung.Base.Init
             iapToggle._OnValueChange += OnToggleValueChange;
 
             startButton.onClick.AddListener(OnStartButtonClick);
-            clearDataButton.onClick.AddListener(OnClearDataButtonClick);
+            if (clearDataButton != null)
+                clearDataButton.onClick.AddListener(OnClearDataButtonClick);
         }
 
         public void SetData(bool value1, bool value2, bool value3, bool value4, bool value5)
@@ -57,7 +60,7 @@ namespace Hung.Base.Init
             iapToggle.SetValue(value5);
         }
 
-        private void OnToggleValueChange(int id, bool value)
+        protected void OnToggleValueChange(int id, bool value)
         {
             _OnToggleValueChange?.Invoke(id, value);
         }
@@ -67,11 +70,15 @@ namespace Hung.Base.Init
             _OnStartGame?.Invoke();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
-            startButton.onClick.RemoveListener(OnStartButtonClick);
-            clearDataButton.onClick.RemoveListener(OnClearDataButtonClick);
+            base.OnDestroy();
+            if (startButton != null)
+                startButton.onClick.RemoveListener(OnStartButtonClick);
+            if (clearDataButton != null)
+                clearDataButton.onClick.RemoveListener(OnClearDataButtonClick);
         }
+
         void OnClearDataButtonClick()
         {
             // Canonical data is JSON files under <persistentDataPath>/ComHung; PlayerPrefs is an

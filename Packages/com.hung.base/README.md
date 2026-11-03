@@ -20,6 +20,19 @@ Before rolling package/composition versions back, coordinate the profile too: ol
 
 Core runtime: Locator + service contracts (LocatorServices), init flow (InitManager/LoadStart), Stats, GameData, base app glue. Second assembly: Hung.Utilities.Input.
 
+## Init Flow
+
+The init flow (Hung.Base.Init) manages boot initialization, debug overlays, and scene transitions.
+
+### Public Members Index
+
+| Member | Type | Assembly | File | Description |
+|---|---|---|---|---|
+| InitManager.StartGameFromAutomation() | Method | Hung.Base | Runtime/Init/InitManager.cs | Automation boot seam bypassing manual UI start |
+| InitManager.StartedFromAutomation | Property | Hung.Base | Runtime/Init/InitManager.cs | True if the game was booted via automation in this session |
+| DebugManager.Initialized | Event | Hung.Base | Runtime/Init/DebugManager.cs | Raised at the end of OnInit when debug setup completes |
+| DebugManager.SetUseIap(bool) | Method | Hung.Base | Runtime/Init/DebugManager.cs | Flips IAP enabled status for debug bypasses |
+
 ## ItemId Runtime Contract
 
 Item identity is `ItemId`: a serialized, namespaced value such as `base.gold` or `pet_vs_monster.gem`. Runtime save data and item service APIs use `ItemId`; the removed numeric item enum is no longer part of the contract.

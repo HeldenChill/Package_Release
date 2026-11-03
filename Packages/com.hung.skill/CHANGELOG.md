@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.11] - 2026-11-03
+
+- Patch release: re-pin dependencies to com.hung.base 0.29.0 (init-flow seams). No code change in this package.
+
 ## [0.3.10] - 2026-11-02
 
 - Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.29.0] - 2026-11-03
+### Added
+- InitManager.StartGameFromAutomation() dev tooling seam and static StartedFromAutomation property (reset on SubsystemRegistration).
+- DebugManager.Initialized static event raised at the end of OnInit.
+- DebugManager.SetUseIap(bool) for runtime IAP debug bypass.
+- DebugManager.PersistSelectedLevel(int) protected virtual hook for subclasses to customize level persistence.
+### Changed
+- InitManager.Awake and OnStartGame tolerate unassigned debugCanvas; OnStartGame omits the level argument when no canvas exists.
+- DebugManager.OnInit skips persisting level when level is negative (-1 indicates no override).
+- InitCanvas.OnDestroy now overrides UICanvas.OnDestroy with base call and null checks for buttons; Start and OnToggleValueChange made protected.
+
 ## [0.28.1] - 2026-11-02
 
 - Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.
