@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2026-11-08
+
+### Added
+- Auto Test Runner window toolbar "Auto Stop" toggle (saved in EditorPrefs, default on) controls whether play mode exits after a run finishes. Backed by new public `AutoTestRunner.AutoStopPlayModeOnFinish`.
+
 ## [0.5.0] - 2026-11-08
 
 ### Changed

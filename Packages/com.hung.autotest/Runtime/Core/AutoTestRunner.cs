@@ -120,6 +120,13 @@ namespace Hung.AutoTest
             eventCollector.Stop();
         }
 
+        /// <summary>Exit play mode after a run finishes (Editor only). The Auto Test Runner window drives this from its "Auto Stop" toggle.</summary>
+        public bool AutoStopPlayModeOnFinish
+        {
+            get => autoStopPlayModeOnFinish;
+            set => autoStopPlayModeOnFinish = value;
+        }
+
         public void SetSuite(AutoTestSuiteData value)
         {
             suite = value;

@@ -45,6 +45,7 @@ namespace Hung.AutoTest.Editor
         // "Find/Create Runner" pressed in edit mode → enter play, then find/create.
         // SessionState survives the play-mode domain reload.
         private const string PendingRunnerKey = "AutoTestRunnerWindow.PendingFindRunner";
+        private const string AutoStopPrefKey = "Hung.AutoTest.AutoStopPlayModeOnFinish";
 
         private static readonly Color PanelBg = new Color(0.16f, 0.16f, 0.16f);
         private static readonly Color CardBg = new Color(0.2f, 0.2f, 0.2f);
@@ -204,6 +205,11 @@ namespace Hung.AutoTest.Editor
                 }
 
                 GUILayout.FlexibleSpace();
+
+                bool autoStop = EditorPrefs.GetBool(AutoStopPrefKey, true);
+                bool newAutoStop = GUILayout.Toggle(autoStop, new GUIContent("Auto Stop", "Exit play mode after a run finishes."), EditorStyles.toolbarButton, GUILayout.Width(70));
+                if (newAutoStop != autoStop) EditorPrefs.SetBool(AutoStopPrefKey, newAutoStop);
+                if (runner != null) runner.AutoStopPlayModeOnFinish = newAutoStop;
 
                 autoRefresh = GUILayout.Toggle(autoRefresh, "Auto", EditorStyles.toolbarButton, GUILayout.Width(45));
 
