@@ -8,7 +8,7 @@ The package owns reusable runner lifecycle, capabilities, neutral assertions, sn
 
 Register host factories before a run:
 
-- `AutoTestRunner.ExecutorFactory` for `IAutoTestScenarioExecutor`.
+- `AutoTestRunner.ExecutorFactory` for `IAutoTestScenarioExecutor` (executors can optionally implement `System.IDisposable` for synchronous fallback cleanup on forced stop or disable; legacy non-disposable executors remain supported).
 - `AutoTestRunner.SnapshotBuilderFactory` for `IRuntimeSnapshotBuilder`.
 - `AutoTestEventCollector.EventSourceFactory` for host events.
 - Host assertion creators through `AutoTestAssertionRegistry`.

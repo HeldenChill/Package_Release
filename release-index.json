@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-03T07:10:42Z",
+  "generatedAt": "2026-11-08T08:20:40Z",
   "packages": {
     "com.hung.ai": "0.1.0",
     "com.hung.audio": "0.4.3",
-    "com.hung.autotest": "0.4.4",
+    "com.hung.autotest": "0.5.0",
     "com.hung.base": "0.30.0",
     "com.hung.character": "0.3.5",
     "com.hung.cinematics": "0.1.0",
@@ -52,7 +52,7 @@
     "com.hung.ui",
     "com.hung.utilities"
   ],
-  "releaseTag": "release-2026.11.03.2",
+  "releaseTag": "release-2026.11.08.1",
   "schemaVersion": 1,
-  "sourceCommit": "31a5d94035ce9f47aa021476b91902333def2514"
+  "sourceCommit": "587ac7a1e5d290185d20714f9e3f25499e4ef783"
 }

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.5.0] - 2026-11-08
+
+### Changed
+- `StopCurrentRun()` is now graceful while a case is executing: the status stays `Running` for a few frames while executor `Cleanup` runs, then becomes `Stopped`. Callers that assumed a synchronous `Stopped` must wait for `RunCompleted` or a non-`Running` status.
+
+### Fixed
+- Fixed uncontained exceptions in `IAutoTestScenarioExecutor.Prepare`, `Run`, and `Cleanup` stranding `AutoTestRunner` in `Running` status without generating terminal case or suite reports.
+- Fixed `AutoTestRunner` yielding scenario `Prepare` and `Run` before the assertion/timeout loop: timeouts now enforce a real-time deadline across Prepare, Run, and assertion wait, including when `Time.timeScale` is 0.
+- Fixed `StopCurrentRun()` and `OnDisable()` bypassing report finalization, executor cleanup, and `Time.timeScale` restoration: repeated stops, component disable, and play exit now converge on a unified idempotent finalizer.
+- Fixed unbounded cleanup execution hanging report generation: cleanup is now supervised under its own separate real-time bound.
+- Fixed exceptions during snapshot building and assertion evaluation escaping final report generation.
+
+### Added
+- Added internal `AutoTestRoutineSupervisor` to traverse root and nested `IEnumerator` stacks, enforce real-time deadlines, monitor cancellation predicates, evaluate supported yield instructions (`null`, nested `IEnumerator`, `CustomYieldInstruction`, `AsyncOperation`, `WaitForSeconds`, `WaitForSecondsRealtime`; yielding a raw `Coroutine` handle is rejected with an explicit diagnostic because it cannot be supervised), ensure exactly-once enumerator disposal, and preserve original fatal failure diagnostics while recording secondary cleanup/disposal exceptions as evidence.
+- Added optional `IDisposable` lifecycle interface support for `IAutoTestScenarioExecutor`: executors implementing `IDisposable` receive a synchronous fallback call when the run finalizes; a disposed executor is dropped and recreated by the next run. `StopCurrentRun()` lets supervised executor `Cleanup` run (watchdog force-finalizes after 20s); only `OnDisable` finalizes immediately. Legacy non-`IDisposable` executors remain fully compatible, but cannot guarantee asynchronous cleanup completion on sudden play-mode exit or component disable.
+
 ## [0.4.4] - 2026-10-08
 
 ### Documentation

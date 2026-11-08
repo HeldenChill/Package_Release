@@ -22,6 +22,7 @@ namespace Hung.AutoTest
         private readonly AutoTestContext context = new AutoTestContext();
         private readonly AutoTestLogCollector logCollector = new AutoTestLogCollector();
         private readonly AutoTestEventCollector eventCollector = new AutoTestEventCollector();
+
         /// <summary>Game glue must assign these before a run.
         /// Keeps the core runner free of game types.</summary>
         public static Func<IAutoTestScenarioExecutor> ExecutorFactory;
@@ -37,6 +38,21 @@ namespace Hung.AutoTest
         private AutoTestReport lastReport;
         private readonly List<AssertionStateView> assertionStates = new List<AssertionStateView>();
         public event Action<AutoTestReport> RunCompleted;
+
+        private AutoTestRoutineSupervisor activeSupervisor;
+        private AutoTestSuiteData activeSuite;
+        private AutoTestCaseData activeTestCase;
+        private AutoTestCaseReport activeCaseReport;
+        private bool isRunActive;
+        private bool isFinalized;
+        private bool destroySuiteAfterRun;
+        private float previousTimeScale = 1f;
+        private float suiteStartTime;
+        private string currentRunId;
+        private bool hasExportedReport;
+        private bool stopping;
+        private bool executorPhaseActive;
+        private const float GracefulStopSeconds = 20f;
 
         /// <summary>Read-only live view of one assertion for editor dashboards.</summary>
         public sealed class AssertionStateView
@@ -85,8 +101,6 @@ namespace Hung.AutoTest
 
         private void Awake()
         {
-            // Survives the CryptoLoader -> LoadStart -> GameScene chain when the run
-            // is started from a startup scene.
             DontDestroyOnLoad(gameObject);
         }
 
@@ -98,8 +112,12 @@ namespace Hung.AutoTest
 
         private void OnDisable()
         {
-            StopCurrentRun();
+            // Disable kills this runner's coroutines, so graceful async Cleanup is impossible: finalize now.
+            stopRequested = true;
+            if (isRunActive && !isFinalized)
+                FinalizeRun(AutoTestStatus.Stopped, "OnDisable");
             logCollector.Stop();
+            eventCollector.Stop();
         }
 
         public void SetSuite(AutoTestSuiteData value)
@@ -142,7 +160,7 @@ namespace Hung.AutoTest
                 return;
             }
 
-            StartRun(RunSuiteRoutine(targetSuite));
+            StartRun(RunSuiteRoutine(targetSuite, false), targetSuite, false);
         }
 
         public void RunSingleCase(AutoTestCaseData testCase)
@@ -162,12 +180,73 @@ namespace Hung.AutoTest
             virtualSuite.reportFileNamePrefix = "AutoTest_SingleCase";
             virtualSuite.testCases.Add(testCase);
 
-            StartRun(RunSuiteRoutine(virtualSuite, true));
+            StartRun(RunSuiteRoutine(virtualSuite, true), virtualSuite, true);
         }
 
         public void StopCurrentRun()
         {
             stopRequested = true;
+
+            if (isFinalized || stopping)
+                return;
+
+            if (!(isRunActive || runRoutine != null || (context != null && context.Status == AutoTestStatus.Running)))
+                return;
+
+            // Inside a case with a live executor: let the run routine unwind so supervised
+            // executor Cleanup runs. A watchdog force-finalizes if it never unwinds.
+            if (executorPhaseActive && runRoutine != null && isActiveAndEnabled)
+            {
+                stopping = true;
+                StartCoroutine(StopWatchdog());
+                return;
+            }
+
+            FinalizeRun(AutoTestStatus.Stopped, "StopCurrentRun");
+        }
+
+        private IEnumerator StopWatchdog()
+        {
+            float until = Time.realtimeSinceStartup + GracefulStopSeconds;
+            while (!isFinalized && Time.realtimeSinceStartup < until)
+                yield return null;
+
+            if (!isFinalized)
+                FinalizeRun(AutoTestStatus.Stopped, "StopWatchdog");
+        }
+
+        private void StartRun(IEnumerator routine, AutoTestSuiteData targetSuite, bool destroySuiteAfter)
+        {
+            if (isRunActive && !isFinalized)
+                FinalizeRun(AutoTestStatus.Stopped, "Restart");
+
+            AutoTestBootstrapper.ResetForRunnerStart();
+
+            stopRequested = false;
+            stopping = false;
+            executorPhaseActive = false;
+            activeTestCase = null;
+            activeCaseReport = null;
+            isFinalized = false;
+            hasExportedReport = false;
+            activeSuite = targetSuite;
+            destroySuiteAfterRun = destroySuiteAfter;
+            currentRunId = AutoTestFilePathUtility.CreateTimestampRunId();
+            lastReport = AutoTestReport.Create(currentRunId, targetSuite);
+            suiteStartTime = Time.realtimeSinceStartup;
+            previousTimeScale = Time.timeScale;
+            isRunActive = true;
+            context.Status = AutoTestStatus.Running;
+
+            runRoutine = StartCoroutine(routine);
+        }
+
+        private void FinalizeRun(AutoTestStatus terminalStatus, string reason)
+        {
+            if (isFinalized)
+                return;
+
+            isFinalized = true;
 
             if (runRoutine != null)
             {
@@ -175,92 +254,185 @@ namespace Hung.AutoTest
                 runRoutine = null;
             }
 
-            if (context.Status == AutoTestStatus.Running)
-                context.Status = AutoTestStatus.Stopped;
+            if (activeSupervisor != null)
+            {
+                activeSupervisor.Dispose();
+                activeSupervisor = null;
+            }
 
+            // Fallback synchronous release for executors implementing IDisposable
+            if (scenarioExecutor is IDisposable disposableExecutor)
+            {
+                try
+                {
+                    disposableExecutor.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[AutoTestRunner] Executor Dispose exception: {ex}");
+                }
+
+                // Disposed executors must never be reused by the next run.
+                scenarioExecutor = null;
+            }
+            executorPhaseActive = false;
+
+            // Copy terminal evidence into activeCaseReport before releasing collectors
+            if (activeCaseReport != null)
+            {
+                activeCaseReport.failures.Clear();
+                activeCaseReport.failures.AddRange(context.Failures);
+                activeCaseReport.failureCount = context.Failures.Count;
+
+                activeCaseReport.logs.Clear();
+                activeCaseReport.logs.AddRange(context.Logs);
+
+                if (activeCaseReport.finalSnapshot == null && context.LatestSnapshot != null)
+                    activeCaseReport.finalSnapshot = context.LatestSnapshot;
+
+                if (stopRequested || terminalStatus == AutoTestStatus.Stopped)
+                {
+                    activeCaseReport.status = AutoTestStatus.Stopped;
+                }
+                else if (context.HasFatalFailure || context.Failures.Count > 0)
+                {
+                    activeCaseReport.status = AutoTestStatus.Failed;
+                }
+                else if (terminalStatus == AutoTestStatus.Failed || terminalStatus == AutoTestStatus.Error)
+                {
+                    activeCaseReport.status = terminalStatus;
+                }
+                else if (activeTestCase != null)
+                {
+                    activeCaseReport.status = BuildCaseStatus(activeTestCase, activeCaseReport.finalSnapshot, context);
+                }
+
+                if (stopRequested && activeCaseReport.status == AutoTestStatus.Passed)
+                    activeCaseReport.status = AutoTestStatus.Stopped;
+
+                if (lastReport != null && !lastReport.cases.Contains(activeCaseReport))
+                    lastReport.cases.Add(activeCaseReport);
+            }
+
+            Time.timeScale = previousTimeScale;
             logCollector.Stop();
             eventCollector.Stop();
+
+            if (lastReport == null)
+                lastReport = AutoTestReport.Create(currentRunId ?? AutoTestFilePathUtility.CreateTimestampRunId(), activeSuite);
+
+            lastReport.finishedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            lastReport.durationSeconds = Time.realtimeSinceStartup - suiteStartTime;
+
+            if (stopRequested || terminalStatus == AutoTestStatus.Stopped)
+            {
+                lastReport.status = AutoTestStatus.Stopped;
+            }
+            else if (terminalStatus == AutoTestStatus.Error)
+            {
+                lastReport.status = AutoTestStatus.Error;
+            }
+            else if (terminalStatus == AutoTestStatus.Failed)
+            {
+                lastReport.status = AutoTestStatus.Failed;
+            }
+            else
+            {
+                lastReport.status = ComputeSuiteStatus(lastReport);
+            }
+
+            if (stopRequested && lastReport.status == AutoTestStatus.Passed)
+                lastReport.status = AutoTestStatus.Stopped;
+
+            context.Status = lastReport.status;
+            lastReport.summary = AutoTestReportSummary.FromCases(lastReport.cases);
+
+            if (activeSuite != null && activeSuite.exportReportAfterRun && !hasExportedReport)
+            {
+                hasExportedReport = true;
+                try
+                {
+                    string reportFolder = AutoTestFilePathUtility.GetReportFolder();
+                    AutoTestJsonExporter.Export(lastReport, reportFolder, activeSuite.reportFileNamePrefix);
+                    AutoTestMarkdownExporter.Export(lastReport, reportFolder, activeSuite.reportFileNamePrefix);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[AutoTestRunner] Report export failed: {ex}");
+                    context.AddFailure(AutoTestFailure.Create(
+                        "Reporting",
+                        "REPORT_EXPORT_FAILED",
+                        $"Report export failed: {ex.Message}",
+                        AutoTestAssertionSeverity.Failure,
+                        context,
+                        ex.ToString()));
+                }
+            }
+
+            RunCompleted?.Invoke(lastReport);
+
+            CurrentSuite = null;
+            CurrentCaseIndex = -1;
+            isRunActive = false;
+
+            if (destroySuiteAfterRun && activeSuite != null)
+            {
+                Destroy(activeSuite);
+                activeSuite = null;
+            }
+
+            if (logVerbose)
+                Debug.Log("[AutoTestRunner] Suite completed: " + lastReport.status);
+
+            MaybeStopPlayMode();
         }
 
-        private void StartRun(IEnumerator routine)
+        private IEnumerator RunSuiteRoutine(AutoTestSuiteData targetSuite, bool destroySuiteAfter = false)
         {
-            StopCurrentRun();
-            AutoTestBootstrapper.ResetForRunnerStart();
-            stopRequested = false;
-            runRoutine = StartCoroutine(routine);
-        }
-
-        private IEnumerator RunSuiteRoutine(AutoTestSuiteData targetSuite, bool destroySuiteAfterRun = false)
-        {
-            string runId = AutoTestFilePathUtility.CreateTimestampRunId();
-            lastReport = AutoTestReport.Create(runId, targetSuite);
-            float suiteStart = Time.realtimeSinceStartup;
             CurrentSuite = targetSuite;
             CurrentCaseIndex = -1;
 
             if (logVerbose)
                 Debug.Log("[AutoTestRunner] Run suite: " + targetSuite.displayName);
 
-            // One-press boot: from CryptoLoader/LoadStart this drives the game into GameScene.
             yield return AutoTestBootstrapper.EnsureGameBooted(bootTimeoutSeconds);
             if (!AutoTestBootstrapper.IsGameplayReady)
             {
-                lastReport.status = AutoTestStatus.Error;
-                lastReport.finishedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                context.Status = AutoTestStatus.Error;
-                runRoutine = null;
-                CurrentSuite = null;
+                context.AddFailure(AutoTestFailure.Create(
+                    "Boot",
+                    "GAMEPLAY_NEVER_READY",
+                    "Aborting run: gameplay never became ready within timeout.",
+                    AutoTestAssertionSeverity.Fatal,
+                    context));
                 Debug.LogError("[AutoTestRunner] Aborting run: gameplay never became ready.");
-                MaybeStopPlayMode();
+                FinalizeRun(AutoTestStatus.Error, "GameplayNeverReady");
                 yield break;
             }
 
             for (int caseIndex = 0; caseIndex < targetSuite.testCases.Count; caseIndex++)
             {
-                AutoTestCaseData testCase = targetSuite.testCases[caseIndex];
                 if (stopRequested)
                     break;
 
+                AutoTestCaseData testCase = targetSuite.testCases[caseIndex];
                 if (testCase == null)
                     continue;
 
                 CurrentCaseIndex = caseIndex;
 
-                AutoTestCaseReport caseReport = null;
-                yield return RunCaseRoutine(targetSuite, testCase, runId, report => caseReport = report);
+                yield return RunCaseRoutine(targetSuite, testCase, currentRunId);
 
-                if (caseReport != null)
-                    lastReport.cases.Add(caseReport);
+                if (stopRequested)
+                    break;
 
-                if (caseReport != null && caseReport.status == AutoTestStatus.Failed && targetSuite.stopSuiteOnFirstFailure)
+                if (activeCaseReport != null && activeCaseReport.status == AutoTestStatus.Failed && targetSuite.stopSuiteOnFirstFailure)
                     break;
             }
 
-            lastReport.finishedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            lastReport.durationSeconds = Time.realtimeSinceStartup - suiteStart;
-            lastReport.status = ComputeSuiteStatus(lastReport);
-            lastReport.summary = AutoTestReportSummary.FromCases(lastReport.cases);
-
-            if (targetSuite.exportReportAfterRun)
+            if (!isFinalized)
             {
-                string reportFolder = AutoTestFilePathUtility.GetReportFolder();
-                AutoTestJsonExporter.Export(lastReport, reportFolder, targetSuite.reportFileNamePrefix);
-                AutoTestMarkdownExporter.Export(lastReport, reportFolder, targetSuite.reportFileNamePrefix);
+                FinalizeRun(AutoTestStatus.Passed, "SuiteCompleted");
             }
-
-            RunCompleted?.Invoke(lastReport);
-
-            runRoutine = null;
-            CurrentSuite = null;
-            CurrentCaseIndex = -1;
-
-            if (destroySuiteAfterRun && targetSuite != null)
-                Destroy(targetSuite);
-
-            if (logVerbose)
-                Debug.Log("[AutoTestRunner] Suite completed: " + lastReport.status);
-
-            MaybeStopPlayMode();
         }
 
         private void MaybeStopPlayMode()
@@ -286,11 +458,13 @@ namespace Hung.AutoTest
         private IEnumerator RunCaseRoutine(
             AutoTestSuiteData targetSuite,
             AutoTestCaseData testCase,
-            string runId,
-            Action<AutoTestCaseReport> onCompleted)
+            string runId)
         {
             context.Begin(runId, targetSuite != null ? targetSuite.suiteId : string.Empty, testCase);
             context.Events = eventCollector;
+            activeTestCase = testCase;
+            activeCaseReport = AutoTestCaseReport.Create(testCase);
+            float caseStart = Time.realtimeSinceStartup;
 
             if (!AutoTestCapabilityRegistry.TryEvaluate(testCase.requiredCapabilities, out string capabilityDiagnostic))
             {
@@ -300,13 +474,13 @@ namespace Hung.AutoTest
                     capabilityDiagnostic,
                     AutoTestAssertionSeverity.Fatal,
                     context));
-                AutoTestCaseReport failedReport = AutoTestCaseReport.Create(testCase);
-                failedReport.durationSeconds = 0f;
-                failedReport.status = AutoTestStatus.Failed;
-                failedReport.failureCount = context.Failures.Count;
-                failedReport.failures.AddRange(context.Failures);
-                failedReport.logs.AddRange(context.Logs);
-                onCompleted?.Invoke(failedReport);
+                activeCaseReport.durationSeconds = 0f;
+                activeCaseReport.status = AutoTestStatus.Failed;
+                activeCaseReport.failureCount = context.Failures.Count;
+                activeCaseReport.failures.AddRange(context.Failures);
+                activeCaseReport.logs.AddRange(context.Logs);
+                if (!lastReport.cases.Contains(activeCaseReport))
+                    lastReport.cases.Add(activeCaseReport);
                 yield break;
             }
 
@@ -325,6 +499,7 @@ namespace Hung.AutoTest
                 scenarioExecutor = ExecutorFactory != null ? ExecutorFactory() : null;
             if (snapshotBuilder == null)
                 snapshotBuilder = SnapshotBuilderFactory != null ? SnapshotBuilderFactory() : null;
+
             if (scenarioExecutor == null || snapshotBuilder == null)
             {
                 context.AddFailure(AutoTestFailure.Create(
@@ -333,38 +508,151 @@ namespace Hung.AutoTest
                     "ExecutorFactory/SnapshotBuilderFactory not assigned — game glue must register them.",
                     AutoTestAssertionSeverity.Fatal,
                     context));
+                activeCaseReport.durationSeconds = 0f;
+                activeCaseReport.status = AutoTestStatus.Failed;
+                activeCaseReport.failureCount = context.Failures.Count;
+                activeCaseReport.failures.AddRange(context.Failures);
+                activeCaseReport.logs.AddRange(context.Logs);
+                if (!lastReport.cases.Contains(activeCaseReport))
+                    lastReport.cases.Add(activeCaseReport);
                 yield break;
+            }
+
+            try
+            {
+                scenarioExecutor.ResetRuntimeState();
+            }
+            catch (Exception ex)
+            {
+                context.AddFailure(AutoTestFailure.Create(
+                    "Setup",
+                    "AutoTestRunner",
+                    $"scenarioExecutor.ResetRuntimeState exception: {ex.Message}",
+                    AutoTestAssertionSeverity.Fatal,
+                    context,
+                    ex.ToString()));
             }
 
             logCollector.Start(context);
             eventCollector.Clear();
             eventCollector.Start();
-            scenarioExecutor.ResetRuntimeState();
 
-            AutoTestCaseReport caseReport = AutoTestCaseReport.Create(testCase);
-            float caseStart = Time.realtimeSinceStartup;
-            float nextSnapshotAt = 0f;
-            float previousTimeScale = Time.timeScale;
+            float savedTimeScale = Time.timeScale;
             Time.timeScale = testCase.timeScale;
+            executorPhaseActive = true;
 
-            yield return scenarioExecutor.Prepare(testCase, context);
+            float caseDeadline = Time.realtimeSinceStartup + testCase.timeoutSeconds;
+            float nextSnapshotAt = 0f;
 
-            if (!context.HasFatalFailure)
-                yield return scenarioExecutor.Run(testCase, context);
+            // Phase 1: Prepare (supervised)
+            if (!stopRequested && !context.HasFatalFailure)
+            {
+                IEnumerator prepareRoutine = null;
+                try
+                {
+                    prepareRoutine = scenarioExecutor.Prepare(testCase, context);
+                }
+                catch (Exception ex)
+                {
+                    context.AddFailure(AutoTestFailure.Create(
+                        "Prepare",
+                        "AutoTestRunner",
+                        $"scenarioExecutor.Prepare exception: {ex.Message}",
+                        AutoTestAssertionSeverity.Fatal,
+                        context,
+                        ex.ToString()));
+                }
 
+                if (prepareRoutine != null)
+                {
+                    activeSupervisor = new AutoTestRoutineSupervisor(
+                        prepareRoutine,
+                        deadlineRealtime: caseDeadline,
+                        isCancelled: () => stopRequested,
+                        context: context,
+                        phaseName: "Prepare");
+
+                    while (activeSupervisor.MoveNext())
+                    {
+                        if (stopRequested)
+                            break;
+                        yield return activeSupervisor.Current;
+                    }
+
+                    activeSupervisor.Dispose();
+                    activeSupervisor = null;
+                }
+            }
+
+            // Phase 2: Run (supervised)
+            if (!stopRequested && !context.HasFatalFailure)
+            {
+                IEnumerator runScenarioRoutine = null;
+                try
+                {
+                    runScenarioRoutine = scenarioExecutor.Run(testCase, context);
+                }
+                catch (Exception ex)
+                {
+                    context.AddFailure(AutoTestFailure.Create(
+                        "Run",
+                        "AutoTestRunner",
+                        $"scenarioExecutor.Run exception: {ex.Message}",
+                        AutoTestAssertionSeverity.Fatal,
+                        context,
+                        ex.ToString()));
+                }
+
+                if (runScenarioRoutine != null)
+                {
+                    activeSupervisor = new AutoTestRoutineSupervisor(
+                        runScenarioRoutine,
+                        deadlineRealtime: caseDeadline,
+                        isCancelled: () => stopRequested,
+                        context: context,
+                        phaseName: "Run");
+
+                    while (activeSupervisor.MoveNext())
+                    {
+                        if (stopRequested)
+                            break;
+
+                        float elapsed = context.ElapsedSeconds;
+                        if (elapsed >= nextSnapshotAt)
+                        {
+                            SafeBuildAndEvaluateSnapshot(testCase, ref nextSnapshotAt, elapsed);
+                        }
+
+                        if (context.HasFatalFailure && testCase.failFast)
+                            break;
+
+                        yield return activeSupervisor.Current;
+                    }
+
+                    activeSupervisor.Dispose();
+                    activeSupervisor = null;
+                }
+            }
+
+            // Phase 3: Assertion wait loop
             while (!stopRequested && !context.HasFatalFailure)
             {
-                float elapsed = context.ElapsedSeconds;
-
-                if (elapsed >= testCase.timeoutSeconds)
+                float now = Time.realtimeSinceStartup;
+                if (now >= caseDeadline)
+                {
+                    context.AddFailure(AutoTestFailure.Create(
+                        "Timeout",
+                        "AUTOTEST_DEADLINE_EXCEEDED",
+                        $"Test case '{testCase.testId}' exceeded timeout of {testCase.timeoutSeconds:F2}s.",
+                        AutoTestAssertionSeverity.Fatal,
+                        context));
                     break;
+                }
 
+                float elapsed = context.ElapsedSeconds;
                 if (elapsed >= nextSnapshotAt)
                 {
-                    RuntimeSnapshot snapshot = snapshotBuilder.Build(context);
-                    context.LatestSnapshot = snapshot;
-                    EvaluateAssertions(snapshot, testCase);
-                    nextSnapshotAt = elapsed + Mathf.Max(0.05f, testCase.snapshotIntervalSeconds);
+                    SafeBuildAndEvaluateSnapshot(testCase, ref nextSnapshotAt, elapsed);
                 }
 
                 if (context.HasFatalFailure && testCase.failFast)
@@ -376,23 +664,99 @@ namespace Hung.AutoTest
                 yield return null;
             }
 
-            RuntimeSnapshot finalSnapshot = snapshotBuilder.Build(context);
-            context.LatestSnapshot = finalSnapshot;
-            EvaluateAssertions(finalSnapshot, testCase);
+            // Phase 4: Final snapshot & assertion evaluation
+            RuntimeSnapshot finalSnapshot = null;
+            try
+            {
+                finalSnapshot = snapshotBuilder.Build(context);
+                context.LatestSnapshot = finalSnapshot;
+                EvaluateAssertions(finalSnapshot, testCase);
+            }
+            catch (Exception ex)
+            {
+                context.AddFailure(AutoTestFailure.Create(
+                    "Assertion",
+                    "SnapshotBuilder",
+                    $"Final snapshot evaluation exception: {ex.Message}",
+                    AutoTestAssertionSeverity.Fatal,
+                    context,
+                    ex.ToString()));
+            }
 
-            yield return scenarioExecutor.Cleanup(testCase, context);
-            Time.timeScale = previousTimeScale;
+            // Phase 5: Cleanup (supervised with separate bound)
+            float cleanupDeadline = Time.realtimeSinceStartup + Mathf.Max(5f, Mathf.Min(15f, testCase.timeoutSeconds));
+            IEnumerator cleanupRoutine = null;
+            try
+            {
+                cleanupRoutine = scenarioExecutor.Cleanup(testCase, context);
+            }
+            catch (Exception ex)
+            {
+                context.AddFailure(AutoTestFailure.Create(
+                    "Cleanup",
+                    "AutoTestRunner",
+                    $"scenarioExecutor.Cleanup exception: {ex.Message}",
+                    AutoTestAssertionSeverity.Failure,
+                    context,
+                    ex.ToString()));
+            }
+
+            if (cleanupRoutine != null)
+            {
+                activeSupervisor = new AutoTestRoutineSupervisor(
+                    cleanupRoutine,
+                    deadlineRealtime: cleanupDeadline,
+                    isCancelled: null, // Cleanup must run even after a stop request; bounded by cleanupDeadline.
+                    context: context,
+                    phaseName: "Cleanup");
+
+                while (activeSupervisor.MoveNext())
+                    yield return activeSupervisor.Current;
+
+                activeSupervisor.Dispose();
+                activeSupervisor = null;
+            }
+
+            executorPhaseActive = false;
+            Time.timeScale = savedTimeScale;
             logCollector.Stop();
             eventCollector.Stop();
 
-            caseReport.durationSeconds = Time.realtimeSinceStartup - caseStart;
-            caseReport.status = BuildCaseStatus(testCase, finalSnapshot, context);
-            caseReport.failureCount = context.Failures.Count;
-            caseReport.failures.AddRange(context.Failures);
-            caseReport.logs.AddRange(context.Logs);
-            caseReport.finalSnapshot = finalSnapshot;
+            activeCaseReport.durationSeconds = Time.realtimeSinceStartup - caseStart;
+            activeCaseReport.status = BuildCaseStatus(testCase, finalSnapshot, context);
+            if (stopRequested && activeCaseReport.status == AutoTestStatus.Passed)
+                activeCaseReport.status = AutoTestStatus.Stopped;
 
-            onCompleted?.Invoke(caseReport);
+            activeCaseReport.failureCount = context.Failures.Count;
+            activeCaseReport.failures.Clear();
+            activeCaseReport.failures.AddRange(context.Failures);
+            activeCaseReport.logs.Clear();
+            activeCaseReport.logs.AddRange(context.Logs);
+            activeCaseReport.finalSnapshot = finalSnapshot;
+
+            if (!lastReport.cases.Contains(activeCaseReport))
+                lastReport.cases.Add(activeCaseReport);
+        }
+
+        private void SafeBuildAndEvaluateSnapshot(AutoTestCaseData testCase, ref float nextSnapshotAt, float elapsed)
+        {
+            try
+            {
+                RuntimeSnapshot snapshot = snapshotBuilder.Build(context);
+                context.LatestSnapshot = snapshot;
+                EvaluateAssertions(snapshot, testCase);
+            }
+            catch (Exception ex)
+            {
+                context.AddFailure(AutoTestFailure.Create(
+                    "Assertion",
+                    "SnapshotBuilder",
+                    $"Snapshot evaluation exception: {ex.Message}",
+                    AutoTestAssertionSeverity.Fatal,
+                    context,
+                    ex.ToString()));
+            }
+            nextSnapshotAt = elapsed + Mathf.Max(0.05f, testCase.snapshotIntervalSeconds);
         }
 
         private void EvaluateAssertions(RuntimeSnapshot snapshot, AutoTestCaseData testCase)
