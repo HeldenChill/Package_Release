@@ -2,7 +2,7 @@ using Hung.AI;
 using UnityEngine;
 using UnityEngine.AI;
 using BrainData = Gameplay.Character.BrainSystem.BrainData;
-namespace Gameplay.Character.AIBridge
+namespace Hung.Character.AI
 {
     /// <summary>
     /// IAIMover for Hung.Character bodies. It never moves the body: it writes BrainData.MoveDirection

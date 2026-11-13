@@ -7,6 +7,7 @@ using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using Hung.Data.Rewards;
 using NUnit.Framework;
+using Hung.Data;
 namespace Hung.Data.PlayModeTests.Bw4
 {
     internal sealed class Bw4Fixture : IDisposable

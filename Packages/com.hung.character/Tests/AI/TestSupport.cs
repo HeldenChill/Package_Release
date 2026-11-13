@@ -5,7 +5,7 @@ using UnityEngine;
 using BrainData = Gameplay.Character.BrainSystem.BrainData;
 using BrainParameter = Gameplay.Character.BrainSystem.BrainParameter;
 using WorldInterfaceData = Gameplay.Character.WorldInterface.WorldInterfaceData;
-namespace Gameplay.Character.AIBridge.Tests
+namespace Hung.Character.AI.Tests
 {
     /// <summary>Counts log messages containing a fragment while alive.</summary>
     internal sealed class LogCounter : IDisposable

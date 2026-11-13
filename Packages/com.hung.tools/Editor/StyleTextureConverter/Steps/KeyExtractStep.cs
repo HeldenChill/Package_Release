@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     public enum KeyChannel { Luminance, R, G, B, Max }
 
@@ -10,6 +10,7 @@ namespace StyleTextureConverter
     /// (green for red-to-yellow fire): luminance flattens detail drawn with hue.
     /// </summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class KeyExtractStep : StyleStep
     {
         public KeyChannel channel = KeyChannel.Luminance;

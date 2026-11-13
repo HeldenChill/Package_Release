@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.15.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Data, Hung.Data.Rewards`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Data;` or `using Hung.Data.Rewards;` where your code uses these types: PoolData, DailyRewardDataSO, DailyRewardItem, DailyRewardSaveData, HeartSave, PiggyBankDataSO, PiggyBankSaveData, SpinWheelDataSO, SpinWheelSaveData, RewardClaimCoordinator, RewardClaimRecordData, RewardClaimStateData, RewardFingerprint, RewardGrantItemData, RewardIntegrityStateData.
+
 ## [0.14.3] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// Working pixels for one pipeline run. Values are the texture's stored (sRGB) values in 0..1.

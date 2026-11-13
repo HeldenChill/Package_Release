@@ -2,7 +2,7 @@
 using UnityEngine;
 using Gameplay.Character.Logic;
 
-namespace Gameplay.Character.AIBridge.Tests
+namespace Hung.Character.AI.Tests
 {
     [TestFixture]
     public class CaptureVelocityTests

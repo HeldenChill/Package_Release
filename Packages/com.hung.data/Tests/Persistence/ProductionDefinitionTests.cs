@@ -3,6 +3,7 @@ using Hung.Base;
 using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using NUnit.Framework;
+using Hung.Data;
 
 namespace Hung.Data.Tests.Persistence
 {

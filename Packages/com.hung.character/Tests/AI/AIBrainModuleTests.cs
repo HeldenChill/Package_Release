@@ -1,7 +1,7 @@
 using Hung.AI;
 using NUnit.Framework;
 using UnityEngine;
-namespace Gameplay.Character.AIBridge.Tests
+namespace Hung.Character.AI.Tests
 {
     public class AIBrainModuleTests
     {

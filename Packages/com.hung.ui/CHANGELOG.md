@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.1] - 2026-11-13
+### Changed
+- Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.
+
 ## [0.10.0] - 2026-11-03
 ### Added
 - Absorbed UI contract types from com.hung.base: IUIAcquisitionService, IUIService, UIAcquireResult, UIBackStack, UICanvas, UIToggle, UITransition, Scoping/IScopedUi, Scoping/UiScope, Scoping/UiScopePath, Scoping/UiScopeRegistry.

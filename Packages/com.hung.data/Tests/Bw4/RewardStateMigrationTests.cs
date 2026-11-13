@@ -3,6 +3,7 @@ using Hung.Data.Persistence;
 using Hung.Data.Rewards;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using Hung.Data;
 namespace Hung.Data.Tests.Bw4
 {
     public sealed class RewardStateMigrationTests

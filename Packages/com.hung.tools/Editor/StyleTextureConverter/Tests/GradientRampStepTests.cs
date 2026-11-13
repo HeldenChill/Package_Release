@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace StyleTextureConverter.Tests
+namespace Hung.Tool.Editor.StyleTextureConverter.Tests
 {
     public sealed class GradientRampStepTests
     {

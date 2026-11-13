@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using BrainData = Gameplay.Character.BrainSystem.BrainData;
 using BrainModule = Gameplay.Character.BrainSystem.BrainModule;
 using BrainParameter = Gameplay.Character.BrainSystem.BrainParameter;
-namespace Gameplay.Character.AIBridge
+namespace Hung.Character.AI
 {
     /// <summary>
     /// BrainModule that runs a Hung.AI graph. The AIAgent on the same GameObject holds the graph and per-agent overrides;

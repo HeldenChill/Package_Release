@@ -92,10 +92,10 @@ namespace Hung.Base
             switch (detectCollider.GetType())
             {
                 case Type type when type == typeof(BoxCollider):
-                    t = UnityEngine.Physics.OverlapBoxNonAlloc(detectCollider.transform.position + detectCollider.bounds.center, detectCollider.bounds.size / 2, targetsDetected, detectCollider.transform.rotation, targetMask);
+                    t = UnityEngine.Physics.OverlapBoxNonAlloc(detectCollider.bounds.center, detectCollider.bounds.size / 2, targetsDetected, detectCollider.transform.rotation, targetMask);
                     break;
                 case Type type when type == typeof(SphereCollider):
-                    t = UnityEngine.Physics.OverlapSphereNonAlloc(detectCollider.transform.position + detectCollider.bounds.center, ((SphereCollider)detectCollider).radius, targetsDetected, targetMask);
+                    t = UnityEngine.Physics.OverlapSphereNonAlloc(detectCollider.bounds.center, ((SphereCollider)detectCollider).radius, targetsDetected, targetMask);
                     break;
             }
             //NOTE: Detect collide position 

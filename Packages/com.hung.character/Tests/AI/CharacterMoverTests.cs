@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
 using BrainData = Gameplay.Character.BrainSystem.BrainData;
-namespace Gameplay.Character.AIBridge.Tests
+namespace Hung.Character.AI.Tests
 {
     public class CharacterMoverTests
     {

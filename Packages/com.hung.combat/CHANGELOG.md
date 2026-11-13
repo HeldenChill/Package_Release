@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Combat`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Combat;` where your code uses these types: DamageCalculator, IAggregateStatusTickEffect, IModStat, StatusEffect, DamageType, StatusEffectType, StatusEffectTypeExtensions, ActiveStatusEffect, ShockOverloadState, StatusEffectFactory, StatusEffectManager, StatusEffectServiceLocator, StatusEffectModuleConfigSO, SynergyDefinitionSO, BleedStatusEffect, BurnStatusEffect, ColdStatusEffect, ElectricStatusEffect, KnockBackStatusEffect, OverloadStatusEffect, PoisonStatusEffect, RegenerationStatusEffect, ShockStatusEffect, StatusEffectModule, ApplyStatusReaction, BurnElectricBurstReaction, BurnElectricExtendReaction, BurnPoisonBurstReaction, BurnSpreadOnDeathReaction, ColdShockCrystallineOverloadReaction, ColdSpreadOnDeathReaction, ResonantPoisonReaction, ShockStackOverloadReaction, StatModifierSynergyReaction, SynergyReactionFactory, SynergyResolver.
+- Code inside a Hung.* namespace must write Hung.Combat.StatusEffect, because Hung.StatusEffect is a namespace.
+
 ## [0.4.12] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.

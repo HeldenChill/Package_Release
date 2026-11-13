@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.31.1] - 2026-11-13
+### Fixed
+- `Target3DDetection<T>.CheckTargets(ref List<T>)`: box and sphere overlaps now use the collider's `bounds.center`. They used `transform.position + bounds.center`, which doubled the world offset, so any detector away from the origin missed targets at its own position and hit at twice its position. Covered by `Target3DDetectionTests`. The `CheckTargets(ref List<T>, Collider)` overload was already correct.
+### Migration
+- None. Callers that compensated for the old offset must remove the compensation.
+
+## [0.31.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Base`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Base;` where your code uses these types: AtlasSprite, DailyGiftTrack, IHeartService.
+
 ## [0.30.0] - 2026-11-03
 ### Added
 - `InitToggle`: plain MonoBehaviour toggle control with `ValueChanged` event, null-safe lifecycle, and XML documentation for base init flow.

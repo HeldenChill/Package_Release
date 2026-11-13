@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace GrayscaleTextureConverter.Tests
+namespace Hung.Tool.Editor.GrayscaleTextureConverter.Tests
 {
     public sealed class GrayscaleTextureSourceDecoderTests
     {

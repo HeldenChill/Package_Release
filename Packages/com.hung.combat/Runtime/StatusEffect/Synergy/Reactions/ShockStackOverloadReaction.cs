@@ -2,47 +2,50 @@ using Hung.Combat;
 using Hung.StatusEffect;
 using UnityEngine;
 
-public class ShockStackOverloadReaction : ISynergyReaction
+namespace Hung.Combat
 {
-    public string ReactionId => "ShockStack10_Overload";
-
-    public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
+    public class ShockStackOverloadReaction : ISynergyReaction
     {
-        if (target == null)
-        {
-            return;
-        }
+        public string ReactionId => "ShockStack10_Overload";
 
-        GameObject targetGo = target.GetGameObject();
-        if (targetGo == null)
+        public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
         {
-            return;
-        }
+            if (target == null)
+            {
+                return;
+            }
 
-        int threshold = 10;
-        if (definition.Parameters != null && definition.Parameters.Length > 0)
-        {
-            threshold = Mathf.Max(1, Mathf.RoundToInt(definition.Parameters[0]));
-        }
+            GameObject targetGo = target.GetGameObject();
+            if (targetGo == null)
+            {
+                return;
+            }
 
-        int shockCount = StatusEffectServiceLocator.GetCount(targetGo, typeof(ShockStatusEffect));
-        if (shockCount == 0 || shockCount % threshold != 0)
-        {
-            return;
-        }
+            int threshold = 10;
+            if (definition.Parameters != null && definition.Parameters.Length > 0)
+            {
+                threshold = Mathf.Max(1, Mathf.RoundToInt(definition.Parameters[0]));
+            }
 
-        float duration = 0.5f;
-        if (definition.Parameters != null && definition.Parameters.Length > 1)
-        {
-            duration = definition.Parameters[1];
-        }
+            int shockCount = StatusEffectServiceLocator.GetCount(targetGo, typeof(ShockStatusEffect));
+            if (shockCount == 0 || shockCount % threshold != 0)
+            {
+                return;
+            }
 
-        var overload = StatusEffectFactory.Create(StatusEffectType.Overload, duration);
-        if (overload == null)
-        {
-            return;
-        }
+            float duration = 0.5f;
+            if (definition.Parameters != null && definition.Parameters.Length > 1)
+            {
+                duration = definition.Parameters[1];
+            }
 
-        StatusEffectServiceLocator.Apply(overload, targetGo, StatusApplicationContext.FromCaster(caster, StatusApplySource.Synergy));
+            var overload = StatusEffectFactory.Create(StatusEffectType.Overload, duration);
+            if (overload == null)
+            {
+                return;
+            }
+
+            StatusEffectServiceLocator.Apply(overload, targetGo, StatusApplicationContext.FromCaster(caster, StatusApplySource.Synergy));
+        }
     }
 }

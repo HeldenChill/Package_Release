@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     [CreateAssetMenu(menuName = "Hung/Tools/Style Texture Profile", fileName = "StyleProfile_New")]
     public sealed class StyleProfile : ScriptableObject

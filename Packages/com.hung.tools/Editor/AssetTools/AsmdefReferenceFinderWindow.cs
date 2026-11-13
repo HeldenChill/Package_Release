@@ -7,334 +7,337 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditorInternal;
 
-[Serializable]
-public class AsmdefJson
-{
-    public string name;
-    public string[] references;
-}
-
-[Serializable]
-public class AsmrefJson
-{
-    public string reference;
-}
-
-
-public class AsmReferenceFinderWindow : EditorWindow
+namespace Hung.Tool.Editor
 {
     [Serializable]
-    private enum SearchMode
+    public class AsmdefJson
     {
-        All,
-        AsmdefOnly,
-        AsmrefOnly
-    }
-    private AssemblyDefinitionAsset targetAsmdef;
-    private Vector2 scroll;
-    private SearchMode searchMode = SearchMode.All;
-    private bool includeSearchAssembly = false;
-    private GUIStyle scrollStyle;
-
-    private readonly List<ResultItem> assemblyResults = new();
-    private readonly List<UnityEngine.Object> parentFolders = new();
-    private class ResultItem
-    {
-        public string type;   // asmdef / asmref
-        public string display;
-        public string path;
-        public UnityEngine.Object asset;
-        public UnityEngine.Object parentFolder;
-
-    }
-    [MenuItem("Tools/Universal/Maintenance/Assembly Definition/Find References Deep")]
-    public static void Open()
-    {
-        GetWindow<AsmReferenceFinderWindow>("Asm Ref Finder");
+        public string name;
+        public string[] references;
     }
 
-    private void OnGUI()
+    [Serializable]
+    public class AsmrefJson
     {
-        scrollStyle ??= new GUIStyle(GUI.skin.scrollView)
+        public string reference;
+    }
+
+
+    public class AsmReferenceFinderWindow : EditorWindow
+    {
+        [Serializable]
+        private enum SearchMode
         {
-            padding = new RectOffset(0, 0, 0, 0), // 👈 giảm top/bottom
-            margin = new RectOffset(0, 0, 0, 0)   // 👈 giảm spacing giữa item
-        };
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Find references to Assembly Definition", EditorStyles.boldLabel);
-        EditorGUILayout.Space();
-
-        targetAsmdef = (AssemblyDefinitionAsset)EditorGUILayout.ObjectField(
-            "Target Assembly",
-            targetAsmdef,
-            typeof(AssemblyDefinitionAsset),
-            false);
-
-        searchMode = (SearchMode)EditorGUILayout.EnumPopup("Search Mode", searchMode);
-        includeSearchAssembly = EditorGUILayout.ToggleLeft(
-                    "Include Base Assembly",
-                    includeSearchAssembly);
-        EditorGUILayout.Space();
-
-
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"Assembly Results ({assemblyResults.Count})", EditorStyles.boldLabel);
-
-        scroll = EditorGUILayout.BeginScrollView(scroll, scrollStyle);
-
-        if (assemblyResults.Count == 0)
-        {
-            EditorGUILayout.HelpBox("No results.", MessageType.Info);
+            All,
+            AsmdefOnly,
+            AsmrefOnly
         }
-        else
+        private AssemblyDefinitionAsset targetAsmdef;
+        private Vector2 scroll;
+        private SearchMode searchMode = SearchMode.All;
+        private bool includeSearchAssembly = false;
+        private GUIStyle scrollStyle;
+
+        private readonly List<ResultItem> assemblyResults = new();
+        private readonly List<UnityEngine.Object> parentFolders = new();
+        private class ResultItem
         {
-            foreach (var r in assemblyResults)
+            public string type;   // asmdef / asmref
+            public string display;
+            public string path;
+            public UnityEngine.Object asset;
+            public UnityEngine.Object parentFolder;
+
+        }
+        [MenuItem("Tools/Universal/Maintenance/Assembly Definition/Find References Deep")]
+        public static void Open()
+        {
+            GetWindow<AsmReferenceFinderWindow>("Asm Ref Finder");
+        }
+
+        private void OnGUI()
+        {
+            scrollStyle ??= new GUIStyle(GUI.skin.scrollView)
             {
-                using (new EditorGUILayout.HorizontalScope("box"))
+                padding = new RectOffset(0, 0, 0, 0), // 👈 giảm top/bottom
+                margin = new RectOffset(0, 0, 0, 0)   // 👈 giảm spacing giữa item
+            };
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Find references to Assembly Definition", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            targetAsmdef = (AssemblyDefinitionAsset)EditorGUILayout.ObjectField(
+                "Target Assembly",
+                targetAsmdef,
+                typeof(AssemblyDefinitionAsset),
+                false);
+
+            searchMode = (SearchMode)EditorGUILayout.EnumPopup("Search Mode", searchMode);
+            includeSearchAssembly = EditorGUILayout.ToggleLeft(
+                        "Include Base Assembly",
+                        includeSearchAssembly);
+            EditorGUILayout.Space();
+
+
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField($"Assembly Results ({assemblyResults.Count})", EditorStyles.boldLabel);
+
+            scroll = EditorGUILayout.BeginScrollView(scroll, scrollStyle);
+
+            if (assemblyResults.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No results.", MessageType.Info);
+            }
+            else
+            {
+                foreach (var r in assemblyResults)
                 {
-                    GUILayout.Label(r.type, GUILayout.Width(55));
-                    using (new EditorGUILayout.VerticalScope())
+                    using (new EditorGUILayout.HorizontalScope("box"))
                     {
-                        DrawField(r.asset);
-                        DrawField(r.parentFolder);
+                        GUILayout.Label(r.type, GUILayout.Width(55));
+                        using (new EditorGUILayout.VerticalScope())
+                        {
+                            DrawField(r.asset);
+                            DrawField(r.parentFolder);
+                        }
                     }
+                }
+            }
+
+            EditorGUILayout.EndScrollView();
+            using (new EditorGUI.DisabledScope(targetAsmdef == null))
+            {
+                if (GUILayout.Button("Find References", GUILayout.Height(28)))
+                {
+                    FindReferences();
+                }
+                if (GUILayout.Button("Find Parent Folder", GUILayout.Height(28)))
+                {
+                    FindParentFolder();
+                }
+            }
+        }
+        private void DrawField(UnityEngine.Object obj)
+        {
+            Rect rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUI.ObjectField(rect, obj, typeof(UnityEngine.Object), false);
+            }
+
+            HandleDoubleClick(rect, obj);
+        }
+        private void FindParentFolder()
+        {
+            parentFolders.Clear();
+            HashSet<string> folders = GetImmediateParentFolders(assemblyResults);
+            List<UnityEngine.Object> folderObjects = GetFolderObjects(folders);
+            if (folderObjects.Count == 0)
+            {
+                EditorUtility.DisplayDialog("No Parent Folders", "No parent folders found for the results.", "OK");
+                return;
+            }
+            else
+            {
+                Selection.objects = folderObjects.ToArray();
+                for (int i = 0; i < assemblyResults.Count; i++)
+                {
+                    assemblyResults[i].parentFolder = folderObjects[i];
+                }
+
+                foreach (var obj in folderObjects)
+                {
+                    parentFolders.Add(obj);
                 }
             }
         }
 
-        EditorGUILayout.EndScrollView();
-        using (new EditorGUI.DisabledScope(targetAsmdef == null))
+        private HashSet<string> GetImmediateParentFolders(List<ResultItem> results)
         {
-            if (GUILayout.Button("Find References", GUILayout.Height(28)))
-            {
-                FindReferences();
-            }
-            if (GUILayout.Button("Find Parent Folder", GUILayout.Height(28)))
-            {
-                FindParentFolder();
-            }
-        }
-    }
-    private void DrawField(UnityEngine.Object obj)
-    {
-        Rect rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+            HashSet<string> folders = new HashSet<string>();
 
-        using (new EditorGUI.DisabledScope(true))
-        {
-            EditorGUI.ObjectField(rect, obj, typeof(UnityEngine.Object), false);
-        }
-
-        HandleDoubleClick(rect, obj);
-    }
-    private void FindParentFolder()
-    {
-        parentFolders.Clear();
-        HashSet<string> folders = GetImmediateParentFolders(assemblyResults);
-        List<UnityEngine.Object> folderObjects = GetFolderObjects(folders);
-        if (folderObjects.Count == 0)
-        {
-            EditorUtility.DisplayDialog("No Parent Folders", "No parent folders found for the results.", "OK");
-            return;
-        }
-        else
-        {
-            Selection.objects = folderObjects.ToArray();
-            for (int i = 0; i < assemblyResults.Count; i++)
+            foreach (var r in results)
             {
-                assemblyResults[i].parentFolder = folderObjects[i];
+                if (string.IsNullOrEmpty(r.path))
+                    continue;
+
+                string parent = Path.GetDirectoryName(r.path)?.Replace("\\", "/");
+
+                if (!string.IsNullOrEmpty(parent) && parent.StartsWith("Assets"))
+                {
+                    folders.Add(parent);
+                }
             }
 
-            foreach (var obj in folderObjects)
-            {
-                parentFolders.Add(obj);
-            }
+            return folders;
         }
-    }
-
-    private HashSet<string> GetImmediateParentFolders(List<ResultItem> results)
-    {
-        HashSet<string> folders = new HashSet<string>();
-
-        foreach (var r in results)
+        private List<UnityEngine.Object> GetFolderObjects(HashSet<string> folders)
         {
-            if (string.IsNullOrEmpty(r.path))
-                continue;
+            List<UnityEngine.Object> objs = new List<UnityEngine.Object>();
 
-            string parent = Path.GetDirectoryName(r.path)?.Replace("\\", "/");
-
-            if (!string.IsNullOrEmpty(parent) && parent.StartsWith("Assets"))
+            foreach (var path in folders)
             {
-                folders.Add(parent);
+                var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+                if (obj != null)
+                {
+                    objs.Add(obj);
+                }
+            }
+
+            return objs;
+        }
+        private void HandleDoubleClick(Rect rect, UnityEngine.Object obj)
+        {
+            Event e = Event.current;
+
+            if (e.type == EventType.MouseDown &&
+                e.button == 0 &&
+                e.clickCount == 2 &&
+                rect.Contains(e.mousePosition))
+            {
+                if (obj != null)
+                {
+                    AssetDatabase.OpenAsset(obj);
+                    e.Use(); // 👈 rất quan trọng để tránh event leak
+                }
             }
         }
 
-        return folders;
-    }
-    private List<UnityEngine.Object> GetFolderObjects(HashSet<string> folders)
-    {
-        List<UnityEngine.Object> objs = new List<UnityEngine.Object>();
-
-        foreach (var path in folders)
+        private void FindReferences()
         {
-            var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            if (obj != null)
+            parentFolders.Clear();
+            assemblyResults.Clear();
+
+            string targetPath = AssetDatabase.GetAssetPath(targetAsmdef);
+            if (string.IsNullOrEmpty(targetPath))
             {
-                objs.Add(obj);
+                Debug.LogError("Invalid target asmdef path.");
+                return;
             }
-        }
 
-        return objs;
-    }
-    private void HandleDoubleClick(Rect rect, UnityEngine.Object obj)
-    {
-        Event e = Event.current;
+            string targetGuid = AssetDatabase.AssetPathToGUID(targetPath);
+            var targetAsmdefJson = ReadJson<AsmdefJson>(targetPath);
 
-        if (e.type == EventType.MouseDown &&
-            e.button == 0 &&
-            e.clickCount == 2 &&
-            rect.Contains(e.mousePosition))
-        {
-            if (obj != null)
+            if (targetAsmdefJson == null || string.IsNullOrEmpty(targetAsmdefJson.name))
             {
-                AssetDatabase.OpenAsset(obj);
-                e.Use(); // 👈 rất quan trọng để tránh event leak
+                Debug.LogError("Cannot read target asmdef name.");
+                return;
             }
-        }
-    }
-
-    private void FindReferences()
-    {
-        parentFolders.Clear();
-        assemblyResults.Clear();
-
-        string targetPath = AssetDatabase.GetAssetPath(targetAsmdef);
-        if (string.IsNullOrEmpty(targetPath))
-        {
-            Debug.LogError("Invalid target asmdef path.");
-            return;
-        }
-
-        string targetGuid = AssetDatabase.AssetPathToGUID(targetPath);
-        var targetAsmdefJson = ReadJson<AsmdefJson>(targetPath);
-
-        if (targetAsmdefJson == null || string.IsNullOrEmpty(targetAsmdefJson.name))
-        {
-            Debug.LogError("Cannot read target asmdef name.");
-            return;
-        }
-        if (includeSearchAssembly)
-        {
-            assemblyResults.Add(new ResultItem
-            {
-                type = "asmdef",
-                display = targetAsmdefJson.name,
-                path = targetPath,
-                asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(targetPath)
-            });
-        }
-        string targetName = targetAsmdefJson.name;
-        string targetGuidRef = $"GUID:{targetGuid}";
-
-        // Chỉ tìm asmdef khi checkbox không được bật
-        switch (searchMode)
-        {
-            case SearchMode.All:
-                FindAsrmdef(targetPath, targetName, targetGuidRef);
-                FindAsmref(targetName, targetGuidRef);
-                break; // Tìm cả 2
-            case SearchMode.AsmdefOnly:
-                FindAsrmdef(targetPath, targetName, targetGuidRef);
-                break;
-            case SearchMode.AsmrefOnly:
-                FindAsmref(targetName, targetGuidRef);
-                break;
-            default:
-                FindAsrmdef(targetPath, targetName, targetGuidRef);
-                FindAsmref(targetName, targetGuidRef);
-                break;
-        }
-        assemblyResults.Sort((a, b) => string.Compare(a.path, b.path, StringComparison.Ordinal));
-        Repaint();
-    }
-
-    private void FindAsrmdef(string targetPath, string targetName, string targetGuidRef)
-    {
-        string[] asmdefGuids = AssetDatabase.FindAssets("t:AssemblyDefinitionAsset");
-        foreach (string guid in asmdefGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (path == targetPath)
-                continue;
-
-            var json = ReadJson<AsmdefJson>(path);
-            if (json?.references == null || json.references.Length == 0)
-                continue;
-
-            bool match = json.references.Any(r =>
-                string.Equals(r, targetName, StringComparison.Ordinal) ||
-                string.Equals(r, targetGuidRef, StringComparison.Ordinal));
-
-            if (match)
+            if (includeSearchAssembly)
             {
                 assemblyResults.Add(new ResultItem
                 {
                     type = "asmdef",
-                    display = string.IsNullOrEmpty(json.name)
-                        ? Path.GetFileNameWithoutExtension(path)
-                        : json.name,
-                    path = path,
-                    asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path)
+                    display = targetAsmdefJson.name,
+                    path = targetPath,
+                    asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(targetPath)
                 });
             }
-        }
-    }
+            string targetName = targetAsmdefJson.name;
+            string targetGuidRef = $"GUID:{targetGuid}";
 
-    private void FindAsmref(string targetName, string targetGuidRef)
-    {
-        string[] allPaths = AssetDatabase.GetAllAssetPaths();
-        foreach (string path in allPaths)
-        {
-            if (!path.EndsWith(".asmref", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var json = ReadJson<AsmrefJson>(path);
-            if (json == null || string.IsNullOrEmpty(json.reference))
-                continue;
-
-            bool match =
-                string.Equals(json.reference, targetName, StringComparison.Ordinal) ||
-                string.Equals(json.reference, targetGuidRef, StringComparison.Ordinal);
-
-            if (match)
+            // Chỉ tìm asmdef khi checkbox không được bật
+            switch (searchMode)
             {
-                assemblyResults.Add(new ResultItem
+                case SearchMode.All:
+                    FindAsrmdef(targetPath, targetName, targetGuidRef);
+                    FindAsmref(targetName, targetGuidRef);
+                    break; // Tìm cả 2
+                case SearchMode.AsmdefOnly:
+                    FindAsrmdef(targetPath, targetName, targetGuidRef);
+                    break;
+                case SearchMode.AsmrefOnly:
+                    FindAsmref(targetName, targetGuidRef);
+                    break;
+                default:
+                    FindAsrmdef(targetPath, targetName, targetGuidRef);
+                    FindAsmref(targetName, targetGuidRef);
+                    break;
+            }
+            assemblyResults.Sort((a, b) => string.Compare(a.path, b.path, StringComparison.Ordinal));
+            Repaint();
+        }
+
+        private void FindAsrmdef(string targetPath, string targetName, string targetGuidRef)
+        {
+            string[] asmdefGuids = AssetDatabase.FindAssets("t:AssemblyDefinitionAsset");
+            foreach (string guid in asmdefGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path == targetPath)
+                    continue;
+
+                var json = ReadJson<AsmdefJson>(path);
+                if (json?.references == null || json.references.Length == 0)
+                    continue;
+
+                bool match = json.references.Any(r =>
+                    string.Equals(r, targetName, StringComparison.Ordinal) ||
+                    string.Equals(r, targetGuidRef, StringComparison.Ordinal));
+
+                if (match)
                 {
-                    type = "asmref",
-                    display = Path.GetFileNameWithoutExtension(path),
-                    path = path,
-                    asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path)
-                });
+                    assemblyResults.Add(new ResultItem
+                    {
+                        type = "asmdef",
+                        display = string.IsNullOrEmpty(json.name)
+                            ? Path.GetFileNameWithoutExtension(path)
+                            : json.name,
+                        path = path,
+                        asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path)
+                    });
+                }
             }
         }
-    }
 
-
-    private static T ReadJson<T>(string assetPath) where T : class
-    {
-        try
+        private void FindAsmref(string targetName, string targetGuidRef)
         {
-            string fullPath = Path.GetFullPath(assetPath);
-            if (!File.Exists(fullPath))
-                return null;
+            string[] allPaths = AssetDatabase.GetAllAssetPaths();
+            foreach (string path in allPaths)
+            {
+                if (!path.EndsWith(".asmref", StringComparison.OrdinalIgnoreCase))
+                    continue;
 
-            string json = File.ReadAllText(fullPath);
-            return JsonUtility.FromJson<T>(json);
+                var json = ReadJson<AsmrefJson>(path);
+                if (json == null || string.IsNullOrEmpty(json.reference))
+                    continue;
+
+                bool match =
+                    string.Equals(json.reference, targetName, StringComparison.Ordinal) ||
+                    string.Equals(json.reference, targetGuidRef, StringComparison.Ordinal);
+
+                if (match)
+                {
+                    assemblyResults.Add(new ResultItem
+                    {
+                        type = "asmref",
+                        display = Path.GetFileNameWithoutExtension(path),
+                        path = path,
+                        asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path)
+                    });
+                }
+            }
         }
-        catch (Exception e)
+
+
+        private static T ReadJson<T>(string assetPath) where T : class
         {
-            Debug.LogError($"Failed reading {assetPath}\n{e}");
-            return null;
+            try
+            {
+                string fullPath = Path.GetFullPath(assetPath);
+                if (!File.Exists(fullPath))
+                    return null;
+
+                string json = File.ReadAllText(fullPath);
+                return JsonUtility.FromJson<T>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed reading {assetPath}\n{e}");
+                return null;
+            }
         }
     }
 }

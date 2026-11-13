@@ -7,6 +7,7 @@ using Hung.Data.Persistence;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using UnityEngine;
+using Hung.Data;
 
 namespace Hung.Data.PlayModeTests
 {

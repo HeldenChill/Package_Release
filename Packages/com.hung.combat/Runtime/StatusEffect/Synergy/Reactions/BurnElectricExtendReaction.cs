@@ -2,24 +2,27 @@ using Hung.Combat;
 using Hung.StatusEffect;
 using UnityEngine;
 
-public class BurnElectricExtendReaction : ISynergyReaction
+namespace Hung.Combat
 {
-    public string ReactionId => "BurnElectric_Extend";
-
-    public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
+    public class BurnElectricExtendReaction : ISynergyReaction
     {
-        if (target == null)
-        {
-            return;
-        }
+        public string ReactionId => "BurnElectric_Extend";
 
-        float extensionSeconds = 2f;
-        if (definition.Parameters != null && definition.Parameters.Length > 0)
+        public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
         {
-            extensionSeconds = definition.Parameters[0];
-        }
+            if (target == null)
+            {
+                return;
+            }
 
-        StatusEffectServiceLocator.ExtendDuration(target, StatusEffectType.Burn, extensionSeconds);
-        target.VisualReceiver?.OnSynergyStatusTrigger(SynergyEffectTag.ElectricBurn);
+            float extensionSeconds = 2f;
+            if (definition.Parameters != null && definition.Parameters.Length > 0)
+            {
+                extensionSeconds = definition.Parameters[0];
+            }
+
+            StatusEffectServiceLocator.ExtendDuration(target, StatusEffectType.Burn, extensionSeconds);
+            target.VisualReceiver?.OnSynergyStatusTrigger(SynergyEffectTag.ElectricBurn);
+        }
     }
 }

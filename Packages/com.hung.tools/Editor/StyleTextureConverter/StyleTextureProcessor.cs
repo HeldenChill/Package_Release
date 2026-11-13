@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     public sealed class StyleStepException : Exception
     {

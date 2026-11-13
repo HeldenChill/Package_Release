@@ -12,7 +12,7 @@ namespace Hung.Combat
         public bool ForceCrit;
         public object Source;
         public bool SuppressElementalProc;
-        public IReadOnlyList<global::StatusEffect> OnHitTemplates;
+        public IReadOnlyList<global::Hung.Combat.StatusEffect> OnHitTemplates;
         public string CasterId;
         public bool OnHitTemplatesDelayPreBaked;
         // Consumed by Enemy.ApplyPostDamageEffects to override elemental proc rates per hit.

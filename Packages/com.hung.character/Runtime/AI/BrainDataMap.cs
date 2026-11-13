@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Hung.AI;
 using UnityEngine;
 using BrainData = Gameplay.Character.BrainSystem.BrainData;
-namespace Gameplay.Character.AIBridge
+namespace Hung.Character.AI
 {
     /// <summary>BrainData fields the bridge can copy to or from the blackboard.</summary>
     public enum BrainDataField

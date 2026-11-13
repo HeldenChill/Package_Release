@@ -2,6 +2,7 @@ using System;
 using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using Newtonsoft.Json.Linq;
+using Hung.Data;
 namespace Hung.Data.Rewards
 {
     public static class Bw4RewardSaveDefinitions

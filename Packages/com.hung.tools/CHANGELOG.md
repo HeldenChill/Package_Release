@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Tool, Hung.Tool.Editor, Hung.Tool.Editor.GrayscaleTextureConverter, Hung.Tool.Editor.GrayscaleTextureConverter.Tests, Hung.Tool.Editor.StyleTextureConverter, Hung.Tool.Editor.StyleTextureConverter.Tests`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Tool;` or `using Hung.Tool.Editor;` where your code uses these types: UIDOTweenDemo, UIDOTweenDemoEditor, SpineSpriteSheetBakeSetup, SpineBakeSampleMode, SpineSpriteSheetParticleBakeSetup, SpineSpriteSheetParticleBakeSetupEditor, MetaGuidUnifierWindow, AsmdefReferenceFinderWindow, AsmdefJson, AsmrefJson, MethodTweenPreviewWindow, PrefabParticleScalerWindow, TMPAtlasConverter, VfxColorToneShifter, SpineSpriteSheetBakerWindow, SpineSpriteSheetParticleBakeSetupWindow, GrayscaleTextureConverterSettings, GrayscaleTextureConverterWindow, GrayscaleTextureExportUtility, GrayscaleTextureImporterUtility, GrayscaleTextureProcessor, GrayscaleTextureSourceDecoder, StyleBuffer, StyleImageOps, StyleProfile, StyleStep, StyleTextureConverterWindow, StyleTextureExport, StyleTextureProcessor, AdjustStep, BackgroundCutStep, GradientRampStep, InkLineStep, KeyExtractStep, PosterizeStep, RimStep.
+- Assets with [SerializeReference] data keep loading through MovedFrom; open and save them once to rewrite the namespace.
+
 ## [0.11.0] - 2026-09-29
 ### Removed
 - `SDKToolkitWindow` / `SDKToolkitSettingsWindow` (`Tools/Universal/Maintenance/SDK Toolkit`): redundant tool.

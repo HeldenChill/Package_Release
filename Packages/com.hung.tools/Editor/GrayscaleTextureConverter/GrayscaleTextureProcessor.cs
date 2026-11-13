@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GrayscaleTextureConverter
+namespace Hung.Tool.Editor.GrayscaleTextureConverter
 {
     /// <summary>
     /// Pure pixel math: luminance conversion, adjustments, and optional target-color tint.

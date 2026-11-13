@@ -1,9 +1,9 @@
 using System.IO;
-using GrayscaleTextureConverter;
+using Hung.Tool.Editor.GrayscaleTextureConverter;
 using UnityEditor;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     public static class StyleTextureExport
     {

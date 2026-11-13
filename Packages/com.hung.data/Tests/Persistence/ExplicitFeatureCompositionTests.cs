@@ -5,7 +5,9 @@ using System.Linq;
 using Hung.Base;
 using Hung.Base.Composition;
 using Hung.Base.Persistence;
+using Hung.Data;
 using Hung.Data.Persistence;
+using Hung.Data.Rewards;
 using NUnit.Framework;
 
 namespace Hung.Data.Tests.Persistence

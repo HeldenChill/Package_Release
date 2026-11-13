@@ -1,18 +1,21 @@
 using System;
 
-[Serializable]
-public sealed class RewardGrantItemData
+namespace Hung.Data.Rewards
 {
-    public string itemId;
-    public int quantity;
-
-    public RewardGrantItemData()
+    [Serializable]
+    public sealed class RewardGrantItemData
     {
-    }
+        public string itemId;
+        public int quantity;
 
-    public RewardGrantItemData(string itemId, int quantity)
-    {
-        this.itemId = itemId;
-        this.quantity = quantity;
+        public RewardGrantItemData()
+        {
+        }
+
+        public RewardGrantItemData(string itemId, int quantity)
+        {
+            this.itemId = itemId;
+            this.quantity = quantity;
+        }
     }
 }

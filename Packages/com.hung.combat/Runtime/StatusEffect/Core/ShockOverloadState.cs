@@ -1,5 +1,8 @@
-public sealed class ShockOverloadState
+namespace Hung.Combat
 {
-    public int NextThreshold;
-    public int HighestTriggeredThreshold;
+    public sealed class ShockOverloadState
+    {
+        public int NextThreshold;
+        public int HighestTriggeredThreshold;
+    }
 }

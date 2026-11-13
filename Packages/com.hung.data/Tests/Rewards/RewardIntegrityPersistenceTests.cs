@@ -4,6 +4,7 @@ using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using Hung.Data.Tests.Persistence;
 using NUnit.Framework;
+using Hung.Data.Rewards;
 
 namespace Hung.Data.Tests.Rewards
 {

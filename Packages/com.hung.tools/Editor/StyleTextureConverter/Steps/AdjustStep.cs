@@ -1,11 +1,12 @@
 using System;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>Per-channel gamma -> contrast around 0.5 -> brightness (same order as the Grayscale converter),
     /// then saturation around luminance. Values are clamped only at encode.</summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class AdjustStep : StyleStep
     {
         [Range(-1f, 1f)] public float brightness = 0f;

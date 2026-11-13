@@ -2,6 +2,7 @@ using System;
 using Hung.Base;
 using Hung.DesignPattern;
 using UnityEngine;
+using Hung.Data;
 
 namespace Hung.LiveOps.PiggyBank
 {

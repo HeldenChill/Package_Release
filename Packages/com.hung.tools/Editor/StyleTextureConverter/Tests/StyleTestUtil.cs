@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace StyleTextureConverter.Tests
+namespace Hung.Tool.Editor.StyleTextureConverter.Tests
 {
     static class StyleTestUtil
     {

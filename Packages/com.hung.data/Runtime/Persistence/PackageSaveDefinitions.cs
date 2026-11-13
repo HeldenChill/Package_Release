@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Hung.Base;
 using Hung.Base.Persistence;
+using Hung.Data.Rewards;
+using Hung.Data;
 
 namespace Hung.Data.Persistence
 {

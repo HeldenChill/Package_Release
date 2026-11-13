@@ -2,7 +2,7 @@ using System;
 using Hung.AI;
 using UnityEngine;
 using BrainParameter = Gameplay.Character.BrainSystem.BrainParameter;
-namespace Gameplay.Character.AIBridge
+namespace Hung.Character.AI
 {
     internal static class CharacterAI
     {
@@ -17,6 +17,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/Sense World", Description = "Reads the character's sight and hearing sensors every tick and stays Running. Put it in a Parallel beside the decision branch.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class SenseWorldNode : ActionNode
     {
         [NonSerialized] AIBrainModule module;
@@ -32,6 +33,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/See Target", Description = "True while a target is seen or was seen within Memory Seconds. Writes the target Transform and its last seen position. Use Abort Type Both on a chase branch.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class SeeTargetNode : ConditionNode
     {
         [SerializeField, Min(0f)] float memorySeconds = 6f;
@@ -75,6 +77,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/Hear Sound", Description = "True while a sound is heard or was heard within Memory Seconds. Writes the sound position.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class HearSoundNode : ConditionNode
     {
         [SerializeField, Min(0f)] float memorySeconds = 6f;
@@ -105,6 +108,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/Track Target", Description = "Writes the seen target's live position into a key every tick. Running while a target exists, Failure when there is none.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class TrackTargetNode : ActionNode
     {
         [SerializeField] BlackboardRef<Vector3> positionKey = new BlackboardRef<Vector3>();
@@ -130,6 +134,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/Lose Target", Description = "Forgets the seen target (and the heard sound when Forget Sound is on), clears the given keys, and succeeds.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class LoseTargetNode : ActionNode
     {
         [SerializeField] bool forgetSound;
@@ -168,6 +173,7 @@ namespace Gameplay.Character.AIBridge
     }
 
     [Serializable, AINode("Character/Perception/Look Around", Description = "Stops moving and turns the body on the spot for Duration seconds, then succeeds.")]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "Gameplay.Character.AIBridge")]
     public sealed class LookAroundNode : ActionNode
     {
         [SerializeField, Min(0f)] float duration = 2f;

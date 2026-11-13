@@ -10,6 +10,7 @@ namespace Hung.UI
     using UnityEditor.U2D;
 #endif
     using System;
+    using Hung.Base;
     using UnityEngine;
     using UnityEngine.U2D;
     using UnityEngine.UI;

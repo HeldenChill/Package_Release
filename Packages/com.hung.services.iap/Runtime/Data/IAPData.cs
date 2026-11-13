@@ -3,13 +3,14 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-[CreateAssetMenu(fileName = "IAP Products", menuName = "ScriptableObjects/IAP Data")]
-public class IAPData : SerializedScriptableObject
+namespace Hung.IAP
 {
-    [SerializeField]
-    protected Dictionary<IAP_ITEM, IAPItem> purchaseProducts;
+    [CreateAssetMenu(fileName = "IAP Products", menuName = "ScriptableObjects/IAP Data")]
+    public class IAPData : SerializedScriptableObject
+    {
+        [SerializeField]
+        protected Dictionary<IAP_ITEM, IAPItem> purchaseProducts;
 
-    public Dictionary<IAP_ITEM, IAPItem> PurchaseProducts => purchaseProducts;
+        public Dictionary<IAP_ITEM, IAPItem> PurchaseProducts => purchaseProducts;
+    }
 }
-

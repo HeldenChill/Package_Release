@@ -1,18 +1,21 @@
 using Hung.Combat;
 using UnityEngine;
 
-[System.Serializable]
-public class ActiveStatusEffect
+namespace Hung.Combat
 {
-    public string effectId;
-    public StatusEffect statusEffect;
-    public IStatusEffectHost target;
-    public GameObject caster;
-    public float startTime;
-    public float lastTickTime;
-
-    public ActiveStatusEffect()
+    [System.Serializable]
+    public class ActiveStatusEffect
     {
-        effectId = System.Guid.NewGuid().ToString();
+        public string effectId;
+        public StatusEffect statusEffect;
+        public IStatusEffectHost target;
+        public GameObject caster;
+        public float startTime;
+        public float lastTickTime;
+
+        public ActiveStatusEffect()
+        {
+            effectId = System.Guid.NewGuid().ToString();
+        }
     }
 }

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace GrayscaleTextureConverter.Tests
+namespace Hung.Tool.Editor.GrayscaleTextureConverter.Tests
 {
     public sealed class GrayscaleTextureProcessorTests
     {

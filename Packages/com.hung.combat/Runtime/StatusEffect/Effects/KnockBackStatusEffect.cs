@@ -1,16 +1,19 @@
 using UnityEngine;
 
-[System.Serializable]
-public class KnockBackStatusEffect : StatusEffect
+namespace Hung.Combat
 {
-    public float force;
-
-    public override StatusEffect Clone()
+    [System.Serializable]
+    public class KnockBackStatusEffect : StatusEffect
     {
-        var clone = new KnockBackStatusEffect();
-        clone.CopyBaseFields(this);
-        clone.force = force;
-        clone.canStack = false;
-        return clone;
+        public float force;
+
+        public override StatusEffect Clone()
+        {
+            var clone = new KnockBackStatusEffect();
+            clone.CopyBaseFields(this);
+            clone.force = force;
+            clone.canStack = false;
+            return clone;
+        }
     }
 }

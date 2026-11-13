@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace GrayscaleTextureConverter
+namespace Hung.Tool.Editor.GrayscaleTextureConverter
 {
     public class GrayscaleTextureConverterWindow : EditorWindow
     {

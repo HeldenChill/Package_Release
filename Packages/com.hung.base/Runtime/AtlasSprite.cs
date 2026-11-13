@@ -7,39 +7,42 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-[ExecuteInEditMode]
-public class AtlasSprite : MonoBehaviour
+namespace Hung.Base
 {
-    public SpriteAtlas atlas;
-    public Image image;
-    public Sprite sprite;
-    private void Awake()
+    [ExecuteInEditMode]
+    public class AtlasSprite : MonoBehaviour
     {
-
-#if UNITY_EDITOR
-        if (!EditorApplication.isPlaying)
+        public SpriteAtlas atlas;
+        public Image image;
+        public Sprite sprite;
+        private void Awake()
         {
-            if (image == null)
+
+    #if UNITY_EDITOR
+            if (!EditorApplication.isPlaying)
             {
-                image = GetComponent<Image>();
+                if (image == null)
+                {
+                    image = GetComponent<Image>();
+                }
+
+                if (image != null)
+                {
+                    sprite = image.sprite;
+                }
+            }
+            else
+            {
+                if (atlas != null)
+                    image.sprite = atlas.GetSprite(sprite.name);
             }
 
-            if (image != null)
-            {
-                sprite = image.sprite;
-            }
-        }
-        else
-        {
-            if (atlas != null)
+    #else
+            if(atlas != null)
                 image.sprite = atlas.GetSprite(sprite.name);
+    #endif
         }
-        
-#else
-        if(atlas != null)
-            image.sprite = atlas.GetSprite(sprite.name);
-#endif
+
+
     }
-
-
 }

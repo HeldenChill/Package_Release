@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Tutorial`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Tutorial;` where your code uses these types: TutorialGraphSO, Trigger.
+
 ## [0.3.15] - 2026-11-03
 
 - Replace Locator.UI with UILocator.Service (the UI contracts moved to com.hung.ui) and re-pin dependencies to com.hung.base 0.30.0 and com.hung.ui 0.10.0.

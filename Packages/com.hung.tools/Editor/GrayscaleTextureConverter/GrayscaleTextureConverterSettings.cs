@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GrayscaleTextureConverter
+namespace Hung.Tool.Editor.GrayscaleTextureConverter
 {
     public enum GrayscaleMethod
     {

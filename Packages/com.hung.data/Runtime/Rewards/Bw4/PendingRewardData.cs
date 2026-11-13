@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hung.Base;
+using Hung.Data.Rewards;
 namespace Hung.Data.Rewards
 {
     [Serializable] public sealed class PendingRewardData

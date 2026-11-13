@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// Flat cel colours: k-means over opaque texels, every opaque texel snapped to its centroid, colour patches
@@ -10,6 +10,7 @@ namespace StyleTextureConverter
     /// Writes StyleBuffer.regions (centroid index, -1 on non-opaque texels). Alpha untouched.
     /// </summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class PosterizeStep : StyleStep
     {
         [Range(2, 32)] public int colors = 6;

@@ -9,6 +9,7 @@ namespace Gameplay.Character
     using Logic;
     using Physic;
     using Hung.DesignPattern;
+    using Hung.Character;
 
     public interface ICharacter
     {

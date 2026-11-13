@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.10.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Ads`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Ads;` where your code uses these types: AdsData.
+
 ## [0.9.3] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.

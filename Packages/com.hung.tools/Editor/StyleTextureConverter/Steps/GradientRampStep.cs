@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>Replaces RGB with ramp.Evaluate(key). No key yet -> luminance. Alpha untouched.</summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class GradientRampStep : StyleStep
     {
         public Gradient ramp = new Gradient();

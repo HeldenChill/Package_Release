@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using UnityEngine;
+using Hung.Data;
 
 namespace Hung.Data.Tests.Persistence
 {

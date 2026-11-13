@@ -4,35 +4,38 @@ using Hung.StatusEffect;
 using SStats;
 using UnityEngine;
 
-[System.Serializable]
-public class ColdStatusEffect : StatusEffect
+namespace Hung.Combat
 {
-    StatModifier speedModifier;
-
-    public override void OnApply(IStatusEffectHost target, GameObject caster)
+    [System.Serializable]
+    public class ColdStatusEffect : StatusEffect
     {
-        base.OnApply(target, caster);
-        speedModifier = new StatModifier(-0.05f, StatModType.PercentAdd);
-        target.AddStatModifier(STAT.SPEED, speedModifier);
-        target.VisualReceiver.OnStatusStackApplied(StatusEffectTag.Cold);
-    }
+        StatModifier speedModifier;
 
-    public override void OnRemove(IStatusEffectHost target, GameObject caster)
-    {
-        if (speedModifier != null)
+        public override void OnApply(IStatusEffectHost target, GameObject caster)
         {
-            target.RemoveStatModifier(STAT.SPEED, speedModifier);
-            target.VisualReceiver.OnStatusStackRemoved(StatusEffectTag.Cold);
-            speedModifier = null;
+            base.OnApply(target, caster);
+            speedModifier = new StatModifier(-0.05f, StatModType.PercentAdd);
+            target.AddStatModifier(STAT.SPEED, speedModifier);
+            target.VisualReceiver.OnStatusStackApplied(StatusEffectTag.Cold);
         }
 
-        base.OnRemove(target, caster);
-    }
+        public override void OnRemove(IStatusEffectHost target, GameObject caster)
+        {
+            if (speedModifier != null)
+            {
+                target.RemoveStatModifier(STAT.SPEED, speedModifier);
+                target.VisualReceiver.OnStatusStackRemoved(StatusEffectTag.Cold);
+                speedModifier = null;
+            }
 
-    public override StatusEffect Clone()
-    {
-        var clone = new ColdStatusEffect();
-        clone.CopyBaseFields(this);
-        return clone;
+            base.OnRemove(target, caster);
+        }
+
+        public override StatusEffect Clone()
+        {
+            var clone = new ColdStatusEffect();
+            clone.CopyBaseFields(this);
+            return clone;
+        }
     }
 }

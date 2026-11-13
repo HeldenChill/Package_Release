@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.15] - 2026-11-13
+### Changed
+- Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.
+
 ## [0.4.14] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.

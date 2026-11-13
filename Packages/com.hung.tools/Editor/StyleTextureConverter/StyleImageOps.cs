@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>Mask and label helpers shared by region-aware steps. Index = y * width + x; 4-connected.</summary>
     internal static class StyleImageOps

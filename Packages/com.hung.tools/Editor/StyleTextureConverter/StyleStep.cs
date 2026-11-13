@@ -1,6 +1,6 @@
 using System;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// One pixel operation in a StyleProfile. Profiles store steps by type name ([SerializeReference]):

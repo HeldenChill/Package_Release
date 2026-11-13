@@ -2,28 +2,31 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-public class CharacterVisualModule : MonoBehaviour
+namespace Hung.Character
 {
-    [SerializeField]
-    protected Animator animator;
-
-    public void SetAnimFloat(Type type, string name, float value)
+    public class CharacterVisualModule : MonoBehaviour
     {
-        if (HasAnimatorParameter(animator, name))
-            animator.SetFloat(name, value);
-    }
+        [SerializeField]
+        protected Animator animator;
 
-    bool HasAnimatorParameter(Animator animator, string paramName)
-    {
-        if (animator == null)
-            return false;
-
-        foreach (var param in animator.parameters)
+        public void SetAnimFloat(Type type, string name, float value)
         {
-            if (param.name == paramName)
-                return true;
+            if (HasAnimatorParameter(animator, name))
+                animator.SetFloat(name, value);
         }
 
-        return false;
+        bool HasAnimatorParameter(Animator animator, string paramName)
+        {
+            if (animator == null)
+                return false;
+
+            foreach (var param in animator.parameters)
+            {
+                if (param.name == paramName)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

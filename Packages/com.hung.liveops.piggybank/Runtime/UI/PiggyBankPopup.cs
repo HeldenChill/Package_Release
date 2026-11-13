@@ -12,6 +12,7 @@ using Utilities;
 
 // NOTE: THIS Class is derived from UISCanvas, so it should not be packed when packing feature content
 using Hung.DesignPattern;
+using Hung.Data;
 
 namespace Hung.UI
 {

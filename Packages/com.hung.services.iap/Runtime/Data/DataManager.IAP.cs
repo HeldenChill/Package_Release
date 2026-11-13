@@ -1,4 +1,5 @@
 using UnityEngine;
+using Hung.IAP;
 
 namespace Hung.Data
 {

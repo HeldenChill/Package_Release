@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace GrayscaleTextureConverter
+namespace Hung.Tool.Editor.GrayscaleTextureConverter
 {
     /// <summary>
     /// Decodes source image bytes into an uncompressed, readable scratch texture.

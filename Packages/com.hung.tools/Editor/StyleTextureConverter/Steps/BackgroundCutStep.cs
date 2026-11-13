@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// Cuts an opaque background: floods low-gradient texels from the image border, then open -> largest
@@ -12,6 +12,7 @@ namespace StyleTextureConverter
     /// Distances are percent of the long side.
     /// </summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class BackgroundCutStep : StyleStep
     {
         [Tooltip("Colour-edge strength that stops the background flood. 1 = hard black/white step.")]

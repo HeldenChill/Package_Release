@@ -2,12 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Hung.Base;
 
-public static class RewardFingerprint
+namespace Hung.Data.Rewards
 {
-    public static string NormalizeItems(IReadOnlyList<RewardGrantItem> items)
+    public static class RewardFingerprint
     {
-        return string.Join("|", items
-            .OrderBy(x => x.ItemId.Value, System.StringComparer.Ordinal)
-            .Select(x => x.ItemId.Value + ":" + x.Quantity));
+        public static string NormalizeItems(IReadOnlyList<RewardGrantItem> items)
+        {
+            return string.Join("|", items
+                .OrderBy(x => x.ItemId.Value, System.StringComparer.Ordinal)
+                .Select(x => x.ItemId.Value + ":" + x.Quantity));
+        }
     }
 }

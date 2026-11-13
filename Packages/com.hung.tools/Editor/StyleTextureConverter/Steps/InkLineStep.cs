@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// Solid ink on the silhouette (opaque texels near a transparent one) and on borders between posterized
@@ -10,6 +10,7 @@ namespace StyleTextureConverter
     /// RGB of inked texels = ink; alpha untouched.
     /// </summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class InkLineStep : StyleStep
     {
         public Color ink = new Color(0x27 / 255f, 0x02 / 255f, 0f, 1f);

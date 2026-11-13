@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using WorldInterfaceData = Gameplay.Character.WorldInterface.WorldInterfaceData;
-namespace Gameplay.Character.AIBridge
+namespace Hung.Character.AI
 {
     /// <summary>
     /// Per-character perception memory. Sense World fills it from the WorldInterface sensors every tick;

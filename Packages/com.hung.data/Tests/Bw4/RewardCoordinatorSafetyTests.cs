@@ -5,6 +5,7 @@ using Hung.Base;
 using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using NUnit.Framework;
+using Hung.Data.Rewards;
 namespace Hung.Data.Tests.Bw4
 {
     public sealed class RewardCoordinatorSafetyTests

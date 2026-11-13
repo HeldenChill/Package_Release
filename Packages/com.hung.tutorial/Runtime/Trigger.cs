@@ -1,29 +1,32 @@
 using Hung.Utilities.Timer;
 
-public class Trigger
+namespace Hung.Tutorial
 {
-    protected int resetFrame;
-    protected bool value = false;
-    public bool Value
+    public class Trigger
     {
-        get => value;
-        set
+        protected int resetFrame;
+        protected bool value = false;
+        public bool Value
         {
-            this.value = value;
-            if (value)
+            get => value;
+            set
             {
-                TimerManager.Ins.WaitForFrame(resetFrame, ResetValue);
+                this.value = value;
+                if (value)
+                {
+                    TimerManager.Ins.WaitForFrame(resetFrame, ResetValue);
+                }
             }
         }
-    }
-    public bool GetValue() => value;
-    public Trigger(int frameReset = 1)
-    {
-        this.resetFrame = frameReset;
-    }
+        public bool GetValue() => value;
+        public Trigger(int frameReset = 1)
+        {
+            this.resetFrame = frameReset;
+        }
 
-    protected void ResetValue()
-    {
-        value = false;
+        protected void ResetValue()
+        {
+            value = false;
+        }
     }
 }

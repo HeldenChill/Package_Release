@@ -3,13 +3,14 @@ using UnityEngine;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Hung.Tool.Editor.StyleTextureConverter.Tests")]
 
-namespace StyleTextureConverter
+namespace Hung.Tool.Editor.StyleTextureConverter
 {
     /// <summary>
     /// Blends a colour into opaque texels within widthTexels of the nearest transparent texel (alpha below 0.5),
     /// so the border hugs the sprite shape. Distance = chamfer 3/4 transform. Widths are export texels (times buf.scale).
     /// </summary>
     [Serializable]
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "StyleTextureConverter")]
     public sealed class RimStep : StyleStep
     {
         public Color color = Color.white;

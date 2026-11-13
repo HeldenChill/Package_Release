@@ -5,6 +5,7 @@ using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using NUnit.Framework;
 using UnityEngine;
+using Hung.Data.Rewards;
 
 namespace Hung.Data.PlayModeTests
 {

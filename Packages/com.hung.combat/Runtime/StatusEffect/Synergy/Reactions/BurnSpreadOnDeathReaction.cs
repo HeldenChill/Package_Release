@@ -3,21 +3,24 @@ using Hung.StatusEffect;
 using Hung.DesignPattern;
 using UnityEngine;
 
-public class BurnSpreadOnDeathReaction : ISynergyReaction
+namespace Hung.Combat
 {
-    public string ReactionId => "BurnSpread_OnDeath";
-
-    public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
+    public class BurnSpreadOnDeathReaction : ISynergyReaction
     {
-        if (target == null) return;
-        if (!StatusEffectServiceLocator.HasActiveTag(target, StatusEffectTag.Burn)) return;
+        public string ReactionId => "BurnSpread_OnDeath";
 
-        EventBus<SynergyStatusAppliedEvent>.Raise(new SynergyStatusAppliedEvent
+        public void Execute(SynergyDefinitionData definition, IStatusEffectHost target, GameObject caster, StatusApplicationContext context, StatusEffectTag triggeringType)
         {
-            Target = target,
-            Caster = caster,
-            Data = definition,
-            Context = context,
-        });
+            if (target == null) return;
+            if (!StatusEffectServiceLocator.HasActiveTag(target, StatusEffectTag.Burn)) return;
+
+            EventBus<SynergyStatusAppliedEvent>.Raise(new SynergyStatusAppliedEvent
+            {
+                Target = target,
+                Caster = caster,
+                Data = definition,
+                Context = context,
+            });
+        }
     }
 }

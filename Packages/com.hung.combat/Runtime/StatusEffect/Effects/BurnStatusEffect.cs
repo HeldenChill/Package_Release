@@ -3,67 +3,70 @@ using Hung.Combat;
 using Hung.StatusEffect;
 using UnityEngine;
 
-[System.Serializable]
-public class BurnStatusEffect : StatusEffect
+namespace Hung.Combat
 {
-    public const float DefaultDurationSeconds = 3f;
-    public const float MaxHpDotPercentPerSecond = 0.02f;
-    public const float DefaultTickIntervalSeconds = 1f;
-
-    public override void OnApply(IStatusEffectHost target, GameObject caster)
+    [System.Serializable]
+    public class BurnStatusEffect : StatusEffect
     {
-        base.OnApply(target, caster);
-        target.VisualReceiver?.OnStatusStackApplied(StatusEffectTag.Burn);
-    }
+        public const float DefaultDurationSeconds = 3f;
+        public const float MaxHpDotPercentPerSecond = 0.02f;
+        public const float DefaultTickIntervalSeconds = 1f;
 
-    public override void OnTick(IStatusEffectHost target, GameObject caster)
-    {
-        if (target == null || !target.TryGetMaxHealth(out float maxHp)
-            || !target.TryGetCombatDamageable(out ICombatDamageable damageable))
+        public override void OnApply(IStatusEffectHost target, GameObject caster)
         {
-            return;
+            base.OnApply(target, caster);
+            target.VisualReceiver?.OnStatusStackApplied(StatusEffectTag.Burn);
         }
 
-        float tickDamage = maxHp * MaxHpDotPercentPerSecond;
-        if (tickDamage <= 0f)
+        public override void OnTick(IStatusEffectHost target, GameObject caster)
         {
-            return;
+            if (target == null || !target.TryGetMaxHealth(out float maxHp)
+                || !target.TryGetCombatDamageable(out ICombatDamageable damageable))
+            {
+                return;
+            }
+
+            float tickDamage = maxHp * MaxHpDotPercentPerSecond;
+            if (tickDamage <= 0f)
+            {
+                return;
+            }
+
+            damageable.TakeDamage(new DamageHit
+            {
+                Amount = tickDamage,
+                Types = new[] { ELEMENTAL.FIRE },
+                CritChance = 0f,
+                CritDamage = 0f,
+                Source = caster,
+                SuppressElementalProc = true,
+            });
         }
 
-        damageable.TakeDamage(new DamageHit
+        public override void OnRemove(IStatusEffectHost target, GameObject caster)
         {
-            Amount = tickDamage,
-            Types = new[] { ELEMENTAL.FIRE },
-            CritChance = 0f,
-            CritDamage = 0f,
-            Source = caster,
-            SuppressElementalProc = true,
-        });
-    }
+            target.VisualReceiver?.OnStatusStackRemoved(StatusEffectTag.Burn);
+            base.OnRemove(target, caster);
+        }
 
-    public override void OnRemove(IStatusEffectHost target, GameObject caster)
-    {
-        target.VisualReceiver?.OnStatusStackRemoved(StatusEffectTag.Burn);
-        base.OnRemove(target, caster);
-    }
-
-    public override StatusEffect Clone()
-    {
-        var clone = new BurnStatusEffect();
-        clone.CopyBaseFields(this);
-        return clone;
-    }
-
-    public static BurnStatusEffect CreateTemplate(float durationSeconds = DefaultDurationSeconds)
-    {
-        return new BurnStatusEffect
+        public override StatusEffect Clone()
         {
-            statusName = "Burn",
-            duration = durationSeconds,
-            tickInterval = DefaultTickIntervalSeconds,
-            canStack = true,
-            maxStacks = 999,
-            statusType = StatusEffectType.Burn,
-        };
+            var clone = new BurnStatusEffect();
+            clone.CopyBaseFields(this);
+            return clone;
+        }
+
+        public static BurnStatusEffect CreateTemplate(float durationSeconds = DefaultDurationSeconds)
+        {
+            return new BurnStatusEffect
+            {
+                statusName = "Burn",
+                duration = durationSeconds,
+                tickInterval = DefaultTickIntervalSeconds,
+                canStack = true,
+                maxStacks = 999,
+                statusType = StatusEffectType.Burn,
+            };
+        }
     }
 }

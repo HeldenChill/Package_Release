@@ -1,15 +1,18 @@
 using UnityEngine;
 
-[System.Serializable]
-public class RegenerationStatusEffect : StatusEffect
+namespace Hung.Combat
 {
-    public float healAmount;
-
-    public override StatusEffect Clone()
+    [System.Serializable]
+    public class RegenerationStatusEffect : StatusEffect
     {
-        var clone = new RegenerationStatusEffect();
-        clone.CopyBaseFields(this);
-        clone.healAmount = healAmount;
-        return clone;
+        public float healAmount;
+
+        public override StatusEffect Clone()
+        {
+            var clone = new RegenerationStatusEffect();
+            clone.CopyBaseFields(this);
+            clone.healAmount = healAmount;
+            return clone;
+        }
     }
 }

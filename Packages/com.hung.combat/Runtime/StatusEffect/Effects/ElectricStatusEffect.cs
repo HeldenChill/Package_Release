@@ -1,12 +1,15 @@
 using UnityEngine;
 
-[System.Serializable]
-public class ElectricStatusEffect : StatusEffect
+namespace Hung.Combat
 {
-    public override StatusEffect Clone()
+    [System.Serializable]
+    public class ElectricStatusEffect : StatusEffect
     {
-        var clone = new ElectricStatusEffect();
-        clone.CopyBaseFields(this);
-        return clone;
+        public override StatusEffect Clone()
+        {
+            var clone = new ElectricStatusEffect();
+            clone.CopyBaseFields(this);
+            return clone;
+        }
     }
 }

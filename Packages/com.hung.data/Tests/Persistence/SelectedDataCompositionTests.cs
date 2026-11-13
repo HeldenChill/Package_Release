@@ -7,6 +7,8 @@ using Hung.Base.Composition;
 using Hung.Base.Persistence;
 using Hung.Data.Persistence;
 using NUnit.Framework;
+using Hung.Data;
+using Hung.Data.Rewards;
 
 namespace Hung.Data.Tests.Persistence
 {

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0] - 2026-11-11
+### Changed
+- Types that were in the global or a non-Hung namespace now live in `Hung.Character, Hung.Character.AI, Hung.Character.AI.Tests`. No type names, GUIDs or save formats changed.
+### Migration
+- Add `using Hung.Character;` or `using Hung.Character.AI;` where your code uses these types: AIBrainModule, BrainDataMap, CharacterMover, CharacterPerception, SenseWorldNode, SeeTargetNode, HearSoundNode, TrackTargetNode, LoseTargetNode, LookAroundNode, ENVIRONMENT_HASH, CharacterVisualModule, RegenStatModule.
+- Assets with [SerializeReference] data keep loading through MovedFrom; open and save them once to rewrite the namespace.
+
 ## [0.3.5] - 2026-11-03
 
 - Patch release: re-pin dependencies to com.hung.base 0.30.0 (UI contracts moved to com.hung.ui). No code change in this package.

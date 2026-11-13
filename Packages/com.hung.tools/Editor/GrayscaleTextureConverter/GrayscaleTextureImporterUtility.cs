@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GrayscaleTextureConverter
+namespace Hung.Tool.Editor.GrayscaleTextureConverter
 {
     /// <summary>
     /// Captures source importer settings and configures generated texture importers

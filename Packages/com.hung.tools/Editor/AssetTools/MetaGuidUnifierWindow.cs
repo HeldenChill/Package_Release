@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Base
+namespace Hung.Tool.Editor
 {
 #if UNITY_EDITOR
 
