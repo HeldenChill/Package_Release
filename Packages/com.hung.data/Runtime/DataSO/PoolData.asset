@@ -16,11 +16,11 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 3033244760766252285, guid: 7edc7e14f6afd664bab4280f2d599441, type: 3}
-    - {fileID: 4028324928981558203, guid: 7180fdf7fda34324d96088ee72fe154a, type: 3}
-    - {fileID: 619801918195226570, guid: 12f4e4ebd5e6dc14e992894bfb8e6d35, type: 3}
-    - {fileID: 1928611526100143570, guid: df9033695450c164eae48b2efe096b41, type: 3}
-    - {fileID: 4951849257884300119, guid: 36cfbd4886edbef419e04fafe2096b39, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []

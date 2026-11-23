@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.3] - 2026-11-23
+### Changed
+- Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.
+
 ## [0.4.2] - 2026-11-14
 ### Added
 - First test assembly `Hung.Tutorial.Tests` (EditMode): `TutorialStateMachine` stop-then-run, run-new-level timer cancel, branch post-actions once per step, branch length mismatch.

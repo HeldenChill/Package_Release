@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.3] - 2026-11-23
+### Fixed
+- Adds the shared UIItem and PopupCloseButton prefabs (moved from the template project, GUIDs kept) with art references removed, so package popups no longer depend on project assets.
+
 ## [0.10.2] - 2026-11-14
 ### Fixed
 - `UIManager.CloseAll` and `HideAll` iterate a snapshot, so an `OnClose` that loads another canvas no longer throws `Collection was modified` (BUG-261114-f5f6). `DestroyAllUI` drops canvases already destroyed by `isDestroyOnClose` instead of throwing `MissingReferenceException`, and treats a null exception set as empty (BUG-261114-0da5).

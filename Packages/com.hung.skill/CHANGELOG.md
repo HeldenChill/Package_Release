@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.15] - 2026-11-23
+### Changed
+- Dependency declarations re-pinned for release-2026.11.23.2. No API or behaviour change.
+
 ## [0.3.14] - 2026-11-23
 ### Changed
 - Release snapshot release-2026.11.23.1: dependency declarations re-pinned to actual versions (designpattern 0.5.3, utilities 0.2.5, ui 0.10.2) and previously unreleased committed changes published. No API or behaviour change from this entry.

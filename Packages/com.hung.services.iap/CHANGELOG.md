@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.4] - 2026-11-23
+### Changed
+- Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.
+
 ## [0.9.3] - 2026-11-14
 
 ### Fixed

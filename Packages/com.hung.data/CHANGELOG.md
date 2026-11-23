@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.15.2] - 2026-11-23
+### Fixed
+- DataManager prefab no longer references com.hung.services.iap's IAPData or deleted SOs (the game assigns iapData). Sample GameplayData drops project sprites. PoolData drops 5 references to deleted prefabs. GameEventManager prefab loses a missing-script component.
+
 ## [0.15.1] - 2026-11-23
 ### Changed
 - Release snapshot release-2026.11.23.1: dependency declarations re-pinned to actual versions (designpattern 0.5.3, utilities 0.2.5, ui 0.10.2) and previously unreleased committed changes published. No API or behaviour change from this entry.

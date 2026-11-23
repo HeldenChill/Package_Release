@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.6] - 2026-11-23
+### Fixed
+- Popup prefabs no longer reference project art (Layer Lab sprites and fonts, template UI) or project data SOs; nested items use com.hung.ui prefabs. Games skin the popups with prefab variants and assign the data SO.
+
 ## [0.5.5] - 2026-11-14
 ### Fixed
 - A failed daily gift save inside `Finalize` returns `RewardFeatureCommitResult(false)` and restores the slot status instead of throwing out of the claim (BUG-261114-c587).

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.3] - 2026-11-23
+### Changed
+- Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.
+
 ## [0.4.2] - 2026-11-14
 ### Fixed
 - `AIBrainModule.ResetModule` calls `AIAgent.ResetRuntimeState`, so a pooled character no longer keeps its previous life's AI blackboard (BUG-261114-9450). Needs com.hung.ai 0.2.0.

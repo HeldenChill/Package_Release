@@ -1,6 +1,6 @@
 {
   "name": "com.hung.services.iap",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "displayName": "Hung Services IAP",
   "description": "Purchase integrity pipeline with catalog, ledger, validator, and Unity Purchasing adapter.",
   "unity": "2022.3",
@@ -11,7 +11,7 @@
     "com.hung.designpattern": "0.5.3",
     "com.hung.utilities": "0.2.5",
     "com.hung.base": "0.32.0",
-    "com.hung.data": "0.15.1",
+    "com.hung.data": "0.15.2",
     "com.hung.persistence": "0.2.1",
     "com.unity.purchasing": "5.1.1"
   }

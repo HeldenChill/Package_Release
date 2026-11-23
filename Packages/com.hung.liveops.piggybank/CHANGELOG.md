@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.17] - 2026-11-23
+### Fixed
+- Popup prefab no longer references project art; nested items use com.hung.ui prefabs. Games skin with variants.
+
 ## [0.4.16] - 2026-11-13
 ### Fixed
 - `PiggyBankPopup` grants and saves the purchased gold before resetting progress or touching UI, so a failed reset save or a popup destroyed during the purchase can no longer lose paid gold. The claim button is disabled during a purchase and re-enabled on failure.

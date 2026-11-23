@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.1] - 2026-11-23
+### Changed
+- Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.
+
 ## [0.6.0] - 2026-11-13
 ### Fixed
 - `ClearAll` now drops the host's synergy cooldowns, and a destroyed host's cooldowns are dropped with it. Cooldowns live in `SynergyResolver`; `ClearAll` only cleared the manager's own dictionary, which nothing wrote, so a pooled host respawned still on cooldown and destroyed hosts stayed keyed forever (BUG-261114-5810). New `SynergyResolver.ClearHost`.

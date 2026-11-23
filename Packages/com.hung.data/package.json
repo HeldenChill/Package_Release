@@ -1,6 +1,6 @@
 {
   "name": "com.hung.data",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "displayName": "Hung Data",
   "description": "Data framework: SO definitions, save, DataManager. Includes Hung.Common assembly.",
   "unity": "2022.3",

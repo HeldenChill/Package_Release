@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.2] - 2026-11-23
+### Fixed
+- Removes the orphaned AdsData.asset, whose script reference was stale.
+
 ## [0.10.1] - 2026-11-13
 ### Removed
 - App open format (BUG-261114-1925, owner decision): `GameAppOpenAds`, `ResetAoaCapEvent`, `AdsManager.AppOpen` and its `appOpenBehaviour` field, the IronSource `AdsManager.AppOpen` stub, Max `AppOpenAds` (also removed from `AdsManager.prefab`), and the commented IronSource and AdMob `AppOpenAds` files. None of it showed an ad. See ADR `Docs/adr/adr-e5-0008-remove-app-open-ads.md`.

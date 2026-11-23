@@ -1,3 +1,7 @@
+## [0.3.16] - 2026-11-23
+### Fixed
+- Popup prefabs no longer reference project art or project data SOs; nested items use com.hung.ui prefabs. Games skin with variants and assign data.
+
 ## [0.3.14] - 2026-11-13
 ### Fixed
 - `ClaimFree` keys its reward claim id by the previous free claim instead of the current clock ticks. A retry after a crash between the grant and the cooldown save reuses the id, so the coordinator dedupes it instead of granting the free reward twice. Covered by `DailyRewardIntegrityTests.ClaimFree_*`.

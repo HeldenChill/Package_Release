@@ -1,3 +1,7 @@
+## [0.3.15] - 2026-11-23
+### Fixed
+- Popup prefab no longer references project art, VFX material or data SO, and loses a missing-script component on Fx_Rotate. Games skin with variants and assign data.
+
 ## [0.3.11] - 2026-11-02
 
 - Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.

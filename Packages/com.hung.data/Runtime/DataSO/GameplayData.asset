@@ -15,24 +15,7 @@ MonoBehaviour:
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 21300000, guid: bbf33cbe289906246a7278a3c53a93f2, type: 3}
-    - {fileID: 21300000, guid: e223489cf44e4024786ccd89e1bef594, type: 3}
-    - {fileID: 21300000, guid: 3d6aa8a8dc2e491498f688a689958e5b, type: 3}
-    - {fileID: 21300000, guid: 5f5b2ee943ce20a41bc2f6e2a900483c, type: 3}
-    - {fileID: 21300000, guid: 69737f2acc554cf44819636a9234875c, type: 3}
-    - {fileID: 21300000, guid: 6df384b02a670324f8d3be6defe2dc41, type: 3}
-    - {fileID: 21300000, guid: 44ec5f757ff3f9e45b470c86b07ed093, type: 3}
-    - {fileID: 21300000, guid: 4f2e65e32bc5ca74cb3e8e02db2ba57d, type: 3}
-    - {fileID: 21300000, guid: 40cd9de7e7278c44b97d7d9d07f31894, type: 3}
-    - {fileID: 21300000, guid: 26a5515135eb9ae4ab838705f31621dd, type: 3}
-    - {fileID: 21300000, guid: d8f3b3fb61816734d97be5db03bc2de1, type: 3}
-    - {fileID: 21300000, guid: 8fb04d946de1b444ebaa398cffc61224, type: 3}
-    - {fileID: 21300000, guid: f12a72b81cd3c844c943d607709a7b7f, type: 3}
-    - {fileID: 21300000, guid: 0ca00d5d84d0c984c8152cb8294d52ff, type: 3}
-    - {fileID: 21300000, guid: dfdd0f16be7cbf641bca2fa63e3e7894, type: 3}
-    - {fileID: 21300000, guid: 2b3132e3290d067448d88f8bd6845016, type: 3}
-    - {fileID: 21300000, guid: 2448c0c1a2662f644840a0e8b56826a4, type: 3}
+    ReferencedUnityObjects: []
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -210,8 +193,8 @@ MonoBehaviour:
       Entry: 3
       Data: 0
     - Name: $v
-      Entry: 10
-      Data: 0
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -222,8 +205,8 @@ MonoBehaviour:
       Entry: 3
       Data: 1
     - Name: $v
-      Entry: 10
-      Data: 1
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -263,14 +246,14 @@ MonoBehaviour:
       Entry: 7
       Data: 8|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 2
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 3
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -287,14 +270,14 @@ MonoBehaviour:
       Entry: 7
       Data: 9|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 4
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 5
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -311,14 +294,14 @@ MonoBehaviour:
       Entry: 7
       Data: 10|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 6
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 7
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -335,14 +318,14 @@ MonoBehaviour:
       Entry: 7
       Data: 11|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 8
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 9
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -365,8 +348,8 @@ MonoBehaviour:
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 10
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -383,14 +366,14 @@ MonoBehaviour:
       Entry: 7
       Data: 13|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 11
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 12
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -407,14 +390,14 @@ MonoBehaviour:
       Entry: 7
       Data: 14|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 13
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 14
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -431,14 +414,14 @@ MonoBehaviour:
       Entry: 7
       Data: 15|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 15
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 16
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -455,14 +438,14 @@ MonoBehaviour:
       Entry: 7
       Data: 16|Hung.Base.PlaceTypeData, Hung.Base
     - Name: ToppingSprite
-      Entry: 10
-      Data: 2
+      Entry: 6
+      Data: 
     - Name: ToppingAnimData
       Entry: 6
       Data: 
     - Name: SlotIndicatorSprite
-      Entry: 10
-      Data: 3
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -1058,8 +1041,8 @@ MonoBehaviour:
   extentSurfaceSize: {x: 5, y: 7}
   idleTime: 10
   toppingLinkSprites:
-  - {fileID: 21300000, guid: b96fc29bf9900e449aeaba5bdb803719, type: 3}
-  - {fileID: 21300000, guid: 4f728e52245b3854491e019ab59f12b3, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   toppingMainSpriteSizes:
   - {x: 1, y: 1, z: 1}
