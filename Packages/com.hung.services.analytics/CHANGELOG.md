@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.5] - 2026-11-14
+### Fixed
+- `BuyIAPComplete` no longer sends event names Firebase refuses. `IAP_packname_{item}_Location_{placement}` reached 57 characters (limit 40), so purchase events for long pack names were lost. Names that fit are unchanged for existing dashboards; longer ones are sent as `IAP_packname_fallback` with `item` and `placement` parameters (BUG-261114-4727, owner picked keep-and-fallback).
+### Migration
+- Dashboards: add `IAP_packname_fallback` (params `item`, `placement`) to see purchases whose legacy name was over 40 characters.
+
 ## [0.7.4] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

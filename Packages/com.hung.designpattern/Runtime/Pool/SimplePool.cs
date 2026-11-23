@@ -228,7 +228,8 @@ namespace Hung.DesignPattern
                 _prefab = prefab;
                 IsCollect = collect;
                 _mClamp = clamp;
-                if (IsCollect) _active = new List<GameUnit>();
+                // Clamping counts active objects, so it needs the active list too (BUG-261114-b715).
+                if (IsCollect || clamp) _active = new List<GameUnit>();
                 if (_mClamp) _mAmount = initialQty;
             }
 
@@ -264,8 +265,9 @@ namespace Hung.DesignPattern
                     if (obj == null) return Spawn();
                 }
 
-                if (IsCollect) _active.Add(obj);
-                if (_mClamp && _active.Count >= _mAmount) DeSpawn(_active[0]);
+                if (_active != null) _active.Add(obj);
+                // Over the cap: retire the oldest, never the object being handed out (BUG-261114-b715).
+                if (_mClamp && _active.Count > _mAmount) DeSpawn(_active[0]);
 
                 obj.gameObject.SetActive(true);
 
@@ -294,8 +296,9 @@ namespace Hung.DesignPattern
                     // remove this unit from queue
                     _inactive.Remove(gameUnit);
                 }
-                if (IsCollect) _active.Add(gameUnit);
-                if (_mClamp && _active.Count >= _mAmount) DeSpawn(_active[0]);
+                if (_active != null) _active.Add(gameUnit);
+                // Over the cap: retire the oldest, never the object being handed out (BUG-261114-b715).
+                if (_mClamp && _active.Count > _mAmount) DeSpawn(_active[0]);
 
                 gameUnit.gameObject.SetActive(true);
 
@@ -312,7 +315,7 @@ namespace Hung.DesignPattern
                     _inactive.AddLast(obj);
                 }
 
-                if (IsCollect) _active.Remove(obj);
+                _active?.Remove(obj);
             }
 
             public void Clamp(int amount)
@@ -341,7 +344,7 @@ namespace Hung.DesignPattern
 
             public void Collect()
             {
-                while (_active.Count > 0) DeSpawn(_active[0]);
+                while (_active != null && _active.Count > 0) DeSpawn(_active[0]);
             }
         }
     }

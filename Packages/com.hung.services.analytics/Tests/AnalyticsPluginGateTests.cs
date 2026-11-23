@@ -59,7 +59,7 @@ namespace Hung.Analytics.Tests
         [SetUp]
         public void SetUp()
         {
-            savedAnalytics = Locator.Analytics;
+            Hung.Base.ServiceSlots.TryGet<IAnalyticsService>(out savedAnalytics); // TryGet: never save the fallback
             savedSink = Locator.RevenueSink;
             savedBackends = new List<IAnalyticsBackend>(AnalyticsBackends.Registered);
             AnalyticsBackends.Clear();

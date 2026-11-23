@@ -6,7 +6,6 @@ namespace Hung.Base
 {
     public interface IAdsService : IAdsRequestService
     {
-        IAds AppOpen { get; }
         IAds Banner { get; }
         IRewardAds Reward { get; }
         IInterAds Inter { get; }

@@ -1,0 +1,25 @@
+{
+  "name": "com.hung.liveops.dailyreward",
+  "version": "0.3.15",
+  "displayName": "Hung LiveOps DailyReward",
+  "description": "Daily reward LiveOps feature: manager, popups. Contracts live in com.hung.base, data models in com.hung.data.",
+  "unity": "2022.3",
+  "keywords": [
+    "layer:4",
+    "liveops"
+  ],
+  "dependencies": {
+    "com.hung.designpattern": "0.5.3",
+    "com.hung.utilities": "0.2.5",
+    "com.hung.base": "0.32.0",
+    "com.hung.data": "0.15.1",
+    "com.hung.ui": "0.10.2"
+  },
+  "samples": [
+    {
+      "displayName": "DailyReward",
+      "description": "Install prefab + wiring guide",
+      "path": "Samples~"
+    }
+  ]
+}

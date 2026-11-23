@@ -1,6 +1,6 @@
 {
     "name": "Hung.Character.AI",
-    "rootNamespace": "Gameplay.Character.AIBridge",
+    "rootNamespace": "Hung.Character.AI",
     "references": [
         "Hung.Character",
         "Hung.AI"

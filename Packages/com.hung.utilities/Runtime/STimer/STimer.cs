@@ -217,6 +217,7 @@ namespace Hung.Utilities.Timer
             sTimerData = null;
             remainingTime = 0;
             timeFrame = 0;
+            timeFixedFrame = 0;
             CallBack = null;
             isLoop = false;
         }
@@ -349,11 +350,15 @@ namespace Hung.Utilities.Timer
                     break;
             }
         }
-        ~STimer()
+        // Called when the timer returns to the pool: the next owner must not inherit these (BUG-261114-778d).
+        // The finalizer that unsubscribed through TimerManager.Ins on the GC thread was removed (BUG-261114-5108);
+        // the manager's events own the subscription for the timer's whole life.
+        internal void ClearOwnerEvents()
         {
-            TimerManager.Ins.TimerUpdate -= Update;
-            TimerManager.Ins.TimerFixedUpdate -= FixedUpdate;
-            TimerManager.Ins.TimerLateUpdate -= LateUpdate;
+            FrameUpdate = null;
+            FrameFixedUpdate = null;
+            TimeOut = null;
+            code = -1;
         }
         
     }

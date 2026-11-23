@@ -33,6 +33,34 @@ namespace Hung.Analytics.Tests
             Assert.AreEqual(1, product.Events[0].Parameters["k"]);
         }
 
+        // BUG-261114-4727: Firebase refuses event names over 40 characters. Names that fit stay
+        // byte-identical for dashboards; longer ones fall back to one short name with parameters.
+        // "IAP_packname_" (13) + "STARTER_PACK" (12) + "_Location_" (10) + "NONE" (4) = 39.
+        [Test]
+        public void BuyIAPComplete_NameWithinLimit_KeepsLegacyName()
+        {
+            var (service, _, product) = TwoBackends();
+
+            service.BuyIAPComplete(IAP_ITEM.STARTER_PACK, Placement.NONE);
+
+            Assert.AreEqual("IAP_packname_STARTER_PACK_Location_NONE", product.Events[0].Name);
+            Assert.IsNull(product.Events[0].Parameters);
+        }
+
+        // 13 + "LENGENDARY_BUNDLE" (17) + 10 + 4 = 44, over the limit.
+        [Test]
+        public void BuyIAPComplete_NameOverLimit_SendsFallbackWithParameters()
+        {
+            var (service, _, product) = TwoBackends();
+
+            service.BuyIAPComplete(IAP_ITEM.LENGENDARY_BUNDLE, Placement.NONE);
+
+            Assert.AreEqual(1, product.Events.Count);
+            Assert.AreEqual("IAP_packname_fallback", product.Events[0].Name);
+            Assert.AreEqual("LENGENDARY_BUNDLE", product.Events[0].Parameters["item"]);
+            Assert.AreEqual("NONE", product.Events[0].Parameters["placement"]);
+        }
+
         [Test]
         public void LogEvent_CategoryNone_ReachesNobody()
         {

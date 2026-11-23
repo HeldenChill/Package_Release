@@ -18,7 +18,10 @@ namespace Hung.IAP
                     return existing;
 
                 Task<PurchaseRequestResult> task = RunAndRemove(transactionId, factory);
-                tasksByTransaction.Add(transactionId, task);
+                // A factory that finished synchronously already ran its remove, before this add.
+                // Adding it now would cache the finished result for every later call of this transaction.
+                if (!task.IsCompleted)
+                    tasksByTransaction.Add(transactionId, task);
                 return task;
             }
         }

@@ -142,6 +142,60 @@ namespace Hung.Cinematics.Tests
             }
         }
 
+        // BUG-261114-ce05: preparing does not take the camera; Start does.
+        [Test]
+        public void PreparedSession_DoesNotTakeCameraUntilStart()
+        {
+            var def = CreateDefinition();
+            var bindings = CreateBindings();
+            _captureCamera.enabled = false;
+            try
+            {
+                Assert.IsTrue(_player.TryPrepare(def, bindings, out var session, out _));
+                Assert.IsFalse(_captureCamera.enabled, "capture camera enabled at prepare");
+                _player.Tick(0.1f);
+                Assert.AreEqual(CinematicState.Prepared, session.State, "tick before Start changed the session");
+                Assert.IsTrue(CinematicCameraLease.TryAcquire(bindings, out var probe, out string diag), "camera leased at prepare: " + diag);
+                probe.Dispose();
+
+                session.Start();
+                Assert.AreEqual(CinematicState.Playing, session.State);
+                Assert.IsTrue(_captureCamera.enabled);
+                session.Cancel();
+                Assert.IsFalse(_captureCamera.enabled, "camera restored after cancel");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(def);
+            }
+        }
+
+        // BUG-261114-ce05: transforms are restored to their pose at Start, not at prepare.
+        [Test]
+        public void TransformSnapshot_IsTakenAtStart()
+        {
+            var actor = new GameObject("Actor").transform;
+            var def = CreateDefinition();
+            def.TransformTracks = new[]
+            {
+                new CinematicTransformTrack { BindingId = "actor", Keys = new[] { new CinematicPoseKey { Time = 0f, Position = new Vector3(5, 0, 0) } } }
+            };
+            var bindings = CreateBindings(new Dictionary<string, Transform> { { "actor", actor } });
+            try
+            {
+                Assert.IsTrue(_player.TryPrepare(def, bindings, out var session, out _));
+                actor.position = new Vector3(0, 0, 9);
+                session.Start();
+                session.Cancel();
+                Assert.AreEqual(new Vector3(0, 0, 9), actor.position, "restored to prepare-time pose");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(def);
+                UnityEngine.Object.DestroyImmediate(actor.gameObject);
+            }
+        }
+
         [Test]
         public void Reentrancy_SecondSessionCanPrepareInsideFinished()
         {

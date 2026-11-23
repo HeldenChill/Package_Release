@@ -1,0 +1,21 @@
+{
+    "name": "Hung.LiveOps.DailyReward",
+    "rootNamespace": "Hung.LiveOps.DailyReward",
+    "references": [
+        "Hung.DesignPattern",
+        "Hung.Base",
+        "Hung.Data",
+        "Hung.UI",
+        "Hung.Utilities",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

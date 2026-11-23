@@ -56,6 +56,36 @@ namespace Hung.Data.Persistence
 
         public SaveResult Save<T>(SaveDefinition<T> definition, T value) where T : new()
         {
+            SaveResult result = SaveCore(definition, value);
+            if (!result.Success)
+                Report(result.DiagnosticCode, definition.Key, SaveDataSource.None, SaveRecoveryState.None);
+            return result;
+        }
+
+        public LoadResult<T> Load<T>(SaveDefinition<T> definition) where T : new()
+        {
+            // A clean load (Primary, no recovery) stays silent; every other outcome reports once
+            // here. Quarantines inside the load report at their own call sites.
+            LoadResult<T> result = LoadCore(definition);
+            if (!result.Success || result.Recovery != SaveRecoveryState.None)
+                Report(result.DiagnosticCode, definition.Key, result.Source, result.Recovery, result.EvidencePath);
+            return result;
+        }
+
+        // Diagnostics must never change a save or load outcome, so a throwing sink is swallowed.
+        private void Report(string code, string key, SaveDataSource source, SaveRecoveryState recovery, string evidencePath = null)
+        {
+            try
+            {
+                diagnostics.Report(new SaveDiagnostic(code, key, source, recovery, evidencePath));
+            }
+            catch
+            {
+            }
+        }
+
+        private SaveResult SaveCore<T>(SaveDefinition<T> definition, T value) where T : new()
+        {
             try
             {
                 SaveValidationResult validation = definition.Validate(value);
@@ -86,10 +116,14 @@ namespace Hung.Data.Persistence
             }
         }
 
-        public LoadResult<T> Load<T>(SaveDefinition<T> definition) where T : new()
+        private LoadResult<T> LoadCore<T>(SaveDefinition<T> definition) where T : new()
         {
+            // A failed read is not a missing file: recovering from it would write over data we
+            // never saw. Fail without touching the store and let the caller retry.
             SaveStoreReadResult primary = store.ReadPrimary(definition.Key);
-            if (primary.Success && primary.Exists)
+            if (!primary.Success)
+                return ReadFailed<T>(primary, SaveDataSource.Primary);
+            if (primary.Exists)
             {
                 LoadResult<T> result = TryLoadBytes(definition, primary.Content.ToArray(), SaveDataSource.Primary, out bool requiresRewrite);
                 if (result.Success)
@@ -97,11 +131,15 @@ namespace Hung.Data.Persistence
                 if (result.Recovery == SaveRecoveryState.UnsupportedNewerVersion || result.Recovery == SaveRecoveryState.Unrecoverable)
                     return result;
 
-                store.QuarantinePrimary(definition.Key, primary.Content.ToArray(), result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT");
+                string primaryCode = result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT";
+                SaveStoreWriteResult quarantined = store.QuarantinePrimary(definition.Key, primary.Content.ToArray(), primaryCode);
+                Report(primaryCode, definition.Key, SaveDataSource.Primary, SaveRecoveryState.PrimaryQuarantined, quarantined.Path);
             }
 
             SaveStoreReadResult backup = store.ReadBackup(definition.Key);
-            if (backup.Success && backup.Exists)
+            if (!backup.Success)
+                return ReadFailed<T>(backup, SaveDataSource.Backup);
+            if (backup.Exists)
             {
                 LoadResult<T> result = TryLoadBytes(definition, backup.Content.ToArray(), SaveDataSource.Backup, out bool requiresRewrite);
                 if (result.Recovery == SaveRecoveryState.Unrecoverable)
@@ -122,7 +160,9 @@ namespace Hung.Data.Persistence
 
                 if (result.Recovery == SaveRecoveryState.UnsupportedNewerVersion)
                     return result;
-                store.QuarantineBackup(definition.Key, backup.Content.ToArray(), result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT");
+                string backupCode = result.DiagnosticCode ?? "SAVE_PRIMARY_CORRUPT";
+                SaveStoreWriteResult quarantined = store.QuarantineBackup(definition.Key, backup.Content.ToArray(), backupCode);
+                Report(backupCode, definition.Key, SaveDataSource.Backup, SaveRecoveryState.PrimaryQuarantined, quarantined.Path);
             }
 
             if ((!primary.Exists && !backup.Exists && !CanonicalExistenceProven(definition.Key)) && TryLoadLegacy(definition, out LoadResult<T> legacyResult))
@@ -230,5 +270,8 @@ namespace Hung.Data.Persistence
         }
 
         private SaveResult Save<T>(T value, SaveDefinition<T> definition) where T : new() => Save(definition, value);
+
+        private static LoadResult<T> ReadFailed<T>(SaveStoreReadResult read, SaveDataSource source)
+            => new LoadResult<T>(false, default, read.ErrorCode ?? "SAVE_READ_FAILED", source, SaveRecoveryState.Unrecoverable);
     }
 }

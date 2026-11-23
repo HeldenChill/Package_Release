@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.2] - 2026-11-14
+### Fixed
+- `UIManager.CloseAll` and `HideAll` iterate a snapshot, so an `OnClose` that loads another canvas no longer throws `Collection was modified` (BUG-261114-f5f6). `DestroyAllUI` drops canvases already destroyed by `isDestroyOnClose` instead of throwing `MissingReferenceException`, and treats a null exception set as empty (BUG-261114-0da5).
+
 ## [0.10.1] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

@@ -1,3 +1,10 @@
+# Changelog
+
+## [0.2.0] - 2026-11-14
+### Added
+- `Blackboard.ResetToDefaults()` restores every key to its graph default or agent override.
+- `AIAgent.ResetRuntimeState()` prepares a pooled agent for reuse: aborts the active path and resets the blackboard (BUG-261114-9450, owner option A).
+
 ﻿# Changelog
 
 ## [0.1.0] - unreleased

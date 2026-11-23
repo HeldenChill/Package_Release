@@ -107,19 +107,30 @@ namespace Hung.UI
         {
             if (lockClaimIcon.activeSelf) return;
             DevLog.Log(DevId.Hung, "Claim GOLD: " + piggyData.GoldCollected);
-            // TODO: IAP Method for this, call back with ResetPiggyProgress or reject
-            Locator.IAPService.Purchase(IAP_ITEM.PIGGY_BANK, OnPiggyBankPurchased);
+            btnClaim.interactable = false; // one purchase per tap
+            // ponytail: gold is granted in the legacy purchase callback, after the store order is Completed.
+            // A kill before this callback still loses the gold; closing that needs an IPurchaseGrantHandler
+            // for the piggy product in the game's purchase composition.
+            Locator.IAPService.Purchase(IAP_ITEM.PIGGY_BANK, OnPiggyBankPurchased, OnPiggyBankPurchaseFailed);
         }
-        
+
+        private void OnPiggyBankPurchaseFailed()
+        {
+            if (this != null) SetupPiggy();
+        }
+
         private void OnPiggyBankPurchased()
         {
+            int gold = piggyData.GoldCollected;
+            // Paid gold is granted and saved first; progress reset and UI come after, so neither a failed
+            // reset save nor a popup destroyed during the purchase can lose it.
+            Locator.Items.ClaimItem(BaseItemIds.Gold, gold);
+            Database.Save(Locator.Data.GetData<GameData>(), GameData.SaveKey);
             Locator.PiggyBank.ResetPiggyProgress();
+            EventBus<PiggyBankRewardClaimedEvent>.Raise(new PiggyBankRewardClaimedEvent { goldAmount = gold });
+            if (this == null) return;
             SetupPiggy();
-            var gameData = Locator.Data.GetData<GameData>();
-            Locator.Items.ClaimItem(BaseItemIds.Gold, piggyData.GoldCollected);
-            Database.Save(gameData, GameData.SaveKey);
             Close();
-            EventBus<PiggyBankRewardClaimedEvent>.Raise(new PiggyBankRewardClaimedEvent { goldAmount = piggyData.GoldCollected });
         }
 
         #region TEST

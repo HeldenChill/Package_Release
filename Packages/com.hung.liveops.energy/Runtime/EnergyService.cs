@@ -108,7 +108,7 @@ namespace Hung.LiveOps.Energy
                     return EnergyCommandOutcome.NoChange(EnergyResultOutcome.Conflict);
                 }
 
-                bool unlimitedActive = candidate.UnlimitedUntilUtc.HasValue && candidate.UnlimitedUntilUtc.Value > _clock.UtcNow;
+                bool unlimitedActive = IsUnlimitedActive(candidate);
                 int reservedRenewable = 0;
                 int reservedBonus = 0;
 
@@ -401,8 +401,30 @@ namespace Hung.LiveOps.Energy
 
         public EnergySnapshot Reconcile()
         {
-            CommitCandidate(MutateReconcile, out EnergySnapshot snapshot);
+            // MutateReconcile adopts a changed config in place; if the save then fails the state
+            // was not committed, so the config it was settled under must not be adopted either.
+            EnergyConfig previousConfig = _config;
+            string previousVersion = _configVersion;
+            EnergyCommandOutcome outcome = CommitCandidate(MutateReconcile, out EnergySnapshot snapshot);
+            if (outcome.Outcome == EnergyResultOutcome.PersistenceFailure && !ReferenceEquals(previousConfig, _config))
+            {
+                _config = previousConfig;
+                _configVersion = previousVersion;
+                snapshot = _current = BuildSnapshot(_state);
+            }
             return snapshot;
+        }
+
+        /// <summary>
+        /// Unlimited Energy is honored only while the clock is not rolled back (design section 12:
+        /// a rollback never extends the entitlement). The expiry is kept, so it resumes once the
+        /// clock catches up to <see cref="EnergyState.LatestObservedUtc"/>.
+        /// </summary>
+        private bool IsUnlimitedActive(EnergyState state)
+        {
+            DateTime now = _clock.UtcNow;
+            bool rollback = state.LatestObservedUtc.HasValue && now < state.LatestObservedUtc.Value;
+            return !rollback && state.UnlimitedUntilUtc.HasValue && state.UnlimitedUntilUtc.Value > now;
         }
 
         /// <summary>
@@ -582,7 +604,7 @@ namespace Hung.LiveOps.Energy
 
         private EnergySnapshot BuildSnapshot(EnergyState state)
         {
-            bool isUnlimitedActive = state.UnlimitedUntilUtc.HasValue && state.UnlimitedUntilUtc.Value > _clock.UtcNow;
+            bool isUnlimitedActive = IsUnlimitedActive(state);
 
             DateTime? nextRegeneration = null;
             if (state.RenewableAmount < _config.RenewableMax && state.RegenerationAnchorUtc.HasValue)

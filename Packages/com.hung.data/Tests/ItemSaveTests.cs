@@ -66,6 +66,27 @@ namespace Hung.Data.Tests
         }
 
         [Test]
+        public void IsRemoveAds_CatalogWithoutRemoveAdsIds_ReturnsFalse()
+        {
+            var data = new GameData();
+            data.InitData(new[] { BaseItemIds.Gold });
+
+            Assert.IsFalse(data.IsRemoveAds());
+            Assert.IsFalse(data.IsPremiumRemoveAds());
+        }
+
+        [Test]
+        public void IsRemoveAds_OnlyPremiumOwned_ReturnsTrueForBoth()
+        {
+            var data = new GameData();
+            data.InitData(new[] { BaseItemIds.PremiumRemoveAds });
+            data.ClaimItem(BaseItemIds.PremiumRemoveAds, 1);
+
+            Assert.IsTrue(data.IsRemoveAds());
+            Assert.IsTrue(data.IsPremiumRemoveAds());
+        }
+
+        [Test]
         public void RegisteredGameData_LegacyKeyResolvesCanonicalDefinition()
         {
             var oldData = new GameData();

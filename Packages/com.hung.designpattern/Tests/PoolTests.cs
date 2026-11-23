@@ -207,6 +207,38 @@ namespace Hung.DesignPattern.Tests
             }
         }
 
+        // BUG-261114-0b41: the pool must not rewrite the prefab; pooled copies are made non-looping instead.
+        [Test]
+        public void ParticlePool_LeavesPrefabUntouched_AndMakesPooledCopiesNonLooping()
+        {
+            GameObject psGo = new GameObject("LoopingPrefab");
+            var ps = psGo.AddComponent<ParticleSystem>();
+            ParticleSystem.MainModule main = ps.main;
+            main.loop = true;
+            main.duration = 5f;
+            main.stopAction = ParticleSystemStopAction.Destroy;
+            GameObject root = new GameObject("ParticleRoot");
+            try
+            {
+                ParticlePool.Preload(ps, 1, root.transform);
+                ParticleSystem copy = ParticlePool.Play(ps, Vector3.zero);
+
+                Assert.IsTrue(ps.main.loop, "prefab loop untouched");
+                Assert.AreEqual(5f, ps.main.duration, "prefab duration untouched");
+                Assert.AreEqual(ParticleSystemStopAction.Destroy, ps.main.stopAction, "prefab stop action untouched");
+                Assert.AreNotSame(ps, copy);
+                Assert.IsFalse(copy.main.loop, "pooled copy does not loop");
+                Assert.AreEqual(ParticleSystemStopAction.None, copy.main.stopAction, "pooled copy is not destroyed on stop");
+                Assert.AreEqual(5f, copy.main.duration, "duration no longer clamped");
+            }
+            finally
+            {
+                ParticlePool.Release(ps);
+                Object.DestroyImmediate(root);
+                Object.DestroyImmediate(psGo);
+            }
+        }
+
         [Test]
         public void Root_IsRecreated_AfterReset()
         {

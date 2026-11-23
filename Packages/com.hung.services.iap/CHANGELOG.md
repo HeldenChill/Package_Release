@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.9.3] - 2026-11-14
+
+### Fixed
+
+- `LegacyIapServiceAdapter.Restore` called `onRestoreFail` after every successful restore. `UnityPurchaseStoreAdapter.RestoreAsync` succeeds with no records (restored orders arrive through the pending-order event), so the integrity service reports `NothingToProcess`, which the facade treated as failure. `NothingToProcess` now invokes `onRestoreComplete` (BUG-261114-f46d).
+- A pending order for another product resolved the in-flight purchase: Unity raises `OnPurchasePending` for Google fetched pending orders and approved Ask to Buy orders, and `PurchaseAsync` processed whatever came back, so the legacy callback reported success for the wrong product. `UnityPurchaseStoreAdapter` now answers the request only with an order for the requested store product, and `PurchaseIntegrityService.PurchaseAsync` returns `Pending` with the new `PurchaseIntegrityCodes.StoreOrderMismatch` if a mismatched order still arrives. The other order is still processed through `PurchaseObserved` (BUG-261114-abb6).
+- After a store disconnect nothing reconnected, so purchases returned `Unsupported` for the rest of the session. `PurchaseAsync` now reconnects once when the store is `SupportedNotReady`; a failed reconnect reports `PurchaseIntegrityCodes.ReconnectFailed` and the request stays `Unsupported` (BUG-261114-d19d).
+- Every new purchase was recorded and granted as `PurchaseSource.Redelivery` and confirmed twice, because the store raised `PurchaseObserved` for the order that also answered the request. The answering order now takes only the request path (BUG-261114-91cd).
+- Ledger `validationAttemptCount`, `grantAttemptCount` and `confirmationAttemptCount` were saved but never written. Each stage outcome now counts one attempt. Save shape unchanged (BUG-261114-2d4c).
+
+## [0.9.2] - 2026-11-14
+
+### Fixed
+
+- `PurchaseProcessingLock` cached a finished result when the processing step completed synchronously, which is the normal path (sync ledger, `UnityLocalPurchaseValidator`, grant handlers, store confirm). Every later redelivery, restore or reconcile of that transaction got the first result, so a `RetryableFailure` never retried until app restart. Concurrent calls still join one in-flight task. Found by the flow audit review (BUG-261113-4d70).
+
+## [0.9.1] - 2026-11-13
+### Fixed
+- `PurchaseIntegrityService` keeps every step on the caller's thread. It awaited the store with `ConfigureAwait(false)` while the store completes with `RunContinuationsAsynchronously`, so ledger saves and `IPurchaseGrantHandler.GrantAsync` ran on a thread-pool thread and raced the game loop on `GameData`.
+- A redelivered or restored transaction whose ledger state is `Granted`, `ConfirmationRetryable` or `StoreConfirmationPending` is confirmed only; it is no longer validated and granted again.
+- Exceptions while processing a store redelivery are reported as `PurchaseIntegrityCodes.ObservedProcessingFailed` instead of being dropped.
+### Migration
+- None. Call `PurchaseAsync`, `RestoreAsync` and `ReconcileAsync` from the main thread and do not block on their `Result` there.
+
 ## [0.9.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.IAP`. No type names, GUIDs or save formats changed.

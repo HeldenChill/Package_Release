@@ -11,8 +11,13 @@ namespace Hung.Data.Tests.Persistence
         public int WriteCount { get; private set; }
         public bool FailNextWrite { get; set; }
 
-        public SaveStoreReadResult ReadPrimary(string key) => Primary.TryGetValue(key, out byte[] bytes) ? SaveStoreReadResult.Found(bytes) : SaveStoreReadResult.Missing();
-        public SaveStoreReadResult ReadBackup(string key) => Backup.TryGetValue(key, out byte[] bytes) ? SaveStoreReadResult.Found(bytes) : SaveStoreReadResult.Missing();
+        public bool FailPrimaryRead { get; set; }
+        public bool FailBackupRead { get; set; }
+
+        public SaveStoreReadResult ReadPrimary(string key) => FailPrimaryRead ? SaveStoreReadResult.Failed("SAVE_READ_FAILED")
+            : Primary.TryGetValue(key, out byte[] bytes) ? SaveStoreReadResult.Found(bytes) : SaveStoreReadResult.Missing();
+        public SaveStoreReadResult ReadBackup(string key) => FailBackupRead ? SaveStoreReadResult.Failed("SAVE_READ_FAILED")
+            : Backup.TryGetValue(key, out byte[] bytes) ? SaveStoreReadResult.Found(bytes) : SaveStoreReadResult.Missing();
 
         public SaveStoreWriteResult Write(string key, byte[] content)
         {

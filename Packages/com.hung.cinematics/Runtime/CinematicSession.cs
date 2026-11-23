@@ -39,8 +39,8 @@ namespace Hung.Cinematics
         private readonly CinematicPlayer _player;
         private readonly CinematicDefinition _definition;
         private readonly CinematicBindings _bindings;
-        private readonly CinematicCameraLease _cameraLease;
-        private readonly List<TransformSnapshot> _snapshots;
+        private CinematicCameraLease _cameraLease;
+        private List<TransformSnapshot> _snapshots;
         private readonly bool[] _audioFired;
         private readonly List<AudioSource> _ownedAudioSources;
         private readonly Pose _frame;
@@ -57,15 +57,11 @@ namespace Hung.Cinematics
         internal CinematicSession(
             CinematicPlayer player,
             CinematicDefinition definition,
-            CinematicBindings bindings,
-            CinematicCameraLease lease,
-            List<TransformSnapshot> snapshots)
+            CinematicBindings bindings)
         {
             _player = player;
             _definition = definition;
             _bindings = bindings;
-            _cameraLease = lease;
-            _snapshots = snapshots;
             _frame = bindings.Frame;
             _ownedAudioSources = new List<AudioSource>();
 
@@ -115,11 +111,51 @@ namespace Hung.Cinematics
             return true;
         }
 
+        /// <summary>Snapshots every bound transform track target; fails on a missing binding.</summary>
+        internal static bool TryCaptureSnapshots(
+            CinematicDefinition definition,
+            CinematicBindings bindings,
+            out List<TransformSnapshot> snapshots,
+            out string diagnostic)
+        {
+            snapshots = new List<TransformSnapshot>();
+            diagnostic = null;
+            if (definition.TransformTracks == null || definition.TransformTracks.Length == 0) return true;
+            if (bindings.Transforms == null)
+            {
+                diagnostic = "CinematicBindings Transforms dictionary is null.";
+                return false;
+            }
+
+            for (int t = 0; t < definition.TransformTracks.Length; t++)
+            {
+                var track = definition.TransformTracks[t];
+                if (track == null || string.IsNullOrEmpty(track.BindingId)) continue;
+                if (!bindings.Transforms.TryGetValue(track.BindingId, out var tr) || tr == null)
+                {
+                    diagnostic = $"Missing required transform binding for track '{track.BindingId}'.";
+                    return false;
+                }
+
+                snapshots.Add(new TransformSnapshot(tr, tr.position, tr.rotation));
+            }
+
+            return true;
+        }
+
         public void Start()
         {
             if (State != CinematicState.Prepared) return;
 
-            if (!ValidateRuntimeBindings(out string diagnostic))
+            // Take the camera and the transform snapshots now, not at prepare (BUG-261114-ce05).
+            if (!TryCaptureSnapshots(_definition, _bindings, out _snapshots, out string diagnostic) ||
+                !CinematicCameraLease.TryAcquire(_bindings, out _cameraLease, out diagnostic))
+            {
+                FinishWith(CinematicState.Failed, diagnostic);
+                return;
+            }
+
+            if (!ValidateRuntimeBindings(out diagnostic))
             {
                 FinishWith(CinematicState.Failed, diagnostic);
                 return;
@@ -175,7 +211,7 @@ namespace Hung.Cinematics
 
         internal void Advance(float deltaTime)
         {
-            if (IsTerminal) return;
+            if (IsTerminal || State == CinematicState.Prepared) return;
 
             if (!ValidateRuntimeBindings(out string diagnostic))
             {

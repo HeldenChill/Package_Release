@@ -52,7 +52,9 @@ namespace Hung.IAP
             try
             {
                 PurchaseRestoreResult result = await integrityService.RestoreAsync();
-                if (result.Status == PurchaseAggregateStatus.Success)
+                // NothingToProcess is a successful restore: the Unity store returns no records from
+                // RestoreAsync, restored orders arrive through the pending-order event instead.
+                if (result.Status == PurchaseAggregateStatus.Success || result.Status == PurchaseAggregateStatus.NothingToProcess)
                     onRestoreComplete?.Invoke();
                 else
                     onRestoreFail?.Invoke();

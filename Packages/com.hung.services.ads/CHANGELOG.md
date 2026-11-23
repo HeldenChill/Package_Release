@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.1] - 2026-11-13
+### Removed
+- App open format (BUG-261114-1925, owner decision): `GameAppOpenAds`, `ResetAoaCapEvent`, `AdsManager.AppOpen` and its `appOpenBehaviour` field, the IronSource `AdsManager.AppOpen` stub, Max `AppOpenAds` (also removed from `AdsManager.prefab`), and the commented IronSource and AdMob `AppOpenAds` files. None of it showed an ad. See ADR `Docs/adr/adr-e5-0008-remove-app-open-ads.md`.
+- Dead `Integration/Max/MaxInit.cs`: fully commented out and contained the AppLovin SDK key and ad unit ids (BUG-261114-ed36). The key remains in published history.
+### Fixed
+- `GameBannerAds` no longer re-shows a banner the game hid. MAX raises "loaded" on every auto-refresh and the handler called `Show` unconditionally; it now re-shows only while the game wants the banner (`InitBanner`/`Show` set it, `Hide` clears it). `Show` with remove-ads now hides any visible banner instead of leaving it on screen (BUG-261114-02c9).
+- Max `BannerAds.InitBanner` subscribed six callbacks and created the banner twice on every call, so one load raised `OnAdsLoaded` several times. It now initializes once until `Destroy` (BUG-261114-f8fc, device check pending).
+- `GameRewardAds` and `GameInterAds` no longer show an ad nobody requested. A load failure or an `Unavailable` request latched a show-on-load flag, and the next successful load opened a new request with no callbacks, so a rewarded ad played and its reward was lost. Requests that find no ad still complete `Unavailable` at once; a later load only refills inventory.
+- `GameInterAds.Show` no longer throws `DivideByZeroException` when `GameConfig.ShowInterLevelStep` is 0. The throw left the request open, so every later interstitial returned `already-running`. A step of 0 or less now means no level-step cap.
+### Migration
+- Callers that relied on an ad auto-showing after `Unavailable` must call `Show` again.
+- Requires `com.hung.base` 0.32.0 (`IAdsService.AppOpen` removed). A game prefab that serialized `AdsManager.appOpenBehaviour` or kept a `GameAppOpenAds` / Max `AppOpenAds` component: remove the component (Unity shows it as a missing script); the field value is dropped automatically.
+
 ## [0.10.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.Ads`. No type names, GUIDs or save formats changed.

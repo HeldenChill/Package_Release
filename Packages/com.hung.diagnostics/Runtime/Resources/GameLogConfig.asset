@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79f66ee3c53715144a2070a3632e5500, type: 3}
+  m_Name: GameLogConfig
+  m_EditorClassIdentifier: 
+  enableFileLog: 1
+  captureUnityDebugLog: 1
+  includeStackTraceForWarning: 0
+  includeStackTraceForError: 1
+  minimumLevel: 0
+  maxQueueSize: 5000
+  flushIntervalMs: 500
+  maxFileSizeMb: 10
+  maxLogFiles: 5
+  echoToUnityConsole: 0

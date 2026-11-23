@@ -44,7 +44,6 @@ namespace Hung.Ads
 
         int adsMobTryAttempt = 0;
         int maxTryAttempt = 0;
-        bool isShowOnLoad = false;
         bool isShowingAds = false;
         protected ADS_TYPE type;
 
@@ -230,15 +229,12 @@ namespace Hung.Ads
                         VideoAdsAnalytics.Started(VideoAdsAnalytics.Rewarded, request.Placement);
                         videoAdsStarted = true;
                         activeProvider.Show(request.Placement);
-                        EventBus<ResetAoaCapEvent>.Raise(new ResetAoaCapEvent());
                         maxTryAttempt = 0;
-                        isShowOnLoad = false;
                         isShowingAds = true;
                         AdsSessionCounters.WatchedAds += 1;
                     }
                     else
                     {
-                        isShowOnLoad = true;
                         VideoAdsAnalytics.Available(VideoAdsAnalytics.Rewarded, request.Placement, false);
                         DevLog.Log(DevId.Hung, "Reward Ads is not ready to show. Attempting to load.");
                         _OnAddLoadAds?.Invoke(LoadAds);
@@ -272,7 +268,6 @@ namespace Hung.Ads
             RunOnMainThread(Action);
             maxTryAttempt = 0;
             adsMobTryAttempt = 0;
-            isShowOnLoad = false;
 
             void Action()
             {
@@ -283,11 +278,6 @@ namespace Hung.Ads
 
         protected void OnAdsLoaded()
         {
-            if (isShowOnLoad)
-            {
-                Show();
-                isShowOnLoad = false;
-            }
             _OnTriggerLoadAds?.Invoke();
         }
 
@@ -336,7 +326,6 @@ namespace Hung.Ads
             DevLog.Log(DevId.System, $"[Reward Ads] Load Fail! - {maxTryAttempt}");
             if (maxTryAttempt <= MAX_RETRY_ATTEMPT)
             {
-                isShowOnLoad = true;
                 _OnAddLoadAds?.Invoke(RetryLoad);
             }
             else

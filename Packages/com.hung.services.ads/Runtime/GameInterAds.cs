@@ -49,7 +49,6 @@ namespace Hung.Ads
 
         int adsMobTryAttempt = 0;
         int maxTryAttempt = 0;
-        bool isShowOnLoad = false;
         bool isShowingAds = false;
 
         /// <summary>Allow this format to load and show. Disabled requests complete as skipped.</summary>
@@ -206,7 +205,8 @@ namespace Hung.Ads
                             return;
                         }
 
-                        if (AdsSessionCounters.PlayGameAds % Config.ShowInterLevelStep == 0)
+                        // A step of 0 or less means no level-step cap (was DivideByZeroException).
+                        if (Config.ShowInterLevelStep > 0 && AdsSessionCounters.PlayGameAds % Config.ShowInterLevelStep == 0)
                         {
                             DevLog.Log(DevId.System, $"INTER: FAIL \n -Play Game Count:{AdsSessionCounters.PlayGameAds} \n -Ads Capping:{Config.ShowInterLevelStep}!");
                             activeSession.OnSkipped("inter-level-step");
@@ -225,8 +225,6 @@ namespace Hung.Ads
                             videoAdsStarted = true;
                             activeProvider.Show(request.Placement);
                             if (Config != null) cappingTimer.Start(Config.InterCappingTime);
-                            EventBus<ResetAoaCapEvent>.Raise(new ResetAoaCapEvent());
-                            isShowOnLoad = false;
                             maxTryAttempt = 0;
                             isShowingAds = true;
                             AdsSessionCounters.WatchedAds += 1;
@@ -275,7 +273,6 @@ namespace Hung.Ads
             RunOnMainThread(Action);
             maxTryAttempt = 0;
             adsMobTryAttempt = 0;
-            isShowOnLoad = false;
             isShowingAds = false;
 
             void Action()
@@ -289,11 +286,6 @@ namespace Hung.Ads
 
         protected void OnAdsLoaded()
         {
-            if (isShowOnLoad)
-            {
-                Show();
-                isShowOnLoad = false;
-            }
             _OnTriggerLoadAds?.Invoke();
         }
 
@@ -332,13 +324,11 @@ namespace Hung.Ads
             DevLog.Log(DevId.System, $"[Inter Ads] Load Fail! - {maxTryAttempt}");
             if (maxTryAttempt <= MAX_RETRY_ATTEMPT)
             {
-                isShowOnLoad = true;
                 _OnAddLoadAds?.Invoke(RetryLoad);
             }
             else
             {
                 Locator.Analytics?.AdsInterFail("Inter ads failed to load after maximum retries.");
-                isShowOnLoad = false;
                 maxTryAttempt = 0;
                 activeSession?.OnUnavailable();
             }

@@ -48,7 +48,7 @@ namespace Hung.Combat
         }
 
         public virtual bool IsTargetAvailable =>
-            statusTarget != null && statusTarget.IsStatusTargetAlive;
+            statusTarget != null && !(statusTarget is Object unityObject && unityObject == null) && statusTarget.IsStatusTargetAlive;
 
         public virtual StatusEffect Clone() => null;
 

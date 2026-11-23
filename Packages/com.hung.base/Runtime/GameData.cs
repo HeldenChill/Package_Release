@@ -210,14 +210,21 @@ namespace Hung.Base
             return data;
         }
 
+        /// <summary>True when the save owns <see cref="BaseItemIds.RemoveAds"/> or <see cref="BaseItemIds.PremiumRemoveAds"/>.
+        /// A catalog without those ids counts as not owned instead of throwing.</summary>
         public bool IsRemoveAds()
         {
-            return GetItemData(BaseItemIds.RemoveAds).Quantity > 0 ||
-                   GetItemData(BaseItemIds.PremiumRemoveAds).Quantity > 0;
+            return OwnedQuantity(BaseItemIds.RemoveAds) > 0 || IsPremiumRemoveAds();
         }
+        /// <summary>True when the save owns <see cref="BaseItemIds.PremiumRemoveAds"/>; false when the catalog lacks it.</summary>
         public bool IsPremiumRemoveAds()
         {
-            return GetItemData(BaseItemIds.PremiumRemoveAds).Quantity > 0;
+            return OwnedQuantity(BaseItemIds.PremiumRemoveAds) > 0;
+        }
+
+        private int OwnedQuantity(ItemId item)
+        {
+            return user.ItemDatas?.FirstOrDefault(x => x != null && x.ItemId == item)?.Quantity ?? 0;
         }
 
         private static ItemId EnsureItemId(ItemData data)

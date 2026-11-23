@@ -208,7 +208,9 @@ namespace Hung.UI
         {
             foreach (UICanvas ui in registry.All.ToList())
             {
-                if (exception.Contains(ui)) continue;
+                // A canvas destroyed on close leaves a dead entry; drop it (BUG-261114-0da5).
+                if (ui == null) { registry.Remove(ui); continue; }
+                if (exception != null && exception.Contains(ui)) continue;
                 if (ui.gameObject.activeInHierarchy) ui.Close();
                 registry.Remove(ui);
                 Destroy(ui.gameObject);
@@ -217,13 +219,14 @@ namespace Hung.UI
 
         public void HideAll()
         {
-            foreach (UICanvas ui in registry.All.Where(ui => ui != null && ui.gameObject.activeInHierarchy))
+            // Snapshot: a Hide or Close callback may load another canvas (BUG-261114-f5f6).
+            foreach (UICanvas ui in registry.All.Where(ui => ui != null && ui.gameObject.activeInHierarchy).ToList())
                 ui.Hide();
         }
 
         public void CloseAll()
         {
-            foreach (UICanvas ui in registry.All.Where(ui => ui != null && ui.gameObject.activeInHierarchy))
+            foreach (UICanvas ui in registry.All.Where(ui => ui != null && ui.gameObject.activeInHierarchy).ToList())
                 ui.Close();
         }
     }

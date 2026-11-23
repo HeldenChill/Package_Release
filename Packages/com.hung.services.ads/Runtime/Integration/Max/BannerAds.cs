@@ -24,9 +24,15 @@ namespace Hung.Ads.Integration.Max
         // Start is called before the first frame update
         public void InitBanner() => MaxSdkGate.Run(InitBannerNow);
 
+        // InitBanner can run more than once (each scene, and every call queued before the SDK was
+        // ready). Without this guard each run added another set of callbacks, so one load raised
+        // OnAdsLoaded N times, and created the banner again.
+        bool created;
+
         void InitBannerNow()
         {
-            MaxSdk.CreateBanner(bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
+            if (created) return;
+            created = true;
 
             MaxSdkCallbacks.Banner.OnAdLoadedEvent += OnBannerAdLoadedEvent;
             MaxSdkCallbacks.Banner.OnAdLoadFailedEvent += OnBannerAdLoadFailedEvent;
@@ -49,6 +55,7 @@ namespace Hung.Ads.Integration.Max
         }
         public virtual void Destroy()
         {
+            created = false;
             MaxSdkCallbacks.Banner.OnAdLoadedEvent -= OnBannerAdLoadedEvent;
             MaxSdkCallbacks.Banner.OnAdLoadFailedEvent -= OnBannerAdLoadFailedEvent;
             MaxSdkCallbacks.Banner.OnAdClickedEvent -= OnBannerAdClickedEvent;

@@ -26,7 +26,7 @@ namespace Hung.Analytics.Tests
         [SetUp]
         public void SetUp()
         {
-            savedAnalytics = Locator.Analytics; savedSink = Locator.RevenueSink;
+            Hung.Base.ServiceSlots.TryGet<IAnalyticsService>(out savedAnalytics); // TryGet: never save the fallback savedSink = Locator.RevenueSink;
             ServiceSlots.Unregister<IAnalyticsService>(savedAnalytics);
             ServiceSlots.Unregister<IRevenueEventSink>(savedSink);
             AnalyticsBootstrap.DiscardDeferred();
@@ -55,7 +55,7 @@ namespace Hung.Analytics.Tests
         {
             var foreign = new ForeignSink(); ServiceSlots.Register<IRevenueEventSink>(foreign);
             Assert.Throws<InvalidOperationException>(() => AnalyticsBootstrap.InstallDeferred(null, Array.Empty<IAnalyticsBackend>()));
-            Assert.IsFalse(AnalyticsBootstrap.IsDeferred); Assert.IsNull(Locator.Analytics);
+            Assert.IsFalse(AnalyticsBootstrap.IsDeferred); Assert.IsFalse(ServiceSlots.TryGet<IAnalyticsService>(out _), "No real analytics registered; Locator.Analytics now returns the Base fallback.");
         }
         [Test]
         public void FailureAfterPublication_RestoresPreviousReferencesAndDeferredSession()

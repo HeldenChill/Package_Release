@@ -24,6 +24,9 @@ namespace Hung.Ads
         IAdsProviderRegistry registry;
         readonly List<IBannerAdsProvider> subscribed = new List<IBannerAdsProvider>();
         int currentRetry = 0;
+        // What the game last asked for. Vendors (MAX) raise "loaded" on every auto-refresh, so the
+        // loaded handler may only re-show a banner the game still wants on screen.
+        bool wantShown;
 
         ADS_TYPE type;
         /// <summary>Allow banner initialization and showing.</summary>
@@ -93,6 +96,7 @@ namespace Hung.Ads
         public void InitBanner()
         {
             if (!AdsEnabled) return;
+            wantShown = true;
             foreach (ADS_TYPE vendor in Enum.GetValues(typeof(ADS_TYPE)))
             {
                 if (vendor == type) continue;
@@ -104,10 +108,26 @@ namespace Hung.Ads
 
         public void Hide()
         {
+            wantShown = false;
+            HideAllProviders();
+        }
+
+        void HideAllProviders()
+        {
             for (int i = 0; i < subscribed.Count; i++)
             {
                 subscribed[i].Hide();
             }
+        }
+
+        bool IsAdsRemoved()
+        {
+            if (!(AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds))
+                return false;
+            // A banner already on screen when remove-ads is granted must go away.
+            HideAllProviders();
+            Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
+            return true;
         }
 
         public void Load()
@@ -120,11 +140,7 @@ namespace Hung.Ads
             if (!AdsEnabled) return;
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
-                {
-                    Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
-                    return;
-                }
+                if (IsAdsRemoved()) return;
                 Show(Type);
                 currentRetry = 0;
             }
@@ -135,17 +151,15 @@ namespace Hung.Ads
             if (!AdsEnabled) return;
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
-                if (AdsEntitlementsAccess.Current.IsRemoveAds || AdsEntitlementsAccess.Current.IsPremiumRemoveAds)
-                {
-                    Locator.Items?.ShowBadge(AdsEntitlementsAccess.Current.IsPremiumRemoveAds ? BaseItemIds.PremiumRemoveAds : BaseItemIds.RemoveAds);
-                    return;
-                }
+                if (IsAdsRemoved()) return;
+                wantShown = true;
                 if (TryGetProvider(type, out var provider)) provider.Show();
             }
         }
 
         public void Hide(ADS_TYPE type)
         {
+            wantShown = false;
             if (!(DebugManager.Ins && !DebugManager.Ins.IsShowAds))
             {
                 if (TryGetProvider(type, out var provider)) provider.Hide();
@@ -158,6 +172,7 @@ namespace Hung.Ads
         }
         void OnBannerLoaded()
         {
+            if (!wantShown) return;
             Show(Type);
         }
 

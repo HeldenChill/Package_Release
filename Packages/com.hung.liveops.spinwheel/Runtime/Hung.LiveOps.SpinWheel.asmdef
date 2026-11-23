@@ -1,0 +1,23 @@
+{
+    "name": "Hung.LiveOps.SpinWheel",
+    "rootNamespace": "Hung.LiveOps.SpinWheel",
+    "references": [
+        "Hung.DesignPattern",
+        "Hung.Base",
+        "Hung.UI",
+        "Hung.Data",
+        "Hung.Common",
+        "Hung.Utilities",
+        "DOTween.Modules",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,6 +1,6 @@
 {
   "name": "com.hung.cinematics",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Hung Cinematics",
   "description": "Standalone cinematic playback and camera lease package.",
   "unity": "6000.0",

@@ -13,6 +13,7 @@ namespace Hung.IAP
         private readonly string storeName;
         private readonly Dictionary<string, PendingOrder> pendingOrdersByTransactionId = new Dictionary<string, PendingOrder>(StringComparer.Ordinal);
         private TaskCompletionSource<StoreRequestResult> activePurchase;
+        private string activeStoreProductId;
         private TaskCompletionSource<IReadOnlyList<StorePurchaseRecord>> activeFetch;
         private bool connected;
 
@@ -45,6 +46,7 @@ namespace Hung.IAP
         public Task<StoreRequestResult> BeginPurchaseAsync(string storeProductId, CancellationToken token)
         {
             activePurchase = new TaskCompletionSource<StoreRequestResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+            activeStoreProductId = storeProductId;
             if (token.CanBeCanceled)
                 token.Register(() => activePurchase.TrySetCanceled());
 
@@ -96,7 +98,17 @@ namespace Hung.IAP
             if (result.Status == StoreRequestStatus.Observed)
             {
                 pendingOrdersByTransactionId[result.ObservedPurchase.TransactionId] = order;
-                PurchaseObserved?.Invoke(result.ObservedPurchase);
+
+                // Unity raises this event for orders the player did not just request (Google fetched
+                // pending orders, approved Ask to Buy). Only an order for the requested product answers
+                // the in-flight purchase. That order takes one path, so it is recorded as a new purchase
+                // and confirmed once; every other order goes through PurchaseObserved as a redelivery.
+                bool answersRequest = string.Equals(result.ObservedPurchase.StoreProductId, activeStoreProductId, StringComparison.Ordinal)
+                    && activePurchase != null
+                    && activePurchase.TrySetResult(result);
+                if (!answersRequest)
+                    PurchaseObserved?.Invoke(result.ObservedPurchase);
+                return;
             }
 
             activePurchase?.TrySetResult(result);

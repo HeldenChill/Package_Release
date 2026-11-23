@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.16] - 2026-11-13
+### Fixed
+- `PiggyBankPopup` grants and saves the purchased gold before resetting progress or touching UI, so a failed reset save or a popup destroyed during the purchase can no longer lose paid gold. The claim button is disabled during a purchase and re-enabled on failure.
+### Known limitation
+- The gold is still granted in the legacy purchase callback, after the store order is completed. A kill before that callback loses the gold. Closing it needs an `IPurchaseGrantHandler` for the piggy product in the game's purchase composition.
+
 ## [0.4.15] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

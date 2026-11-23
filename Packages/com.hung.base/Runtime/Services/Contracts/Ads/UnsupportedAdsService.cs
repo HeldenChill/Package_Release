@@ -8,7 +8,6 @@ namespace Hung.Base
     public sealed class UnsupportedAdsService : IAdsService
     {
         private readonly HashSet<string> warned = new HashSet<string>(StringComparer.Ordinal);
-        private readonly Format appOpen;
         private readonly Format banner;
         private readonly RewardFormat reward;
         private readonly InterFormat inter;
@@ -16,13 +15,10 @@ namespace Hung.Base
         /// <summary>Creates defaults with warning state owned by this session.</summary>
         public UnsupportedAdsService()
         {
-            appOpen = new Format(this, "AppOpen");
             banner = new Format(this, "Banner");
             reward = new RewardFormat(this);
             inter = new InterFormat(this);
         }
-        /// <inheritdoc/>
-        public IAds AppOpen => appOpen;
         /// <inheritdoc/>
         public IAds Banner => banner;
         /// <inheritdoc/>

@@ -35,7 +35,62 @@ namespace Hung.Ads.Tests
         [TearDown]
         public void TearDown()
         {
+            FakeDataService.InterLevelStep = 2;
             Locator.ResetDataForTests();
+        }
+
+        private static void StopCappingTimer(GameInterAds inter)
+        {
+            var timer = typeof(GameInterAds).GetField("cappingTimer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(inter);
+            timer.GetType().GetMethod("Stop").Invoke(timer, null);
+        }
+
+        [Test]
+        public void BackgroundLoadFailThenLoaded_DoesNotShowUnrequestedAd()
+        {
+            var go = new GameObject(nameof(GameInterAds));
+            try
+            {
+                var inter = CreateAwake(go);
+                var provider = new FakeInterstitialProvider { IsCanShow = false };
+                var registry = new AdsProviderRegistry();
+                registry.RegisterInterstitial(ADS_TYPE.MAX, provider);
+                inter.ConfigureProviders(registry);
+                inter.Type = ADS_TYPE.MAX;
+                StopCappingTimer(inter);
+
+                provider.LoadFail();
+                provider.IsCanShow = true;
+                provider.Loaded();
+
+                Assert.AreEqual(0, provider.ShowCallCount);
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
+        public void Show_WithZeroLevelStep_ShowsAndCompletesOnce()
+        {
+            FakeDataService.InterLevelStep = 0;
+            var go = new GameObject(nameof(GameInterAds));
+            try
+            {
+                var inter = CreateAwake(go);
+                var provider = new FakeInterstitialProvider { IsCanShow = true };
+                var registry = new AdsProviderRegistry();
+                registry.RegisterInterstitial(ADS_TYPE.MAX, provider);
+                inter.ConfigureProviders(registry);
+                inter.Type = ADS_TYPE.MAX;
+                StopCappingTimer(inter);
+                int completed = 0;
+
+                Assert.DoesNotThrow(() => inter.Show(new AdsShowRequest(AdsRequestId.Create("zero-step", AdsRequestKind.Interstitial, Placement.IN_GAME, "a")), _ => completed++));
+                provider.Hidden();
+
+                Assert.AreEqual(1, provider.ShowCallCount);
+                Assert.AreEqual(1, completed);
+            }
+            finally { Object.DestroyImmediate(go); }
         }
 
         [Test]
@@ -159,6 +214,7 @@ namespace Hung.Ads.Tests
 
         private sealed class FakeDataService : IDataService
         {
+            public static int InterLevelStep = 2;
             private readonly GameData gameData;
             public FakeDataService(GameData gameData) => this.gameData = gameData;
             public T GetData<T>(int index = 0) where T : class => gameData as T;
@@ -168,7 +224,7 @@ namespace Hung.Ads.Tests
                 // showInterLevelStep defaults to 0, and GameInterAds.Show() does
                 // playGameAdsCount % ShowInterLevelStep - give it a non-zero step.
                 var field = typeof(T).GetField("showInterLevelStep", BindingFlags.NonPublic | BindingFlags.Instance);
-                field?.SetValue(instance, 2);
+                field?.SetValue(instance, InterLevelStep);
                 return instance;
             }
             public T GetUnit<T>(int type) where T : class => null;
@@ -187,6 +243,8 @@ namespace Hung.Ads.Tests
             public void Load() { BeforeLoad?.Invoke(); LoadCallCount++; }
             public void Hidden() => OnAdsDone?.Invoke();
             public void FailDisplay() => OnAdsDisplayFail?.Invoke();
+            public void LoadFail() => OnAdsLoadFail?.Invoke();
+            public void Loaded() => OnAdsLoaded?.Invoke();
 
             public void Show(Placement placement)
             {

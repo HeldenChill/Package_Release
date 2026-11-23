@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.2] - 2026-11-14
+### Fixed
+- `AIBrainModule.ResetModule` calls `AIAgent.ResetRuntimeState`, so a pooled character no longer keeps its previous life's AI blackboard (BUG-261114-9450). Needs com.hung.ai 0.2.0.
+
+## [0.4.1] - 2026-11-14
+### Added
+- `CharacterBase.OnDespawn` rebuilds `RuntimeStats` from the definition, and new virtual `OnResetForReuse()` lets a game reset its own state. A pooled character reused after despawn used to keep the previous life's damage and stat modifiers, because `OnInit` runs once (BUG-261114-5b23, owner picked rebuild-on-despawn).
+### Fixed
+- `RegenStatModule` returns its timers to `TimerManager` and unsubscribes from its tracking stats on destroy, and when `WithRegenTime` is called again. They used to leak (BUG-261114-b746; no consumer in this repo, compile-checked only).
+### Migration
+- Code that cached a character's stats object (health bars, `RegenStatModule`) must re-read it after the character is spawned again; the old object is replaced on despawn.
+- A subclass that overrides `OnDespawn` must call `base.OnDespawn()` to get the reset.
+
 ## [0.4.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.Character, Hung.Character.AI, Hung.Character.AI.Tests`. No type names, GUIDs or save formats changed.

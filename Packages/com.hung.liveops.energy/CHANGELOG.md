@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.15] - 2026-11-14
+### Fixed
+- Clock rollback no longer extends Unlimited Energy. `TryStartRun` and the snapshot compared the expiry with the raw device clock, so setting the clock back kept runs free after the entitlement had run out, against design section 12. The entitlement is now paused during rollback and resumes when the clock catches up (BUG-261114-6f71).
+- `Reconcile` no longer adopts a changed config when its save fails; the previous config stays until a reconcile commits (BUG-261114-74d0).
+### Migration
+- None.
+
 ## [0.2.14] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

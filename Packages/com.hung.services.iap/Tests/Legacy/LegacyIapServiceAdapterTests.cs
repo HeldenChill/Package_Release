@@ -85,6 +85,26 @@ namespace Hung.IAP.Tests
             Assert.That(failure, Is.False);
         }
 
+        // BUG-261114-f46d: UnityPurchaseStoreAdapter.RestoreAsync succeeds with an empty list (restored
+        // orders arrive through the pending-order event), so a successful restore reaches the facade as
+        // NothingToProcess. That is a success, not a failure.
+        [Test]
+        public void Restore_NothingToProcessInvokesSuccess()
+        {
+            var integrity = new FakeIntegrityService(PurchaseRequestStatus.Completed, "PURCHASE_COMPLETED")
+            {
+                RestoreStatus = PurchaseAggregateStatus.NothingToProcess
+            };
+            var adapter = Adapter(integrity);
+            bool success = false;
+            bool failure = false;
+
+            adapter.Restore(() => success = true, () => failure = true);
+
+            Assert.That(success, Is.True);
+            Assert.That(failure, Is.False);
+        }
+
         [Test]
         public void Restore_PartialOrFailureInvokesFailure()
         {

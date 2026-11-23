@@ -84,6 +84,23 @@ namespace Gameplay.Character
             OnInit();
         }
 
+        /// <summary>
+        /// Pool despawn. OnInit runs once per object, so a reused character would keep the previous
+        /// life's damage and stat modifiers. Rebuild the stats from the definition; the next
+        /// OnEnable hands the new object to every system. Code that cached the old stats object
+        /// (health bars, RegenStatModule) must re-read it on spawn.
+        /// </summary>
+        public override void OnDespawn()
+        {
+            base.OnDespawn();
+            if (initialized && Definition != null)
+                RuntimeStats = (TStats)Definition.BuildRuntime();
+            OnResetForReuse();
+        }
+
+        /// <summary>Override to reset game-owned state (logic state, velocity, AI) when the pool despawns this character.</summary>
+        protected virtual void OnResetForReuse() { }
+
         protected virtual void OnEnable()
         {
             #region Update Data Event

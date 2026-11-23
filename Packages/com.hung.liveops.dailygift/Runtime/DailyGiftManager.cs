@@ -160,7 +160,12 @@ namespace Hung.LiveOps.DailyGift
                 RewardClaimResult finalize = rewardCoordinator.Finalize(id, () =>
                 {
                     statusList[day] = true;
-                    dataModel.Save();
+                    try { dataModel.Save(); }
+                    catch (Exception ex)
+                    {
+                        statusList[day] = false;
+                        return new RewardFeatureCommitResult(false, ex.Message);
+                    }
                     return new RewardFeatureCommitResult(true);
                 });
                 if (!finalize.Success) return false;

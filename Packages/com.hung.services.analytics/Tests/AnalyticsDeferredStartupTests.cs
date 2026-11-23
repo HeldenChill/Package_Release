@@ -15,7 +15,7 @@ namespace Hung.Analytics.Tests
         [SetUp]
         public void SaveLocator()
         {
-            _previousAnalytics = Locator.Analytics;
+            Hung.Base.ServiceSlots.TryGet<IAnalyticsService>(out _previousAnalytics); // TryGet: never save the fallback
             _previousSink = Locator.RevenueSink;
             ServiceSlots.Unregister<IAnalyticsService>(_previousAnalytics);
             ServiceSlots.Unregister<IRevenueEventSink>(_previousSink);

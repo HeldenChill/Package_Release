@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.5] - 2026-11-14
+### Fixed
+- A failed daily gift save inside `Finalize` returns `RewardFeatureCommitResult(false)` and restores the slot status instead of throwing out of the claim (BUG-261114-c587).
+
 ## [0.5.4] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

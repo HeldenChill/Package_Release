@@ -115,11 +115,109 @@ namespace Hung.Ads.Tests
             public void Hide() { HideCallCount++; }
             public void Destroy() { }
             public void Load() { }
+            public void RaiseLoaded() => OnAdsLoaded?.Invoke();
 
 #pragma warning disable 67
             public event System.Action OnAdsLoaded;
             public event System.Action OnAdsLoadFail;
 #pragma warning restore 67
+        }
+
+        // BUG-261114 A1 banner: MAX fires its loaded event on every auto-refresh. The loaded
+        // handler used to call Show unconditionally, so a banner the game hid came back.
+        private GameBannerAds NewBanner(GameObject go, FakeBannerProvider provider)
+        {
+            var bannerAds = go.AddComponent<GameBannerAds>();
+            var registry = new AdsProviderRegistry();
+            registry.RegisterBanner(ADS_TYPE.MAX, provider);
+            bannerAds.ConfigureProviders(registry);
+            bannerAds.Type = ADS_TYPE.MAX;
+            return bannerAds;
+        }
+
+        [Test]
+        public void HiddenBanner_RefreshLoad_DoesNotShowAgain()
+        {
+            var go = new GameObject(nameof(GameBannerAds));
+            try
+            {
+                var provider = new FakeBannerProvider();
+                GameBannerAds bannerAds = NewBanner(go, provider);
+                bannerAds.Show();
+                bannerAds.Hide();
+
+                provider.RaiseLoaded();
+
+                Assert.AreEqual(1, provider.ShowCallCount);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void InitBanner_FirstLoad_Shows()
+        {
+            var go = new GameObject(nameof(GameBannerAds));
+            try
+            {
+                var provider = new FakeBannerProvider();
+                GameBannerAds bannerAds = NewBanner(go, provider);
+                bannerAds.InitBanner();
+
+                provider.RaiseLoaded();
+
+                Assert.AreEqual(1, provider.ShowCallCount);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        // A banner already on screen when remove-ads is granted must be hidden, not left up.
+        [Test]
+        public void RemoveAds_RefreshLoad_HidesInsteadOfShowing()
+        {
+            var go = new GameObject(nameof(GameBannerAds));
+            try
+            {
+                var provider = new FakeBannerProvider();
+                GameBannerAds bannerAds = NewBanner(go, provider);
+                bannerAds.Show();
+                Hung.Base.ServiceSlots.Unregister<IAdsEntitlements>(Hung.Base.ServiceSlots.Get<IAdsEntitlements>()); Hung.Base.ServiceSlots.Register<IAdsEntitlements>(new FakeEntitlements { IsRemoveAds = true });
+
+                provider.RaiseLoaded();
+
+                Assert.AreEqual(1, provider.ShowCallCount);
+                Assert.GreaterOrEqual(provider.HideCallCount, 1);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void Show_WithRemoveAds_HidesVisibleBanner()
+        {
+            var go = new GameObject(nameof(GameBannerAds));
+            try
+            {
+                var provider = new FakeBannerProvider();
+                GameBannerAds bannerAds = NewBanner(go, provider);
+                Hung.Base.ServiceSlots.Unregister<IAdsEntitlements>(Hung.Base.ServiceSlots.Get<IAdsEntitlements>()); Hung.Base.ServiceSlots.Register<IAdsEntitlements>(new FakeEntitlements { IsRemoveAds = true });
+
+                bannerAds.Show();
+
+                Assert.AreEqual(0, provider.ShowCallCount);
+                Assert.AreEqual(1, provider.HideCallCount);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
         }
     }
 }

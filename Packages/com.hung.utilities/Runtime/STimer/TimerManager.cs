@@ -82,7 +82,7 @@ namespace Hung.Utilities.Timer
             else if (stimerData.Count == 1)
             {
                 STimer timer = PopSTimer();
-                timer.IsUnscaleTime = false;
+                timer.IsUnscaleTime = isUnscaleTime; // BUG-261114-e85d
                 Action lastAction = stimerData[0].Action;
                 Action callBack = () =>
                 {
@@ -115,6 +115,7 @@ namespace Hung.Utilities.Timer
 
             timer.IsUnscaleTime = false;
             timer.TimeScale = 1f;
+            timer.ClearOwnerEvents();
             sTimers.Enqueue(timer);
             inUseSTimers.Remove(timer);
         }

@@ -18,7 +18,8 @@ Prepared -> Playing <-> Paused
 ```
 
 ## Camera Lease Contract
-- `CinematicCameraLease.TryAcquire(CinematicBindings bindings, out CinematicCameraLease lease, out string error)`: Atomically validates brain/camera availability and claims priority 1000 override.
+- `CinematicCameraLease.CanAcquire(CinematicBindings bindings, out string error)`: Validates brain/camera availability without claiming anything (used by `TryPrepare`).
+- `CinematicCameraLease.TryAcquire(CinematicBindings bindings, out CinematicCameraLease lease, out string error)`: Atomically validates brain/camera availability and claims priority 1000 override. `CinematicSession.Start` calls it; `TryPrepare` takes nothing, so a prepared session does not freeze the camera, and transform snapshots are taken at `Start`.
 - `lease.Apply(Pose worldPose, float fieldOfView)`: Directly updates camera transform and FOV.
 - `lease.Dispose()`: Immediately restores camera priority, enabled state, and frees the reservation.
 

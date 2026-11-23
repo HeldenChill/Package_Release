@@ -4,6 +4,10 @@ Game-agnostic automated-test core for scenario-driven game validation.
 
 Version 0.4.0 adds an enforced runtime-capability contract (`AutoTestCaseData.requiredCapabilities`) and an optional `Hung.AutoTest.FakeInput` companion assembly with reusable keyboard/mouse and UGUI gesture drivers — see [Required capabilities and fake input](#required-capabilities-and-fake-input) below. Version 0.3.2 makes the editor CLI launch domain-reload safe by persisting its one-shot launch record in `UnityEditor.SessionState` and resuming it idempotently after Enter Play Mode. Version 0.3.1 adds per-logical-run host boot reset coordination: hosts register `AutoTestBootstrapper.HostBootReset` alongside `BootKick`; normal runs reset at `StartRun`; and CLI preboot resets before readiness polling without allowing runner startup to erase that host state. `AutoTestRunner.Awake()` is not the reset boundary. Version 0.3.0 adds string-keyed assertion registration alongside the existing `AutoTestAssertionType` enum, for host games that have exhausted the reserved enum extension slots. Version 0.2.7 adds a `-rcState` command-line flag, strict CLI flag validation (`RC_CLI_DUPLICATE_FLAG`/`RC_CLI_VALUE_MISSING`), and product-neutral run-identity fields on `RuntimeEvidenceRecord` for host games composing separate seed/verify processes. Version 0.2.6 adds the snapshot extension envelope. Version 0.2.5 removed the remaining Base/Data/DesignPattern package dependencies.
 
+## Player builds
+
+Since 0.6.0 the runtime assemblies compile only under `UNITY_EDITOR || HUNG_AUTOTEST`. Shipping builds leave `HUNG_AUTOTEST` undefined and contain no AutoTest code. Evidence or QA player builds that launch `AutoTestPlayerEntrypoint` with `-rcScenario` add `HUNG_AUTOTEST` to their scripting defines; any runtime assembly that references `Hung.AutoTest` (for example a game's RuntimeConfidence harness) carries the same define constraint.
+
 ## Package dependencies
 
 AutoTest has no `com.hung.*` package dependency. Host-game integrations belong in a separate glue assembly that references `Hung.AutoTest` and the host's own gameplay assemblies.

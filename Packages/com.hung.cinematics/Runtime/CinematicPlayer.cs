@@ -41,39 +41,19 @@ namespace Hung.Cinematics
                 return false;
             }
 
-            // Validate transform bindings
-            var snapshots = new List<CinematicSession.TransformSnapshot>();
-            if (definition.TransformTracks != null && definition.TransformTracks.Length > 0)
-            {
-                if (bindings.Transforms == null)
-                {
-                    diagnostic = "CinematicBindings Transforms dictionary is null.";
-                    return false;
-                }
-
-                for (int t = 0; t < definition.TransformTracks.Length; t++)
-                {
-                    var track = definition.TransformTracks[t];
-                    if (track != null && !string.IsNullOrEmpty(track.BindingId))
-                    {
-                        if (!bindings.Transforms.TryGetValue(track.BindingId, out var tr) || tr == null)
-                        {
-                            diagnostic = $"Missing required transform binding for track '{track.BindingId}'.";
-                            return false;
-                        }
-
-                        snapshots.Add(new CinematicSession.TransformSnapshot(tr, tr.position, tr.rotation));
-                    }
-                }
-            }
-
-            // Acquire camera lease
-            if (!CinematicCameraLease.TryAcquire(bindings, out var lease, out diagnostic))
+            // Validate only. The camera lease and transform snapshots are taken in Start, so a prepared
+            // session neither freezes the camera nor restores targets to a stale pose (BUG-261114-ce05).
+            if (!CinematicSession.TryCaptureSnapshots(definition, bindings, out _, out diagnostic))
             {
                 return false;
             }
 
-            session = new CinematicSession(this, definition, bindings, lease, snapshots);
+            if (!CinematicCameraLease.CanAcquire(bindings, out diagnostic))
+            {
+                return false;
+            }
+
+            session = new CinematicSession(this, definition, bindings);
             _activeSession = session;
             diagnostic = null;
             return true;

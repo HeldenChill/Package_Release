@@ -139,6 +139,16 @@ namespace Hung.AI
             runner?.Abort();
         }
 
+        /// <summary>
+        /// Prepares a pooled agent for reuse: aborts the active path and restores the blackboard to graph defaults
+        /// plus this agent's overrides (BUG-261114-9450). The runtime graph copy is kept.
+        /// </summary>
+        public void ResetRuntimeState()
+        {
+            AbortActivePath();
+            runner?.Context.Blackboard?.ResetToDefaults();
+        }
+
         /// <summary>Aborts and destroys the runtime copy.</summary>
         public void ReleaseRuntime()
         {

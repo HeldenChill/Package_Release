@@ -88,8 +88,32 @@ namespace Hung.IAP
             record.state = nextState;
             record.errorCode = code;
             record.lastUpdatedUtcTicks = DateTime.UtcNow.Ticks;
+            CountAttempt(record, nextState);
 
             return SaveAndPublish(candidate, record);
+        }
+
+        // Each stage outcome counts one attempt of that stage. Pending states are not outcomes.
+        private static void CountAttempt(PurchaseTransactionRecord record, PurchaseTransactionState state)
+        {
+            switch (state)
+            {
+                case PurchaseTransactionState.ValidationRetryable:
+                case PurchaseTransactionState.Rejected:
+                case PurchaseTransactionState.Validated:
+                    record.validationAttemptCount++;
+                    break;
+                case PurchaseTransactionState.GrantRetryable:
+                case PurchaseTransactionState.GrantRejected:
+                case PurchaseTransactionState.Granted:
+                    record.grantAttemptCount++;
+                    break;
+                case PurchaseTransactionState.ConfirmationRetryable:
+                case PurchaseTransactionState.StoreConfirmationPending:
+                case PurchaseTransactionState.Completed:
+                    record.confirmationAttemptCount++;
+                    break;
+            }
         }
 
         public bool ContainsCompletedTransaction(string transactionId)

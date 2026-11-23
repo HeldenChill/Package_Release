@@ -6,14 +6,11 @@ namespace Hung.Ads
     using Hung.Base;
     using Hung.DesignPattern;
 
-    // Neutral composition root for the four Game*Ads components. A game wires this once (a
-    // prefab with references to its GameAppOpenAds/GameBannerAds/GameRewardAds/GameInterAds
-    // instances) and registers PvmLocator.Ads = AdsManager.Ins - every consumer then goes
+    // Neutral composition root for the three Game*Ads components. A game wires this once (a
+    // prefab with references to its GameBannerAds/GameRewardAds/GameInterAds instances) and registers PvmLocator.Ads = AdsManager.Ins - every consumer then goes
     // through IAdsService without knowing which vendor is behind it.
     public sealed class AdsManager : Singleton<AdsManager>, IAdsService
     {
-        [SerializeField]
-        MonoBehaviour appOpenBehaviour;
         [SerializeField]
         MonoBehaviour bannerBehaviour;
         [SerializeField]
@@ -41,12 +38,10 @@ namespace Hung.Ads
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics() => RoutingOverrideJson = null;
 
-        IAds appOpen;
         IAds banner;
         IRewardAds reward;
         IInterAds inter;
 
-        public IAds AppOpen => appOpen;
         public IAds Banner => banner;
         public IRewardAds Reward => reward;
         public IInterAds Inter => inter;
@@ -56,7 +51,6 @@ namespace Hung.Ads
             get => reward != null ? reward.Type : default;
             set
             {
-                if (appOpen != null) appOpen.Type = value;
                 if (banner != null) banner.Type = value;
                 if (reward != null) reward.Type = value;
                 if (inter != null) inter.Type = value;
@@ -68,7 +62,6 @@ namespace Hung.Ads
             if (!Hung.Base.ServiceSlotLifecycle.CanInitialize<IAdsService>(this, this)) return;
 
             DontDestroyOnLoad(gameObject);
-            appOpen = appOpenBehaviour as IAds;
             banner = bannerBehaviour as IAds;
             reward = rewardBehaviour as IRewardAds;
             inter = interBehaviour as IInterAds;

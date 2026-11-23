@@ -41,6 +41,10 @@ UI/composition
 
 Confirmation is intentionally last. A store order is not confirmed until the game grant has succeeded durably.
 
+A purchase request is answered only by an order for the requested store product. An order for another product that arrives during the request (fetched pending order, approved Ask to Buy) leaves the request `Pending` with `PurchaseIntegrityCodes.StoreOrderMismatch` and is processed through `PurchaseObserved` as a redelivery. A restore whose store call succeeds with no records (`NothingToProcess`) counts as success in the legacy facade.
+
+A purchase request that finds the store not ready (for example after a disconnect) reconnects once before giving up; a failed reconnect reports `PurchaseIntegrityCodes.ReconnectFailed`. The ledger counts one validation, grant or confirmation attempt per stage outcome.
+
 ## Product Catalog
 
 Use `PurchaseProductId` as the stable logical identity. Examples:

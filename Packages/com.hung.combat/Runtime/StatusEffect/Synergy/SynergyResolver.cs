@@ -36,13 +36,22 @@ namespace Hung.Combat
             definitions = defs != null ? new List<SynergyDefinitionData>(defs) : new List<SynergyDefinitionData>();
         }
 
+        /// <summary>
+        /// Registers a reaction for this resolver only. It is not added to the static
+        /// <see cref="SynergyReactionFactory"/>: that made it global across managers and plays and
+        /// notified it twice per removal (once here, once through the factory).
+        /// </summary>
         public void RegisterReaction(ISynergyReaction reaction)
         {
-            if (reaction != null)
-            {
+            if (reaction != null && !customReactions.Contains(reaction))
                 customReactions.Add(reaction);
-                SynergyReactionFactory.Register(reaction);
-            }
+        }
+
+        /// <summary>Forgets every synergy cooldown for <paramref name="target"/>; call on despawn or destroy.</summary>
+        public void ClearHost(IStatusEffectHost target)
+        {
+            if (target != null)
+                cooldowns.Remove(target);
         }
 
         public void OnStatusApplied(IStatusEffectHost target, GameObject caster, StatusEffectTag appliedTag, StatusApplicationContext context)

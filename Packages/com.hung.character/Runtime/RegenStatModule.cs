@@ -30,6 +30,7 @@ namespace Hung.Character
         }
         public RegenStatModule WithRegenTime(List<Stat> timeRegenStats)
         {
+            ReleaseTimers();
             this.timeRegenStats = timeRegenStats;
             regenTimers = new List<STimer>();
             for (int i = 0; i < timeRegenStats.Count; i++)
@@ -98,6 +99,29 @@ namespace Hung.Character
                 trackingStats[i]._OnUpMin -= OnTrackingValueUpMin;
             }
         }
+        // Timers come from the shared TimerManager pool and the stat events hold this module;
+        // both used to outlive it.
+        protected virtual void OnDestroy()
+        {
+            UnregisterTrackingValue(trackingStats);
+            ReleaseTimers();
+        }
+
+        void ReleaseTimers()
+        {
+            if (regenTimers == null) return;
+            // TimerManager.Ins would create a new manager during teardown; find without creating.
+            // ponytail: one scene search per destroyed module; cache the manager if regen modules ever churn per frame.
+            TimerManager timers = FindAnyObjectByType<TimerManager>();
+            for (int i = 0; i < regenTimers.Count; i++)
+            {
+                if (regenTimers[i] == null) continue;
+                regenTimers[i].Stop();
+                if (timers != null) timers.PushSTimer(regenTimers[i]);
+            }
+            regenTimers = null;
+        }
+
         protected void Update()
         {
             if (regenStats != null)

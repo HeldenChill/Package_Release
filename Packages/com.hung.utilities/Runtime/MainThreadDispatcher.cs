@@ -23,13 +23,19 @@ namespace Hung.Utilities
         }
         void Update()
         {
+            // Snapshot under the lock, run outside it: work enqueued by an action runs next frame
+            // instead of looping forever, and one throwing action does not drop the rest (BUG-261114-6a03).
+            Action[] batch;
             lock (executionQueue)
             {
-                while (executionQueue.Count > 0)
-                {
-                    var action = executionQueue.Dequeue();
-                    action.Invoke();
-                }
+                if (executionQueue.Count == 0) return;
+                batch = executionQueue.ToArray();
+                executionQueue.Clear();
+            }
+            foreach (Action action in batch)
+            {
+                try { action?.Invoke(); }
+                catch (Exception ex) { Debug.LogException(ex); }
             }
         }
 

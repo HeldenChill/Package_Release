@@ -30,15 +30,11 @@ namespace Hung.DesignPattern
             // below cannot intercept - silently skipping every later binding.
             foreach (var binding in bindings.ToArray())
             {
-                try
-                {
-                    binding.OnEvent.Invoke(@event);
-                    binding.OnEventNoArgs.Invoke();
-                }
-                catch (System.Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
+                // Handlers may be emptied by Remove, and one failing must not skip the other (BUG-261114-027a).
+                try { binding.OnEvent?.Invoke(@event); }
+                catch (System.Exception ex) { Debug.LogException(ex); }
+                try { binding.OnEventNoArgs?.Invoke(); }
+                catch (System.Exception ex) { Debug.LogException(ex); }
             }
         }
     }

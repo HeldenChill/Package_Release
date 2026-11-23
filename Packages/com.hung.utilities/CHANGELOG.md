@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5] - 2026-11-14
+### Fixed
+- `TimerManager.WaitForTime(..., isUnscaleTime: true)` ran on scaled time when it was the only wait queued that frame, so it never fired while paused (BUG-261114-e85d).
+- A pooled `STimer` no longer carries its previous owner's state: `Stop` clears the fixed-frame countdown, `PushSTimer` clears `FrameUpdate`, `FrameFixedUpdate`, `TimeOut` and the code (BUG-261114-778d).
+- Removed the `STimer` finalizer, which called `TimerManager.Ins` on the GC thread (BUG-261114-5108).
+- `MainThreadDispatcher.Update` drains a snapshot outside the lock: work enqueued by an action runs next frame instead of looping forever, and a throwing action is logged without dropping the rest (BUG-261114-6a03).
+
 ## [0.2.4] - 2026-11-02
 
 - Patch release: re-pin dependencies to com.hung.designpattern 0.5.1 (pool statics reset on SubsystemRegistration). No code change in this package.

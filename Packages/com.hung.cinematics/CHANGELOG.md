@@ -1,3 +1,11 @@
+# Changelog
+
+## [0.2.0] - 2026-11-14
+### Changed
+- `CinematicPlayer.TryPrepare` only validates; the camera lease and transform snapshots are taken in `CinematicSession.Start` (BUG-261114-ce05, owner option B). A prepared session no longer freezes the gameplay camera, and finishing restores bound transforms to their pose at `Start`. A lease conflict found at `Start` fails the session with the lease diagnostic. Ticks before `Start` leave the session `Prepared`.
+### Added
+- `CinematicCameraLease.CanAcquire(bindings, out diagnostic)` checks lease availability without taking it.
+
 ﻿# Changelog
 
 All notable changes to `com.hung.cinematics` will be documented in this file.

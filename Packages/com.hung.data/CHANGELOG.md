@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.15.1] - 2026-11-23
+### Changed
+- Release snapshot release-2026.11.23.1: dependency declarations re-pinned to actual versions (designpattern 0.5.3, utilities 0.2.5, ui 0.10.2) and previously unreleased committed changes published. No API or behaviour change from this entry.
+
 ## [0.15.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.Data, Hung.Data.Rewards`. No type names, GUIDs or save formats changed.

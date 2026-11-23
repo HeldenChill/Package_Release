@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.3] - 2026-11-14
+### Fixed
+- `ParticlePool.Root` no longer throws without a `PoolController` in the scene (BUG-261114-2ef8).
+- `ParticlePool.Release` destroys pooled GameObjects instead of only their components, and no longer tries to destroy an unpooled prefab (BUG-261114-0e6f).
+- `SimplePool` clamp works without `collect`, keeps at most the clamp amount active and retires the oldest object, never the one being returned; amount 1 no longer hands out the same instance twice (BUG-261114-b715). Behaviour change: the cap was effectively amount minus one before.
+- `EventBus.Raise` tolerates a binding whose handlers were all removed and runs the no-args handler even if the typed one throws (BUG-261114-027a).
+- `Dispatcher.PostEvent(id, param)` no longer throws after the last listener unregistered; `ClearAllListenerEvent` also clears param listeners (BUG-261114-5cec).
+
+## [0.5.2] - 2026-11-14
+### Fixed
+- `ParticlePool` no longer edits prefab assets. The Editor-only block that turned off `loop`, set `stopAction` to None and clamped `duration` to 2 on the prefab during play mode is removed; pooled copies (and their child systems) get `loop` off and `stopAction` None in every build, so a looping prefab no longer makes every `Play` instantiate a new copy on device. Duration is no longer clamped (BUG-261114-0b41, owner picked option B).
+
 ## [0.5.1] - 2026-11-02
 
 - Shared `SimplePool` and `ParticlePool` now clear their static state on `SubsystemRegistration`, so Domain Reload disabled plays start with fresh pools. Additive: no public API, serialized field or enum change.

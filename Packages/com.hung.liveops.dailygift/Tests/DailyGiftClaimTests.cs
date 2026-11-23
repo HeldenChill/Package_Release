@@ -25,6 +25,20 @@ namespace Hung.LiveOps.DailyGift.Tests
             Assert.That(coordinator.Finalizes, Is.EqualTo(1));
         }
 
+        // BUG-261114-c587: a failed feature save returns false instead of throwing, slot stays unclaimed.
+        [Test]
+        public void ClaimDailyGift_FeatureSaveFails_DoesNotThrowAndKeepsSlotUnclaimed()
+        {
+            ConfigureDatabase();
+            RecordingCoordinator coordinator = new();
+            DailyGiftManager manager = CreateManager(coordinator);
+            Database.ServiceFactory = () => null;
+
+            Assert.DoesNotThrow(() => manager.ClaimDailyGift(0));
+            Assert.That(manager.DataModel.listDailyGiftStatus[0], Is.False);
+            Assert.That(coordinator.Finalizes, Is.EqualTo(1));
+        }
+
         [TearDown]
         public void TearDown()
         {

@@ -51,6 +51,8 @@ agent.Tick(Time.deltaTime);
 
 `Pause()` aborts the active branch and stops the mover so a scripted sequence can take the body; `Resume()` restarts from the root.
 
+Pooled agents: call `ResetRuntimeState()` on despawn. It aborts the active path and calls `Blackboard.ResetToDefaults()`, which restores every key to its graph default or this agent's override, so the next spawn starts clean. The runtime graph copy is kept.
+
 ## Graph editor
 
 Open it by double-clicking an AI Graph asset, with **Open Graph Editor** on the asset or `AIAgent` inspector, or from **Tools > Character > AI Graph Editor**.

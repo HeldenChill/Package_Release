@@ -7,6 +7,7 @@ namespace Hung.Base
             ServiceSlots.SetFallback<IAdsService>(new UnsupportedAdsService());
             ServiceSlots.SetFallback<IIAPService>(new UnsupportedIapService());
             ServiceSlots.SetFallback<IAudioService>(new UnsupportedAudioService());
+            ServiceSlots.SetFallback<IAnalyticsService>(new UnsupportedAnalyticsService());
             var items = new UnsupportedItemCapabilities();
             ServiceSlots.SetFallback<IItemBalanceReader>(items);
             ServiceSlots.SetFallback<IItemSpendService>(items);

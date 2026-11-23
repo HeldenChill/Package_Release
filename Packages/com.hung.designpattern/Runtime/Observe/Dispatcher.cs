@@ -51,7 +51,7 @@ namespace Hung.DesignPattern
         public void PostEvent(EventID eventID, object param)
         {
             if (_listenerEventDictionaryParam.TryGetValue(eventID, out Action<object> value))
-                value.Invoke(param);
+                value?.Invoke(param); // BUG-261114-5cec: null after the last listener unregistered
             else
                 Debug.LogWarning("EventID " + eventID + " not found");
         }
@@ -59,6 +59,7 @@ namespace Hung.DesignPattern
         public void ClearAllListenerEvent()
         {
             _listenerEventDictionary.Clear();
+            _listenerEventDictionaryParam.Clear();
         }
     }
 

@@ -12,7 +12,6 @@ namespace Hung.Combat
     public class StatusEffectManager : Singleton<StatusEffectManager>, IStatusEffectService
     {
         readonly Dictionary<IStatusEffectHost, List<ActiveStatusEffect>> activeStatusEffects = new();
-        readonly Dictionary<IStatusEffectHost, Dictionary<string, float>> synergyCooldowns = new();
         readonly Dictionary<IStatusEffectHost, ShockOverloadState> shockOverloadStates = new();
         readonly HashSet<IStatusEffectHost> deferredClearHosts = new();
         readonly Dictionary<IStatusEffectHost, HashSet<string>> deferredRemoveById = new();
@@ -363,7 +362,6 @@ namespace Hung.Combat
                     if (effects.Count == 0)
                     {
                         activeStatusEffects.Remove(target);
-                        synergyCooldowns.Remove(target);
                         shockOverloadStates.Remove(target);
                     }
                     return true;
@@ -418,7 +416,14 @@ namespace Hung.Combat
 
         void RemoveAllStatusEffectOfHostImmediate(IStatusEffectHost target)
         {
-            if (target == null || !activeStatusEffects.TryGetValue(target, out List<ActiveStatusEffect> effects))
+            if (target == null)
+            {
+                return;
+            }
+
+            // ClearAll is the despawn contract: drop synergy cooldowns even when no effect is active.
+            synergyResolver?.ClearHost(target);
+            if (!activeStatusEffects.TryGetValue(target, out List<ActiveStatusEffect> effects))
             {
                 return;
             }
@@ -432,7 +437,6 @@ namespace Hung.Combat
             }
 
             activeStatusEffects.Remove(target);
-            synergyCooldowns.Remove(target);
             shockOverloadStates.Remove(target);
         }
 
@@ -705,7 +709,7 @@ namespace Hung.Combat
                         continue;
                     }
 
-                    if (target == null)
+                    if (IsGone(target))
                     {
                         targetsToRemove.Add(target);
                         continue;
@@ -752,6 +756,10 @@ namespace Hung.Combat
                 {
                     activeStatusEffects.Remove(targetsToRemove[i]);
                     shockOverloadStates.Remove(targetsToRemove[i]);
+                    // Expiry keeps per-target cooldowns (they outlive the effects); a destroyed host
+                    // will never come back, so its cooldowns go too.
+                    if (IsGone(targetsToRemove[i]))
+                        synergyResolver?.ClearHost(targetsToRemove[i]);
                 }
             }
             finally
@@ -962,7 +970,7 @@ namespace Hung.Combat
         {
             float currentTime = Time.time;
             float interval = activeStatus.statusEffect.tickInterval;
-            if (activeStatus.target == null)
+            if (IsGone(activeStatus.target))
             {
                 return true;
             }
@@ -1012,26 +1020,9 @@ namespace Hung.Combat
             return state.NextThreshold;
         }
 
-        /// <summary>
-        /// Clean up all stat modifiers applied via synergy reactions on a host.
-        /// Called when a character dies or is removed from the scene to prevent modifier leaks.
-        /// </summary>
-        public void CleanupStatModifiers(IStatusEffectHost host)
-        {
-            if (host == null)
-            {
-                return;
-            }
-
-            // If the host implements IModStat, remove any synergy-sourced modifiers.
-            // This is a hook point for cleanup of persistent stat modifiers applied by synergy reactions.
-            var modStatHost = host as IModStat;
-            if (modStatHost != null)
-            {
-                // Future implementation: iterate through all synergy-sourced modifiers and remove them.
-                // For now, this serves as the documented cleanup interface.
-                // The actual cleanup can be expanded to track and remove individual modifiers by source ID.
-            }
-        }
+        // A host is usually a MonoBehaviour. Interface == null is reference equality and misses a destroyed
+        // object, so a destroyed host kept ticking until its effects expired. Pooled hosts that despawn
+        // without being destroyed must still call ClearAll.
+        static bool IsGone(IStatusEffectHost host) => host == null || (host is UnityEngine.Object unityObject && unityObject == null);
     }
 }

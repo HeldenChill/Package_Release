@@ -29,12 +29,9 @@ namespace Hung.DesignPattern
             {
                 if (root == null)
                 {
-                    root = Object.FindObjectOfType<PoolController>().transform;
-                    if (root == null)
-                    {
-                        root = new GameObject().transform;
-                        root.name = "ParticlePool";
-                    }
+                    // Null-safe like SimplePool.Root: no PoolController in the scene is allowed (BUG-261114-2ef8).
+                    PoolController controller = Object.FindObjectOfType<PoolController>();
+                    root = controller != null ? controller.transform : new GameObject("ParticlePool").transform;
                 }
 
                 return root;
@@ -80,10 +77,7 @@ namespace Hung.DesignPattern
                 pools[prefab.GetInstanceID()].Release();
                 pools.Remove(prefab.GetInstanceID());
             }
-            else
-            {
-                Object.DestroyImmediate(prefab);
-            }
+            // An unpooled prefab is left alone: it may be an asset (BUG-261114-0e6f).
         }
 
         /// <summary>
@@ -103,51 +97,32 @@ namespace Hung.DesignPattern
             // Constructor
             public Pool(ParticleSystem prefab, int initialQty, Transform parent)
             {
-#if UNITY_EDITOR
-                if (prefab.main.loop)
-                {
-                    ParticleSystem.MainModule main = prefab.main;
-                    main.loop = false;
-
-                    //save prefab
-                    UnityEditor.Undo.RegisterCompleteObjectUndo(prefab, "Fix To Not Loop");
-                    Debug.Log(prefab.name + " ~ Fix To Not Loop");
-                }
-
-                if (prefab.main.stopAction != ParticleSystemStopAction.None)
-                {
-                    ParticleSystem.MainModule main = prefab.main;
-                    main.stopAction = ParticleSystemStopAction.None;
-
-                    //save prefab
-                    UnityEditor.Undo.RegisterCompleteObjectUndo(prefab, "Fix To Stop Action None");
-                    Debug.Log(prefab.name + " ~ Fix To  Stop Action None");
-                }
-
-                if (prefab.main.duration > 2)
-                {
-                    ParticleSystem.MainModule main = prefab.main;
-                    main.duration = 2;
-
-                    //save prefab
-                    UnityEditor.Undo.RegisterCompleteObjectUndo(prefab, "Fix To Duration By 1");
-                    Debug.Log(prefab.name + " ~ Fix To Duration By 2");
-                }
-#endif
-
                 m_sRoot = parent;
                 this.prefab = prefab;
                 inactive = new List<ParticleSystem>(initialQty);
 
                 for (int i = 0; i < initialQty; i++)
                 {
-                    ParticleSystem particle = Object.Instantiate(prefab, m_sRoot);
-                    particle.Stop();
-                    inactive.Add(particle);
+                    inactive.Add(CreateCopy());
                 }
             }
 
             public int Count => inactive.Count;
+
+            // The pool reuses a copy once it stops playing, so copies (never the prefab asset) are made
+            // non-looping and kept alive on stop, in every build (BUG-261114-0b41).
+            private ParticleSystem CreateCopy()
+            {
+                ParticleSystem copy = Object.Instantiate(prefab, m_sRoot);
+                foreach (ParticleSystem system in copy.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    system.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    ParticleSystem.MainModule main = system.main;
+                    main.loop = false;
+                    main.stopAction = ParticleSystemStopAction.None;
+                }
+                return copy;
+            }
 
             // Spawn an object from our pool
             public ParticleSystem Play(Vector3 pos, Quaternion rot)
@@ -158,8 +133,7 @@ namespace Hung.DesignPattern
 
                 if (obj.isPlaying)
                 {
-                    obj = Object.Instantiate(prefab, m_sRoot);
-                    obj.Stop();
+                    obj = CreateCopy();
                     inactive.Insert(index, obj);
                 }
 
@@ -172,7 +146,7 @@ namespace Hung.DesignPattern
             {
                 while (inactive.Count > 0)
                 {
-                    Object.DestroyImmediate(inactive[0]);
+                    if (inactive[0] != null) Object.DestroyImmediate(inactive[0].gameObject);
                     inactive.RemoveAt(0);
                 }
 

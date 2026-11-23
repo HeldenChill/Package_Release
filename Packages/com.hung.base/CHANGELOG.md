@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.32.0] - 2026-11-14
+### Removed (breaking)
+- `IAdsService.AppOpen` and `UnsupportedAdsService.AppOpen`. App open never worked through the framework: the neutral adapter had empty `Show`/`Load` bodies and no vendor adapter was wired (BUG-261114-1925, owner decision: remove). `AdsRequestKind.AppOpen = 4` stays so request ids keep their values.
+### Fixed (from unreleased 0.31.2, 2026-11-13)
+- `Locator.Analytics` falls back to the new `UnsupportedAnalyticsService` (silent no-op) when no analytics plugin is registered. The Max and IronSource ads integrations called it without a null check at 37 sites, so a game without analytics threw inside ad callbacks and rewarded ads never became ready. Covered by `UnsupportedServicesTests.Analytics_DefaultIsSilentNoOpAndNotAnOwner`.
+- `IPurchaseGrantHandler` documents its contract: idempotent per `TransactionId`, called on the purchase caller's thread. No API change.
+- `GameData.IsRemoveAds()` and `IsPremiumRemoveAds()` return false when the game's item catalog has no `base.remove_ads` or `base.premium_remove_ads` row. They threw `KeyNotFoundException`. Covered by `ItemSaveTests.IsRemoveAds_*`.
+### Migration
+- Implementations of `IAdsService` (game test doubles, custom ads services): delete the `AppOpen` property.
+- Callers of `Locator.Ads.AppOpen`: delete the call; it never showed anything.
+
 ## [0.31.1] - 2026-11-13
 ### Fixed
 - `Target3DDetection<T>.CheckTargets(ref List<T>)`: box and sphere overlaps now use the collider's `bounds.center`. They used `transform.position + bounds.center`, which doubled the world offset, so any detector away from the origin missed targets at its own position and hit at twice its position. Covered by `Target3DDetectionTests`. The `CheckTargets(ref List<T>, Collider)` overload was already correct.

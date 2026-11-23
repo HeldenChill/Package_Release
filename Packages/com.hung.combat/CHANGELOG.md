@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0] - 2026-11-13
+### Fixed
+- `ClearAll` now drops the host's synergy cooldowns, and a destroyed host's cooldowns are dropped with it. Cooldowns live in `SynergyResolver`; `ClearAll` only cleared the manager's own dictionary, which nothing wrote, so a pooled host respawned still on cooldown and destroyed hosts stayed keyed forever (BUG-261114-5810). New `SynergyResolver.ClearHost`.
+- `SynergyResolver.RegisterReaction` no longer adds the reaction to the static `SynergyReactionFactory`. It was notified twice per status removal and leaked across managers and plays (BUG-261114-36f5). A reaction registered on one manager is now visible to that manager only.
+- `StatusEffectManager` drops a destroyed host on the next update. It compared the `IStatusEffectHost` interface to null, which is reference equality and misses a destroyed Unity object, so a destroyed host kept ticking and logging errors until its effects expired. `StatusEffect.IsTargetAvailable` has the same fix. Covered by `StatusEffectManagerHostLifetimeTests`.
+### Removed
+- `StatusEffectManager.CleanupStatModifiers(IStatusEffectHost)`. Its body was empty although its doc promised modifier cleanup.
+### Migration
+- Remove calls to `CleanupStatModifiers`; it did nothing. Call `ClearAll` when a host dies or returns to a pool: a pooled host is not destroyed, so it is not dropped automatically.
+
 ## [0.5.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.Combat`. No type names, GUIDs or save formats changed.

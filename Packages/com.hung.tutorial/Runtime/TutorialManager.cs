@@ -14,6 +14,7 @@ namespace Hung.Tutorial
         [SerializeField] protected bool isActive = true;
 
         private STimer _timer;
+        private bool _ownsDataCopy;
         private TutorialRegistry _registry;
         private TutorialStepContext _ctx;
         private TutorialUIController _ui;
@@ -31,6 +32,13 @@ namespace Hung.Tutorial
 
             DontDestroyOnLoad(gameObject);
             ServiceSlots.Register<ITutorialService>(this);
+            // Runtime copy: hand positions and callout targets are written into the step data while the
+            // tutorial runs, and must not land in the project asset.
+            if (data != null)
+            {
+                data = Instantiate(data);
+                _ownsDataCopy = true;
+            }
             _timer = TimerManager.Ins.PopSTimer();
 
             _registry = new TutorialRegistry();
@@ -51,6 +59,7 @@ namespace Hung.Tutorial
             ServiceSlots.Unregister<ITutorialService>(this);
 
             if (_timer != null) TimerManager.Ins?.PushSTimer(_timer);
+            if (_ownsDataCopy && data != null) Destroy(data);
         }
 
         private void RegisterBuiltInActions()

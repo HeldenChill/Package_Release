@@ -1,0 +1,10 @@
+{
+  "name": "com.hung.diagnostics",
+  "version": "0.2.2",
+  "displayName": "Hung Diagnostics",
+  "description": "Structured runtime log capture (GameLog) with JSON file sink and an Editor viewer window. Zero com.hung.* dependencies.",
+  "unity": "6000.0",
+  "keywords": ["layer:0"],
+  "author": { "name": "Hung" },
+  "dependencies": {}
+}

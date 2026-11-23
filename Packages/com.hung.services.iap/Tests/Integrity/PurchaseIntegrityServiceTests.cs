@@ -23,6 +23,51 @@ namespace Hung.IAP.Tests
                 rig.Log);
         }
 
+        // BUG-261114-abb6: the Unity store resolves the in-flight purchase with any pending order
+        // (a fetched Google order, an approved Ask to Buy). An order for another product must not
+        // complete this request; the store still delivers it through PurchaseObserved.
+        [Test]
+        public async Task PurchaseAsync_OrderForOtherProduct_DoesNotCompleteRequest()
+        {
+            var rig = Rig();
+            rig.Store.NextObserved = StoreRecord("tx-other", "google-gem");
+
+            PurchaseRequestResult result = await rig.Service.PurchaseAsync(new PurchaseProductId("starter-pack"));
+
+            Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Pending));
+            Assert.That(result.Code, Is.EqualTo(PurchaseIntegrityCodes.StoreOrderMismatch));
+            Assert.That(rig.Grant.CallCount, Is.EqualTo(0));
+        }
+
+        // BUG-261114-d19d: after a store disconnect nothing reconnected, so every purchase returned
+        // Unsupported for the rest of the session. PurchaseAsync now reconnects once.
+        [Test]
+        public async Task PurchaseAsync_StoreNotReady_ReconnectsOnceThenPurchases()
+        {
+            var rig = Rig();
+            rig.Store.Availability = new PurchaseAvailability(PurchaseCapabilityState.SupportedNotReady, "UNITY_PURCHASING_NOT_CONNECTED");
+            rig.Store.ConnectMakesReady = true;
+            rig.Store.NextObserved = StoreRecord("tx-1");
+
+            PurchaseRequestResult result = await rig.Service.PurchaseAsync(new PurchaseProductId("starter-pack"));
+
+            Assert.That(rig.Store.ConnectCount, Is.EqualTo(1));
+            Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+        }
+
+        [Test]
+        public async Task PurchaseAsync_ReconnectFails_ReturnsUnsupported()
+        {
+            var rig = Rig();
+            rig.Store.Availability = new PurchaseAvailability(PurchaseCapabilityState.SupportedNotReady, "UNITY_PURCHASING_NOT_CONNECTED");
+            rig.Store.ConnectThrows = true;
+
+            PurchaseRequestResult result = await rig.Service.PurchaseAsync(new PurchaseProductId("starter-pack"));
+
+            Assert.That(rig.Store.ConnectCount, Is.EqualTo(1));
+            Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Unsupported));
+        }
+
         [Test]
         public async Task PurchaseAsync_PersistsGrantPendingBeforeGrant()
         {
@@ -85,6 +130,21 @@ namespace Hung.IAP.Tests
             Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.RetryableFailure));
             Assert.That(rig.Log, Does.Contain("state:tx-1:GrantRetryable"));
             Assert.That(rig.Log, Does.Not.Contain("confirm:tx-1"));
+        }
+
+        [Test]
+        public async Task RetryableGrant_SecondAttemptSameTransaction_RunsGrantAgainAndCompletes()
+        {
+            var rig = Rig();
+            rig.Grant.NextStatus = PurchaseGrantStatus.RetryableFailure;
+            await rig.Service.ProcessObservedForTestsAsync(StoreRecord("tx-1"), PurchaseSource.Redelivery);
+
+            rig.Grant.NextStatus = PurchaseGrantStatus.Granted;
+            PurchaseRequestResult retry = await rig.Service.ProcessObservedForTestsAsync(StoreRecord("tx-1"), PurchaseSource.Redelivery);
+
+            Assert.That(rig.Grant.CallCount, Is.EqualTo(2));
+            Assert.That(retry.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+            Assert.That(rig.Log, Does.Contain("confirm:tx-1"));
         }
 
         [Test]
@@ -159,9 +219,11 @@ namespace Hung.IAP.Tests
         {
             var rig = Rig();
             StorePurchaseRecord record = StoreRecord("tx-1");
+            rig.Validator.Hold = new TaskCompletionSource<bool>();
 
             Task<PurchaseRequestResult> first = rig.Service.ProcessObservedForTestsAsync(record, PurchaseSource.Redelivery);
             Task<PurchaseRequestResult> second = rig.Service.ProcessObservedForTestsAsync(record, PurchaseSource.Redelivery);
+            rig.Validator.Hold.SetResult(true);
             await Task.WhenAll(first, second);
 
             Assert.That(rig.Validator.CallCount, Is.EqualTo(1));
@@ -169,6 +231,60 @@ namespace Hung.IAP.Tests
             Assert.That(rig.Store.ConfirmCount, Is.EqualTo(1));
             Assert.That(first.Result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
             Assert.That(second.Result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+        }
+
+        [Test]
+        public void PurchaseAsync_StoreCompletesLater_GrantRunsOnCallerContext()
+        {
+            SynchronizationContext previous = SynchronizationContext.Current;
+            var context = new QueueSynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(context);
+            try
+            {
+                var rig = Rig();
+                rig.Store.NextObserved = StoreRecord("tx-1");
+                rig.Store.DeferPurchase = true;
+                int callerThread = Thread.CurrentThread.ManagedThreadId;
+
+                Task<PurchaseRequestResult> purchase = rig.Service.PurchaseAsync(new PurchaseProductId("starter-pack"));
+                rig.Store.CompleteDeferredPurchase();
+                context.RunUntil(purchase, TimeSpan.FromSeconds(5));
+
+                Assert.That(purchase.Result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+                Assert.That(rig.Grant.ThreadId, Is.EqualTo(callerThread));
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previous);
+            }
+        }
+
+        [TestCase(PurchaseTransactionState.Granted)]
+        [TestCase(PurchaseTransactionState.ConfirmationRetryable)]
+        [TestCase(PurchaseTransactionState.StoreConfirmationPending)]
+        public async Task Redelivery_LedgerAlreadyGranted_SkipsValidateAndGrantButConfirms(PurchaseTransactionState existing)
+        {
+            var rig = Rig();
+            rig.Ledger.ExistingStates["tx-1"] = existing;
+
+            PurchaseRequestResult result = await rig.Service.ProcessObservedForTestsAsync(StoreRecord("tx-1"), PurchaseSource.Redelivery);
+
+            Assert.That(result.Status, Is.EqualTo(PurchaseRequestStatus.Completed));
+            Assert.That(rig.Validator.CallCount, Is.EqualTo(0));
+            Assert.That(rig.Grant.CallCount, Is.EqualTo(0));
+            Assert.That(rig.Store.ConfirmCount, Is.EqualTo(1));
+            Assert.That(rig.Log, Does.Contain("state:tx-1:Completed"));
+        }
+
+        [Test]
+        public void ObservedPurchase_ProcessingThrows_ReportsDiagnostics()
+        {
+            var rig = Rig();
+            rig.Grant.Throw = true;
+
+            rig.Store.Emit(StoreRecord("tx-1"));
+
+            Assert.That(rig.Diagnostics.Codes, Does.Contain(PurchaseIntegrityCodes.ObservedProcessingFailed));
         }
 
         private static TestRig Rig()
@@ -182,6 +298,14 @@ namespace Hung.IAP.Tests
                     "google-starter",
                     "apple-starter",
                     "editor-starter",
+                    true,
+                    1),
+                new PurchaseCatalogEntry(
+                    new PurchaseProductId("gem-pack"),
+                    PurchaseProductType.Consumable,
+                    "google-gem",
+                    "apple-gem",
+                    "editor-gem",
                     true,
                     1)
             });
@@ -201,12 +325,12 @@ namespace Hung.IAP.Tests
                 new PurchaseIntegrityService(catalog, store, validator, ledger, grant, diagnostics));
         }
 
-        private static StorePurchaseRecord StoreRecord(string transactionId)
+        private static StorePurchaseRecord StoreRecord(string transactionId, string storeProductId = "google-starter")
         {
             return new StorePurchaseRecord(
                 transactionId,
                 PurchaseStoreNames.GooglePlay,
-                "google-starter",
+                storeProductId,
                 "receipt-json",
                 "fingerprint",
                 PurchaseProductType.Consumable);
@@ -253,12 +377,34 @@ namespace Hung.IAP.Tests
             public int ConfirmCount { get; private set; }
             public event Action<StorePurchaseRecord> PurchaseObserved;
 
-            public Task ConnectAsync(CancellationToken token) => Task.CompletedTask;
+            public int ConnectCount { get; private set; }
+            public bool ConnectMakesReady { get; set; }
+            public bool ConnectThrows { get; set; }
+
+            public Task ConnectAsync(CancellationToken token)
+            {
+                ConnectCount++;
+                if (ConnectThrows)
+                    return Task.FromException(new InvalidOperationException("connect failed"));
+                if (ConnectMakesReady)
+                    Availability = new PurchaseAvailability(PurchaseCapabilityState.Ready);
+                return Task.CompletedTask;
+            }
+
+            public bool DeferPurchase { get; set; }
+            private TaskCompletionSource<StoreRequestResult> deferred;
 
             public Task<StoreRequestResult> BeginPurchaseAsync(string storeProductId, CancellationToken token)
             {
-                return Task.FromResult(StoreRequestResult.Observed(NextObserved));
+                if (!DeferPurchase)
+                    return Task.FromResult(StoreRequestResult.Observed(NextObserved));
+
+                // Same options as UnityPurchaseStoreAdapter: the store callback completes this later.
+                deferred = new TaskCompletionSource<StoreRequestResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+                return deferred.Task;
             }
+
+            public void CompleteDeferredPurchase() => deferred.SetResult(StoreRequestResult.Observed(NextObserved));
 
             public Task<IReadOnlyList<StorePurchaseRecord>> FetchPurchasesAsync(CancellationToken token)
             {
@@ -288,12 +434,16 @@ namespace Hung.IAP.Tests
 
             public int CallCount { get; private set; }
             public PurchaseValidationResult NextResult { get; set; } = PurchaseValidationResult.Valid("{}");
+            // Set to keep validation pending, so a second call arrives while the first is still in flight.
+            public TaskCompletionSource<bool> Hold { get; set; }
 
-            public Task<PurchaseValidationResult> ValidateAsync(StorePurchaseRecord record, PurchaseCatalogEntry entry, CancellationToken token)
+            public async Task<PurchaseValidationResult> ValidateAsync(StorePurchaseRecord record, PurchaseCatalogEntry entry, CancellationToken token)
             {
                 CallCount++;
                 log.Add("validate:" + record.TransactionId);
-                return Task.FromResult(NextResult);
+                if (Hold != null)
+                    await Hold.Task;
+                return NextResult;
             }
         }
 
@@ -305,10 +455,15 @@ namespace Hung.IAP.Tests
 
             public PurchaseGrantStatus NextStatus { get; set; } = PurchaseGrantStatus.Granted;
             public int CallCount { get; private set; }
+            public int ThreadId { get; private set; } = -1;
+            public bool Throw { get; set; }
 
             public Task<PurchaseGrantStatus> GrantAsync(PurchaseGrantRequest request, CancellationToken token = default)
             {
                 CallCount++;
+                ThreadId = Thread.CurrentThread.ManagedThreadId;
+                if (Throw)
+                    throw new InvalidOperationException("grant failed");
                 log.Add("grant:" + request.TransactionId);
                 return Task.FromResult(NextStatus);
             }
@@ -322,6 +477,7 @@ namespace Hung.IAP.Tests
             public FakePurchaseLedger(List<string> log) => this.log = log;
 
             public HashSet<string> CompletedTransactions { get; } = new HashSet<string>(StringComparer.Ordinal);
+            public Dictionary<string, PurchaseTransactionState> ExistingStates { get; } = new Dictionary<string, PurchaseTransactionState>(StringComparer.Ordinal);
             public PurchaseLedgerWriteStatus NextRecordStatus { get; set; } = PurchaseLedgerWriteStatus.Saved;
             public bool IsAvailable { get; set; } = true;
             public SaveRecoveryState LoadRecovery => SaveRecoveryState.None;
@@ -333,6 +489,11 @@ namespace Hung.IAP.Tests
                 {
                     log.Add("duplicate-completed:" + record.transactionId);
                     return new PurchaseLedgerWriteResult(PurchaseLedgerWriteStatus.Duplicate, null, record);
+                }
+                if (ExistingStates.TryGetValue(record.transactionId, out PurchaseTransactionState existing))
+                {
+                    log.Add("duplicate:" + record.transactionId + ":" + existing);
+                    return new PurchaseLedgerWriteResult(PurchaseLedgerWriteStatus.Duplicate, null, new PurchaseTransactionRecord { transactionId = record.transactionId, state = existing });
                 }
                 if (NextRecordStatus == PurchaseLedgerWriteStatus.Conflict)
                     return new PurchaseLedgerWriteResult(PurchaseLedgerWriteStatus.Conflict, PurchaseLedgerCodes.TransactionConflict, record);
@@ -349,6 +510,26 @@ namespace Hung.IAP.Tests
             }
 
             public bool ContainsCompletedTransaction(string transactionId) => CompletedTransactions.Contains(transactionId);
+        }
+
+        // Queues posted continuations so the test thread can run them, like Unity's main-thread context.
+        private sealed class QueueSynchronizationContext : SynchronizationContext
+        {
+            private readonly System.Collections.Concurrent.BlockingCollection<(SendOrPostCallback, object)> queue =
+                new System.Collections.Concurrent.BlockingCollection<(SendOrPostCallback, object)>();
+
+            public override void Post(SendOrPostCallback d, object state) => queue.Add((d, state));
+
+            public void RunUntil(Task task, TimeSpan timeout)
+            {
+                DateTime deadline = DateTime.UtcNow + timeout;
+                while (!task.IsCompleted && DateTime.UtcNow < deadline)
+                {
+                    if (queue.TryTake(out var item, 10))
+                        item.Item1(item.Item2);
+                }
+                Assert.That(task.IsCompleted, Is.True, "Purchase did not finish.");
+            }
         }
 
         private sealed class FakePurchaseDiagnostics : IPurchaseDiagnostics

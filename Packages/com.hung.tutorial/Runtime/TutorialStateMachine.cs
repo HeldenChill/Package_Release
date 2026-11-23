@@ -22,6 +22,7 @@ namespace Hung.Tutorial
         private int _currentStep;
         private bool _isRunning;
         private bool _isCheckedCondition;
+        private int _branchEnteredStep = -1;
 
         public int CurrentStep => _currentStep;
         public int CurrentStepLevel => _level;
@@ -61,6 +62,10 @@ namespace Hung.Tutorial
         public void Run(int level)
         {
             if (!IsHaveTutorial(level)) return;
+            // A delay from a previous run must not fire into this one, and its checked flag must not block it.
+            _timer.Stop();
+            _isCheckedCondition = false;
+            _branchEnteredStep = -1;
             _currentStep = 0;
             _isRunning = true;
             _ctx.Reset();
@@ -70,6 +75,8 @@ namespace Hung.Tutorial
         {
             _tutorialData = null;
             _isRunning = false;
+            _isCheckedCondition = false;
+            _branchEnteredStep = -1;
             _timer.Stop();
         }
 
@@ -147,8 +154,15 @@ namespace Hung.Tutorial
                     _isRunning = false;
                     return;
                 case TUTORIAL_ACTION.BRANCH:
-                    RunActions(action.PostProcessActions);
-                    for (int i = 0; i < action.Conditions.Count; i++)
+                    // Tick re-enters a branch every frame until a condition matches; run its actions once.
+                    if (_branchEnteredStep != _currentStep)
+                    {
+                        _branchEnteredStep = _currentStep;
+                        RunActions(action.PostProcessActions);
+                    }
+                    // A condition without a matching AdvanceSteps entry is authoring error: skip it, never throw from Tick.
+                    int branchCount = Math.Min(action.Conditions.Count, action.AdvanceSteps?.Count ?? 0);
+                    for (int i = 0; i < branchCount; i++)
                     {
                         if (_registry.EvaluateCondition(action.Conditions[i]))
                         {

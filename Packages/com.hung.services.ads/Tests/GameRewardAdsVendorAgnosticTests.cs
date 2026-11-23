@@ -65,6 +65,57 @@ namespace Hung.Ads.Tests
             }
         }
 
+        [Test]
+        public void BackgroundLoadFailThenLoaded_DoesNotShowUnrequestedAd()
+        {
+            var go = new GameObject(nameof(GameRewardAds));
+            try
+            {
+                var rewardAds = go.AddComponent<GameRewardAds>();
+                var provider = new Routing.FakeRewarded("probe");
+                var registry = new AdsProviderRegistry();
+                registry.RegisterRewarded(ADS_TYPE.IRON_SOURCE, provider);
+                rewardAds.ConfigureProviders(registry);
+                rewardAds.Type = ADS_TYPE.IRON_SOURCE;
+
+                provider.RaiseLoadFail();
+                provider.RaiseLoaded();
+
+                Assert.AreEqual(0, provider.Shows.Count);
+                Assert.IsFalse(rewardAds.IsShowingAds);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test]
+        public void UnavailableRequest_LaterLoad_DoesNotShowOrphanAd()
+        {
+            var go = new GameObject(nameof(GameRewardAds));
+            try
+            {
+                var rewardAds = go.AddComponent<GameRewardAds>();
+                var provider = new Routing.FakeRewarded("probe");
+                var registry = new AdsProviderRegistry();
+                registry.RegisterRewarded(ADS_TYPE.IRON_SOURCE, provider);
+                rewardAds.ConfigureProviders(registry);
+                rewardAds.Type = ADS_TYPE.IRON_SOURCE;
+                AdsRequestOutcome outcome = default;
+
+                rewardAds.Show(new AdsShowRequest(AdsRequestId.Create("orphan", AdsRequestKind.Rewarded, Placement.X2_COIN, "a")), r => outcome = r.Outcome);
+                provider.RaiseLoaded();
+
+                Assert.AreEqual(AdsRequestOutcome.Unavailable, outcome);
+                Assert.AreEqual(0, provider.Shows.Count);
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+
         private sealed class FakeDataService : IDataService
         {
             private readonly GameData gameData;

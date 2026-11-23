@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.2] - 2026-11-14
+### Added
+- First test assembly `Hung.Tutorial.Tests` (EditMode): `TutorialStateMachine` stop-then-run, run-new-level timer cancel, branch post-actions once per step, branch length mismatch.
+### Fixed
+- A `BRANCH` step with fewer `AdvanceSteps` than `Conditions` threw `ArgumentOutOfRangeException` from `Tick` when an extra condition matched. Conditions without an advance entry are now skipped (BUG-261113-aac9).
+
+## [0.4.1] - 2026-11-13
+### Fixed
+- A tutorial stopped during a step delay no longer freezes when run again. `Run` and `Stop` cancel the pending delay and clear the waiting flag; before, `Tick` returned early forever, and a pending delay could fire into the next run.
+- A `BRANCH` step whose conditions do not match yet runs its post-process actions once instead of every frame.
+- `TutorialManager` works on a runtime copy of its `TutorialDataSO`, so hand positions and callout scene references written during play no longer land on the project asset.
+### Migration
+- None. Code that read `TutorialManager`'s data field expecting the asset instance now gets the runtime copy.
+
 ## [0.4.0] - 2026-11-11
 ### Changed
 - Types that were in the global or a non-Hung namespace now live in `Hung.Tutorial`. No type names, GUIDs or save formats changed.

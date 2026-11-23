@@ -27,6 +27,7 @@ namespace Hung.AI
     public sealed class Blackboard
     {
         readonly BlackboardSlot[] slots;
+        readonly BlackboardValue[] initialValues;
         readonly Dictionary<string, int> indexById = new Dictionary<string, int>();
         readonly Dictionary<string, int> indexByName = new Dictionary<string, int>();
         readonly HashSet<string> warned = new HashSet<string>();
@@ -38,6 +39,7 @@ namespace Hung.AI
         {
             IReadOnlyList<BlackboardKey> keys = definition != null ? definition.Keys : Array.Empty<BlackboardKey>();
             slots = new BlackboardSlot[keys.Count];
+            initialValues = new BlackboardValue[keys.Count];
             for (int i = 0; i < keys.Count; i++)
             {
                 BlackboardKey key = keys[i];
@@ -47,6 +49,7 @@ namespace Hung.AI
                 if (overrides != null)
                     for (int o = 0; o < overrides.Count; o++)
                         if (overrides[o] != null && overrides[o].KeyId == key.Id) value = overrides[o].Value;
+                initialValues[i] = value;
                 slots[i] = CreateSlot(key, value);
                 indexById[key.Id] = i;
                 string name = key.Name ?? string.Empty;
@@ -138,10 +141,20 @@ namespace Hung.AI
             }
         }
 
-        /// <summary>Writes the field of value that matches the key's type.</summary>
-        public bool SetFromValue(BlackboardKeyRef keyRef, in BlackboardValue value)
+        /// <summary>
+        /// Restores every key to the value it had when this blackboard was built (graph default or agent override).
+        /// Raises KeyChanged for keys whose value changes. Used when a pooled agent is reused.
+        /// </summary>
+        public void ResetToDefaults()
         {
-            int i = Resolve(keyRef);
+            for (int i = 0; i < slots.Length; i++) SetFromValue(i, initialValues[i]);
+        }
+
+        /// <summary>Writes the field of value that matches the key's type.</summary>
+        public bool SetFromValue(BlackboardKeyRef keyRef, in BlackboardValue value) => SetFromValue(Resolve(keyRef), value);
+
+        bool SetFromValue(int i, in BlackboardValue value)
+        {
             if (i < 0) return false;
             switch (slots[i].Key.Type)
             {

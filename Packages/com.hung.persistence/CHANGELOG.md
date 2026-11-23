@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] - 2026-11-14
+
+- Fix: `PersistenceService.Load` treated a failed primary or backup read (`SaveStoreReadResult.Success == false`, e.g. a locked file) as a missing file, then fell through to legacy import or wrote a default over the unread save, for both failure policies. It now returns `SAVE_READ_FAILED` / `Unrecoverable` without writing (BUG-261114-f262).
+- Fix: `ISaveDiagnostics` (`PersistenceBuilder.WithDiagnostics`) was accepted but never called. `PersistenceService` now reports every non-clean outcome: quarantine of primary or backup (with evidence path), backup restored, default created, legacy imported, read failed, save newer than client, fail-closed load failure, and failed saves. Clean saves and loads report nothing. A throwing sink is swallowed and never changes a result (BUG-261114-f7ae).
+
 ## [0.2.0] - 2026-10-31
 
 - Restore validated backup bytes before schema rewrites, check restoration failures, and retain a valid backup across failed migration promotion. Add real-file-store recovery/restart regressions.

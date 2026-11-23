@@ -80,7 +80,8 @@ namespace Hung.Sync
         /// <summary>
         /// Dispatches up to <paramref name="maxOperations"/> pending operations, stopping early on a
         /// condition that would make further attempts pointless: authentication required or a
-        /// retryable transport failure.
+        /// retryable transport failure. A revision conflict blocks only its own stream, so
+        /// dispatch continues with other streams.
         /// </summary>
         /// <returns>How many operations were dispatched.</returns>
         public int DispatchAll(int maxOperations)
@@ -101,8 +102,7 @@ namespace Hung.Sync
                 dispatched++;
 
                 if (outcome.Kind == SyncResultKind.AuthenticationRequired
-                    || outcome.Kind == SyncResultKind.RetryableTransportFailure
-                    || outcome.Kind == SyncResultKind.RevisionConflict)
+                    || outcome.Kind == SyncResultKind.RetryableTransportFailure)
                     break;
             }
 
@@ -118,6 +118,9 @@ namespace Hung.Sync
                 queue.Complete(operation.OperationId);
             else
                 queue.RecordAttempt(operation.OperationId, result.ReasonCode ?? DiagnosticCode(kind));
+
+            if (kind == SyncResultKind.RevisionConflict)
+                queue.MarkConflicted(operation.OperationId);
 
             diagnostics.Report(new SyncDiagnostic(
                 DiagnosticCode(kind),

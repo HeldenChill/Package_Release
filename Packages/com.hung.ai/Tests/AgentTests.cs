@@ -58,6 +58,32 @@ namespace Hung.AI.Tests
             Assert.AreEqual(NodeStatus.Running, agent.Tick(0.1f));
         }
 
+        // BUG-261114-9450: a reused agent starts from graph defaults plus its overrides.
+        [Test]
+        public void ResetRuntimeState_RestoresDefaultsAndOverrides()
+        {
+            var speed = asset.Blackboard.Add("Speed", BlackboardValueType.Float);
+            speed.DefaultValue.FloatValue = 1f;
+            var alert = asset.Blackboard.Add("Alert", BlackboardValueType.Bool);
+            asset.AddNode(new ScriptedAction { Id = "a", Result = NodeStatus.Running });
+            asset.RootNodeId = "a";
+            var agent = go.AddComponent<AIAgent>();
+            agent.SetGraph(asset);
+            agent.Overrides.Add(new BlackboardKeyOverride { KeyId = speed.Id, Value = new BlackboardValue { FloatValue = 3f } });
+            Assert.IsTrue(agent.Initialize());
+            var speedRef = new BlackboardRef<float>(speed.Id);
+            var alertRef = new BlackboardRef<bool>(alert.Id);
+            agent.Blackboard.Set(speedRef, 7f);
+            agent.Blackboard.Set(alertRef, true);
+            agent.Tick(0.1f);
+
+            agent.ResetRuntimeState();
+
+            Assert.AreEqual(3f, agent.Blackboard.Get<float>(speedRef), "override value restored");
+            Assert.IsFalse(agent.Blackboard.Get<bool>(alertRef), "default value restored");
+            Assert.IsFalse(agent.RuntimeGraph.Root.IsRunning, "active path aborted");
+        }
+
         [Test]
         public void Override_AppliesToThisAgentOnly()
         {

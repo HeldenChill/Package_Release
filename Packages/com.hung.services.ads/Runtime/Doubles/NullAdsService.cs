@@ -8,7 +8,6 @@ namespace Hung.Ads
     // tests and offline/vendor-free builds. Never calls a mediation SDK.
     public class NullAdsService : IAdsService
     {
-        public IAds AppOpen { get; } = new NullAds();
         public IAds Banner { get; } = new NullAds();
         public IRewardAds Reward { get; } = new NullRewardAds();
         public IInterAds Inter { get; } = new NullInterAds();

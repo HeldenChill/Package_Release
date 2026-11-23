@@ -120,6 +120,20 @@ namespace Hung.Audio
         private void Release(Voice voice)
         {
             var source = voice.Source;
+            if (source != null && source.loop && !disposed)
+            {
+                // A loop's AudioSource was handed to the caller as its handle. Give the voice a fresh source so a
+                // stale handle can never match the next loop that reuses this voice (BUG-261114-81a2).
+                // ponytail: one GameObject per finished loop; pool spare sources if loops churn every frame.
+                int index = children.IndexOf(source.gameObject);
+                var fresh = CreateSource(source.gameObject.name);
+                if (index >= 0) { children.RemoveAt(children.Count - 1); children[index] = fresh.gameObject; }
+                source.Stop();
+                if (Application.isPlaying) Destroy(source.gameObject); else DestroyImmediate(source.gameObject);
+                voice.Source = fresh;
+                voice.Cue = null; voice.FadeRemaining = 0; voice.Gain = 1; voice.Releasing = false;
+                return;
+            }
             if (source != null)
             {
                 source.Stop(); source.clip = null; source.loop = false; source.pitch = 1;

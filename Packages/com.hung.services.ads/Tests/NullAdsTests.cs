@@ -13,15 +13,12 @@ namespace Hung.Ads.Tests
     public class NullAdsTests
     {
         [Test]
-        public void NullAds_AppOpenAndBanner_AllCallsNoThrow()
+        public void NullAds_Banner_AllCallsNoThrow()
         {
             var service = new NullAdsService();
 
             Assert.DoesNotThrow(() =>
             {
-                service.AppOpen.Load();
-                service.AppOpen.Show();
-                service.AppOpen.Hide();
                 service.Banner.Load();
                 service.Banner.Show();
                 service.Banner.Hide();

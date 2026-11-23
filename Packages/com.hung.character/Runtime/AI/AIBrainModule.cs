@@ -88,7 +88,8 @@ namespace Hung.Character.AI
 
         public override void ResetModule()
         {
-            if (agent != null) agent.AbortActivePath();
+            // A pooled character must not keep its previous life's blackboard (BUG-261114-9450).
+            if (agent != null) agent.ResetRuntimeState();
             mover?.Stop();
             perception.Clear();
         }

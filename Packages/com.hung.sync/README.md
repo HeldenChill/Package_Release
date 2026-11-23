@@ -19,11 +19,33 @@ Sync answers "was this operation authenticated, ordered, accepted, rejected, ret
 | `ISyncDiagnostics` | Payload-free structured diagnostics |
 | `SyncRetryClassifier` | Pure mapping from transport outcome to `SyncResultKind` |
 | `SyncQueue` | Durable pending queue persisted via `com.hung.persistence` |
+| `SyncQueue.MarkConflicted` / `IsStreamBlocked` | Conflict blocks only its own stream (in memory) |
+| `SyncQueue.Rebase` | Reconcile a conflicted operation in place: same id, new revision, optional new payload |
 | `SyncEngine` | Dispatch, reconciliation, offline behavior |
+
+## Conflicts
+
+```mermaid
+flowchart TD
+    D[DispatchNext] --> C[RevisionConflict]
+    C --> M[stream blocked, other streams continue]
+    M --> O[outcome carries canonical revision and payload]
+    O --> P[product reconciles]
+    P -->|keep intent| R[Rebase same id]
+    P -->|drop intent| X[Complete]
+    R --> D
+    X --> D
+```
+
+- The conflicted record never leaves the durable queue, so a crash during reconcile loses nothing.
+- Later records on the same stream wait. If they are stale too, they conflict in turn and are rebased the same way.
+- The blocked mark is not persisted. After a restart the record is sent once more, conflicts again and returns fresh canonical state.
+- Reusing the operation id after `Rebase` is safe: the authority never applied the conflicted attempt.
 
 ## Hard rules
 
-- Payloads and auth tokens are never logged and never stored in the queue.
+- Auth tokens are never logged and never stored in the queue.
+- Payloads are stored in the queue (retries need them) but never logged or sent to diagnostics.
 - Retries reuse the same operation id; a new business intent gets a new id.
 - Queue uses `SaveFailurePolicy.FailClosed`.
 - Conflicts never resolve by last-write-wins.

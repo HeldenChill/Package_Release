@@ -373,10 +373,11 @@ namespace Hung.AutoTest
                         AutoTestAssertionSeverity.Failure,
                         context,
                         ex.ToString()));
+                    // Status was computed before export; a run with no report file must not read as Passed (BUG-261114-1b86).
+                    lastReport.status = AutoTestStatus.Error;
+                    context.Status = AutoTestStatus.Error;
                 }
             }
-
-            RunCompleted?.Invoke(lastReport);
 
             CurrentSuite = null;
             CurrentCaseIndex = -1;
@@ -386,6 +387,17 @@ namespace Hung.AutoTest
             {
                 Destroy(activeSuite);
                 activeSuite = null;
+            }
+
+            // Reset state first, then notify each subscriber in isolation: a throwing handler must not
+            // leave the runner active, skip other subscribers or the Editor auto-stop (BUG-261114-f6ec).
+            if (RunCompleted != null)
+            {
+                foreach (Action<AutoTestReport> handler in RunCompleted.GetInvocationList())
+                {
+                    try { handler(lastReport); }
+                    catch (Exception ex) { Debug.LogException(ex); }
+                }
             }
 
             if (logVerbose)

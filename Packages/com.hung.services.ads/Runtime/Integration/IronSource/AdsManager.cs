@@ -34,7 +34,6 @@ namespace Hung.Ads
         STimer timer;
 
         //public bool IsBannerOpen => Banner.IsBannerOpen;
-        public virtual IAds AppOpen => null;
         public IAds Banner => banner;
         public IRewardAds Reward => reward;
         public IInterAds Inter => interstitial;
@@ -229,10 +228,6 @@ namespace Hung.Ads
         private void OnApplicationPause(bool pause)
         {
             DevLog.Log(DevId.Hung, $"APPLICATION PAUSE: {pause}");
-            //if (!pause)
-            //{
-            //    AppOpen.Show();
-            //}
         }
 
         public void ShowRewarded(AdsShowRequest request, Action<AdsShowResult> onCompleted)

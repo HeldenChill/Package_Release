@@ -69,6 +69,21 @@ namespace Hung.Audio.Tests
             }
             finally { UnityEngine.Object.DestroyImmediate(foreignRoot); }
         }
+        // BUG-261114-81a2: a loop handle released by StopSfx must not stop the loop that reuses its voice.
+        [Test] public void StaleLoopHandleCannotStopReusedVoice()
+        {
+            var first = playback.PlayLoopSfx(BaseAudioIds.UiClick, 0);
+            Assert.That(first, Is.Not.Null);
+            playback.StopSfx();
+            var second = playback.PlayLoopSfx(BaseAudioIds.UiClick, 0);
+            Assert.That(second, Is.Not.Null);
+
+            playback.StopLoopSfx(first, 0);
+
+            Assert.That(playback.PlayLoopSfx(BaseAudioIds.UiClick, 0), Is.Null, "stale handle released the new loop");
+            playback.StopLoopSfx(second, 0);
+            Assert.That(playback.PlayLoopSfx(BaseAudioIds.UiClick, 0), Is.Not.Null, "current handle still works");
+        }
         [UnityTest] public IEnumerator LiveSettingsRebindAndUnbindApplyToLoop()
         {
             var source = playback.PlayLoopSfx(BaseAudioIds.UiClick, 0);
@@ -157,7 +172,9 @@ namespace Hung.Audio.Tests
             playback.StopLoopSfx(source, 0.02f); playback.StopLoopSfx(source, 0.02f);
             yield return new WaitForSecondsRealtime(0.08f);
             var reused = playback.PlayLoopSfx(BaseAudioIds.UiClick, 0);
-            Assert.That(reused, Is.SameAs(source));
+            // The voice is reused once (cap still 1), behind a fresh AudioSource so the old handle stays dead (BUG-261114-81a2).
+            Assert.That(reused, Is.Not.Null);
+            Assert.That(reused, Is.Not.SameAs(source));
             Assert.That(playback.PlayLoopSfx(BaseAudioIds.UiClick, 0), Is.Null);
         }
         [Test] public void EmptyRandomAndInvalidPitchDoNotAlterOwnedVoice()

@@ -20,6 +20,18 @@ namespace Hung.Base.Tests
             Assert.IsNull(ServiceSlots.OwnerOf<IAdsService>());
             Assert.IsFalse(ServiceSlots.TryGet<IIAPService>(out _));
         }
+        [Test] public void Analytics_DefaultIsSilentNoOpAndNotAnOwner()
+        {
+            Assert.IsNotNull(Locator.Analytics);
+            Assert.IsFalse(ServiceSlots.TryGet<IAnalyticsService>(out _));
+            Assert.DoesNotThrow(() =>
+            {
+                Locator.Analytics.AdsRewardOffer(Placement.NONE);
+                Locator.Analytics.LogEvent("probe", AnalyticsCategory.Ads);
+                Locator.Analytics.AdsRewardLoadComplete();
+            });
+            LogAssert.NoUnexpectedReceived();
+        }
         [Test] public void FallbackInstall_RejectsNullOrDifferentInstanceWithoutMutation()
         {
             var first = new Probe(); ServiceSlots.SetFallback<IProbe>(first);

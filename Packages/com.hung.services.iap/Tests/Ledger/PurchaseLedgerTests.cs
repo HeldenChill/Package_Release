@@ -39,6 +39,29 @@ namespace Hung.IAP.Tests
             Assert.That(loaded.State.transactions[0].state, Is.EqualTo(PurchaseTransactionState.Observed));
         }
 
+        // BUG-261114-2d4c: the attempt counters were serialized but never written.
+        // Expected values: two validation outcomes (retryable, then validated), one grant outcome,
+        // two confirmation outcomes (retryable, then completed). GrantPending is not an outcome.
+        [Test]
+        public void UpdateState_CountsAttemptOutcomesPerStage()
+        {
+            var service = new FakePersistenceService();
+            var ledger = PersistencePurchaseLedger.Load(service, PurchaseLedgerDefinition.Create(TestCodec.Instance, TestProtector.Instance));
+            ledger.RecordObserved(Record("tx-1", "starter-pack", "google-starter", "fingerprint-1"));
+
+            ledger.UpdateState("tx-1", PurchaseTransactionState.ValidationRetryable);
+            ledger.UpdateState("tx-1", PurchaseTransactionState.Validated);
+            ledger.UpdateState("tx-1", PurchaseTransactionState.GrantPending);
+            ledger.UpdateState("tx-1", PurchaseTransactionState.Granted);
+            ledger.UpdateState("tx-1", PurchaseTransactionState.ConfirmationRetryable);
+            ledger.UpdateState("tx-1", PurchaseTransactionState.Completed);
+
+            PurchaseTransactionRecord saved = service.SavedValue.transactions[0];
+            Assert.That(saved.validationAttemptCount, Is.EqualTo(2));
+            Assert.That(saved.grantAttemptCount, Is.EqualTo(1));
+            Assert.That(saved.confirmationAttemptCount, Is.EqualTo(2));
+        }
+
         [Test]
         public void RecordObserved_DuplicateIdentity_DoesNotAppend()
         {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.5] - 2026-11-14
+### Fixed
+- A loop handle (`AudioSource` from `PlayLoopSfx`) released by `StopSfx` or a fade no longer matches the next loop that reuses the voice: released loop voices get a fresh `AudioSource`, so `StopLoopSfx` and `SetPitch` on a stale handle do nothing (BUG-261114-81a2). Behaviour change: a reused loop voice returns a new `AudioSource`, not the previous one.
+
 ## [0.4.4] - 2026-11-13
 ### Changed
 - Release snapshot release-2026.11.13.1: dependency declarations updated (com.hung.base 0.31.1 Target3DDetection fix) and previously unreleased committed changes published. No API or behaviour change in this package from this entry.

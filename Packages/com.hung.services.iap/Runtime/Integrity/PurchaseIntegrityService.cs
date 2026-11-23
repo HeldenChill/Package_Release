@@ -6,6 +6,9 @@ using Hung.Base;
 
 namespace Hung.IAP
 {
+    // Do not add ConfigureAwait(false) here. The store completes its tasks with
+    // RunContinuationsAsynchronously, so without the captured Unity context every step after the
+    // first await - ledger saves and the grant handler that mutates GameData - ran on a thread-pool thread.
     public sealed class PurchaseIntegrityService : IPurchaseIntegrityService
     {
         private readonly IPurchaseCatalogProvider catalog;
@@ -44,8 +47,22 @@ namespace Hung.IAP
             if (!ledger.IsAvailable)
                 return Availability;
 
-            await store.ConnectAsync(token).ConfigureAwait(false);
+            await store.ConnectAsync(token);
             return Availability;
+        }
+
+        // The store goes not-ready after a disconnect and nothing else reconnects it, so a purchase
+        // request reconnects once. A failed connect leaves the request Unsupported.
+        private async Task TryReconnectAsync(CancellationToken token)
+        {
+            try
+            {
+                await store.ConnectAsync(token);
+            }
+            catch (Exception ex) when (!(ex is OperationCanceledException))
+            {
+                diagnostics?.Report(PurchaseIntegrityCodes.ReconnectFailed, null, ex.Message);
+            }
         }
 
         public async Task<PurchaseRequestResult> PurchaseAsync(PurchaseProductId productId, CancellationToken token = default)
@@ -54,21 +71,27 @@ namespace Hung.IAP
                 return new PurchaseRequestResult(PurchaseRequestStatus.Misconfigured, PurchaseIntegrityCodes.LedgerUnavailable);
             if (!catalog.TryGet(productId, out PurchaseCatalogEntry entry))
                 return new PurchaseRequestResult(PurchaseRequestStatus.Rejected, PurchaseIntegrityCodes.ProductNotFound);
+            if (!Availability.CanPurchase && Availability.State == PurchaseCapabilityState.SupportedNotReady)
+                await TryReconnectAsync(token);
             if (!Availability.CanPurchase)
                 return new PurchaseRequestResult(PurchaseRequestStatus.Unsupported, Availability.Code);
 
-            await interactiveRequestGate.WaitAsync(token).ConfigureAwait(false);
+            await interactiveRequestGate.WaitAsync(token);
             try
             {
                 string storeProductId = StoreProductIdFor(entry);
                 if (string.IsNullOrEmpty(storeProductId))
                     return new PurchaseRequestResult(PurchaseRequestStatus.Rejected, PurchaseIntegrityCodes.StoreProductNotFound);
 
-                StoreRequestResult request = await store.BeginPurchaseAsync(storeProductId, token).ConfigureAwait(false);
+                StoreRequestResult request = await store.BeginPurchaseAsync(storeProductId, token);
                 switch (request.Status)
                 {
                     case StoreRequestStatus.Observed:
-                        return await ProcessObservedAsync(request.ObservedPurchase, PurchaseSource.NewPurchase, serviceLifetime.Token).ConfigureAwait(false);
+                        // An order for another product (fetched pending order, approved Ask to Buy) is not
+                        // this request's answer. The store delivers it through PurchaseObserved as well.
+                        if (!string.Equals(request.ObservedPurchase.StoreProductId, storeProductId, StringComparison.Ordinal))
+                            return new PurchaseRequestResult(PurchaseRequestStatus.Pending, PurchaseIntegrityCodes.StoreOrderMismatch);
+                        return await ProcessObservedAsync(request.ObservedPurchase, PurchaseSource.NewPurchase, serviceLifetime.Token);
                     case StoreRequestStatus.Cancelled:
                         return new PurchaseRequestResult(PurchaseRequestStatus.Cancelled, request.Code);
                     case StoreRequestStatus.Deferred:
@@ -87,13 +110,13 @@ namespace Hung.IAP
 
         public async Task<PurchaseReconcileResult> ReconcileAsync(CancellationToken token = default)
         {
-            IReadOnlyList<StorePurchaseRecord> purchases = await store.FetchPurchasesAsync(token).ConfigureAwait(false);
+            IReadOnlyList<StorePurchaseRecord> purchases = await store.FetchPurchasesAsync(token);
             var snapshots = new List<PurchaseTransactionSnapshot>();
             bool hadFailure = false;
 
             foreach (StorePurchaseRecord purchase in purchases)
             {
-                PurchaseRequestResult result = await ProcessObservedAsync(purchase, PurchaseSource.Redelivery, serviceLifetime.Token).ConfigureAwait(false);
+                PurchaseRequestResult result = await ProcessObservedAsync(purchase, PurchaseSource.Redelivery, serviceLifetime.Token);
                 snapshots.Add(result.Transaction);
                 hadFailure |= !result.IsCompleted;
             }
@@ -106,7 +129,7 @@ namespace Hung.IAP
 
         public async Task<PurchaseRestoreResult> RestoreAsync(CancellationToken token = default)
         {
-            StoreRestoreResult restore = await store.RestoreAsync(token).ConfigureAwait(false);
+            StoreRestoreResult restore = await store.RestoreAsync(token);
             if (!restore.IsSuccess)
                 return new PurchaseRestoreResult(PurchaseAggregateStatus.RetryableFailure, restore.Code, Array.Empty<PurchaseTransactionSnapshot>());
 
@@ -114,7 +137,7 @@ namespace Hung.IAP
             bool hadFailure = false;
             foreach (StorePurchaseRecord purchase in restore.Purchases)
             {
-                PurchaseRequestResult result = await ProcessObservedAsync(purchase, PurchaseSource.Restore, serviceLifetime.Token).ConfigureAwait(false);
+                PurchaseRequestResult result = await ProcessObservedAsync(purchase, PurchaseSource.Restore, serviceLifetime.Token);
                 snapshots.Add(result.Transaction);
                 hadFailure |= !result.IsCompleted;
             }
@@ -144,7 +167,7 @@ namespace Hung.IAP
         private async Task<PurchaseRequestResult> ProcessObservedCoreAsync(StorePurchaseRecord record, PurchaseSource source, CancellationToken token)
         {
             if (ledger.ContainsCompletedTransaction(record.TransactionId))
-                return await ConfirmCompletedDuplicateAsync(record, token).ConfigureAwait(false);
+                return await ConfirmCompletedDuplicateAsync(record, token);
 
             if (!catalog.TryResolveStoreId(record.StoreName, record.StoreProductId, out PurchaseCatalogEntry entry))
                 return new PurchaseRequestResult(PurchaseRequestStatus.Rejected, PurchaseIntegrityCodes.StoreProductNotFound);
@@ -170,11 +193,15 @@ namespace Hung.IAP
             if (observed.Status == PurchaseLedgerWriteStatus.Unavailable || observed.Status == PurchaseLedgerWriteStatus.PersistenceFailed)
                 return new PurchaseRequestResult(PurchaseRequestStatus.RetryableFailure, observed.Code);
             if (observed.Status == PurchaseLedgerWriteStatus.Duplicate && ledger.ContainsCompletedTransaction(record.TransactionId))
-                return await ConfirmCompletedDuplicateAsync(record, token).ConfigureAwait(false);
+                return await ConfirmCompletedDuplicateAsync(record, token);
+            // Granted but not confirmed earlier: confirm only. Never validate or grant the same transaction twice,
+            // so a grant handler without its own dedupe cannot double-grant on redelivery or restore.
+            if (observed.Status == PurchaseLedgerWriteStatus.Duplicate && IsGrantedNotCompleted(observed.Record))
+                return await ConfirmAndCompleteAsync(record, observedRecord, token);
 
             Publish(Snapshot(observedRecord));
 
-            PurchaseValidationResult validation = await validator.ValidateAsync(record, entry, token).ConfigureAwait(false);
+            PurchaseValidationResult validation = await validator.ValidateAsync(record, entry, token);
             if (validation.Status == PurchaseValidationStatus.RetryableFailure)
             {
                 ledger.UpdateState(record.TransactionId, PurchaseTransactionState.ValidationRetryable, validation.Code);
@@ -203,7 +230,7 @@ namespace Hung.IAP
                     record.StoreName,
                     record.StoreProductId,
                     validation.MetadataJson),
-                token).ConfigureAwait(false);
+                token);
 
             if (grant == PurchaseGrantStatus.RetryableFailure)
             {
@@ -220,7 +247,20 @@ namespace Hung.IAP
             if (granted.Status != PurchaseLedgerWriteStatus.Saved)
                 return new PurchaseRequestResult(PurchaseRequestStatus.RetryableFailure, granted.Code, Snapshot(observedRecord));
 
-            StoreConfirmationResult confirmation = await store.ConfirmAsync(record.TransactionId, token).ConfigureAwait(false);
+            return await ConfirmAndCompleteAsync(record, observedRecord, token);
+        }
+
+        private static bool IsGrantedNotCompleted(PurchaseTransactionRecord existing)
+        {
+            return existing != null &&
+                   (existing.state == PurchaseTransactionState.Granted ||
+                    existing.state == PurchaseTransactionState.ConfirmationRetryable ||
+                    existing.state == PurchaseTransactionState.StoreConfirmationPending);
+        }
+
+        private async Task<PurchaseRequestResult> ConfirmAndCompleteAsync(StorePurchaseRecord record, PurchaseTransactionRecord observedRecord, CancellationToken token)
+        {
+            StoreConfirmationResult confirmation = await store.ConfirmAsync(record.TransactionId, token);
             if (!confirmation.IsSuccess)
             {
                 PurchaseTransactionState next = confirmation.Retryable ? PurchaseTransactionState.ConfirmationRetryable : PurchaseTransactionState.StoreConfirmationPending;
@@ -232,9 +272,18 @@ namespace Hung.IAP
             return new PurchaseRequestResult(PurchaseRequestStatus.Completed, "PURCHASE_COMPLETED", Snapshot(observedRecord));
         }
 
-        private void OnPurchaseObserved(StorePurchaseRecord record)
+        // async void is the event boundary: nothing awaits a redelivery, so failures are reported here
+        // instead of vanishing in a dropped task. The ledger keeps the record resumable.
+        private async void OnPurchaseObserved(StorePurchaseRecord record)
         {
-            _ = ProcessObservedAsync(record, PurchaseSource.Redelivery, serviceLifetime.Token);
+            try
+            {
+                await ProcessObservedAsync(record, PurchaseSource.Redelivery, serviceLifetime.Token);
+            }
+            catch (Exception ex)
+            {
+                diagnostics?.Report(PurchaseIntegrityCodes.ObservedProcessingFailed, record.TransactionId, ex.Message);
+            }
         }
 
         // The ledger marks Completed once ConfirmAsync reports success, but the store may still fail the
@@ -245,7 +294,7 @@ namespace Hung.IAP
         {
             try
             {
-                StoreConfirmationResult confirmation = await store.ConfirmAsync(record.TransactionId, token).ConfigureAwait(false);
+                StoreConfirmationResult confirmation = await store.ConfirmAsync(record.TransactionId, token);
                 if (!confirmation.IsSuccess)
                     diagnostics?.Report(confirmation.Code ?? PurchaseIntegrityCodes.ConfirmationRetryable, record.TransactionId, "re-confirm of a completed transaction");
             }

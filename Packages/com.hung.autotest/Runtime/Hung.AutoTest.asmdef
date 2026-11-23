@@ -8,7 +8,9 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_EDITOR || HUNG_AUTOTEST"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }

@@ -175,7 +175,16 @@ namespace Hung.Analytics
         /// <inheritdoc/>
         public void BuyIAPComplete(IAP_ITEM item, Placement placement)
         {
-            Log($"IAP_packname_{item}_Location_{placement}", AnalyticsCategory.Product);
+            // Firebase refuses names over 40 characters. Keep fitting names byte-identical for
+            // existing dashboards; send longer ones under one short name with parameters.
+            string name = $"IAP_packname_{item}_Location_{placement}";
+            if (name.Length <= EventEmitter.MaxNameLength)
+                Log(name, AnalyticsCategory.Product);
+            else
+                LogEvent("IAP_packname_fallback", AnalyticsCategory.Product, new Dictionary<string, object>
+                {
+                    { "item", item.ToString() }, { "placement", placement.ToString() }
+                });
             AnalyticsTracking.Facts.Raise(Fact.Monetize(MonetizeKind.Iap));
         }
 

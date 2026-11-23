@@ -45,13 +45,9 @@ namespace Hung.Cinematics
             _snapshotEnabled = snapshotEnabled;
         }
 
-        public static bool TryAcquire(
-            CinematicBindings bindings,
-            out CinematicCameraLease lease,
-            out string diagnostic)
+        /// <summary>True when TryAcquire would succeed now; takes nothing.</summary>
+        public static bool CanAcquire(CinematicBindings bindings, out string diagnostic)
         {
-            lease = null;
-
             if (bindings == null)
             {
                 diagnostic = "CinematicBindings is null.";
@@ -97,6 +93,18 @@ namespace Hung.Cinematics
                 diagnostic = "An active camera lease already exists for this CinemachineBrain.";
                 return false;
             }
+
+            diagnostic = null;
+            return true;
+        }
+
+        public static bool TryAcquire(
+            CinematicBindings bindings,
+            out CinematicCameraLease lease,
+            out string diagnostic)
+        {
+            lease = null;
+            if (!CanAcquire(bindings, out diagnostic)) return false;
 
             // Snapshot existing state
             Vector3 snapshotPos = bindings.CaptureCamera.transform.position;

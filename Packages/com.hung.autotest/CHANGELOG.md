@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0] - 2026-11-14
+### Changed
+- Player builds no longer contain AutoTest. `Hung.AutoTest` and `Hung.AutoTest.FakeInput` compile only when `UNITY_EDITOR || HUNG_AUTOTEST` is defined; add `HUNG_AUTOTEST` to the scripting defines of evidence or QA player builds that use `AutoTestPlayerEntrypoint` (`-rcScenario`). Before, every shipping player could be driven by a test run and write an evidence file at a command-line path (BUG-261114-7ee0, owner option A). Assemblies referencing `Hung.AutoTest` from runtime code need the same define constraint.
+### Fixed
+- `FinalizeRun` marks the report and runner status `Error` when report export fails; it used to keep the status computed before export (BUG-261114-1b86).
+- `RunCompleted` subscribers run after the runner state reset, each in its own try/catch: a throwing subscriber no longer skips the others, the single-case suite cleanup or the Editor auto-stop (BUG-261114-f6ec).
+### Migration
+- Game glue or harness asmdefs that reference `Hung.AutoTest` from runtime code must add the define constraint `UNITY_EDITOR || HUNG_AUTOTEST`, or player builds fail to compile. Known: BumpHero `BumpHero.AutoTest.Glue`, PetVsMonster `PetVsMonster.RuntimeConfidence` (Stage B builds also define `HUNG_AUTOTEST`).
+
 ## [0.5.1] - 2026-11-08
 
 ### Added
