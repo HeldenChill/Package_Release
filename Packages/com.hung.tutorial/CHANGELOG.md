@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.4] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.4.3] - 2026-11-23
 ### Changed
 - Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.4] - 2026-11-25
+### Fixed
+- Unity 6.6 compile: replace `Object.GetInstanceID()` (CS0619 in 6.6); `SimplePool`/`ParticlePool` key pools by object reference. Works on all Unity 6 versions.
+
 ## [0.5.3] - 2026-11-14
 ### Fixed
 - `ParticlePool.Root` no longer throws without a `PoolController` in the scene (BUG-261114-2ef8).

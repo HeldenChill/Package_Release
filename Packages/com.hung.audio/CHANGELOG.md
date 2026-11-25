@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.6] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.4.5] - 2026-11-14
 ### Fixed
 - A loop handle (`AudioSource` from `PlayLoopSfx`) released by `StopSfx` or a fade no longer matches the next loop that reuses the voice: released loop voices get a fresh `AudioSource`, so `StopLoopSfx` and `SetPitch` on a stale handle do nothing (BUG-261114-81a2). Behaviour change: a reused loop voice returns a new `AudioSource`, not the previous one.

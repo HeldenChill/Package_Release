@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.13.1] - 2026-11-25
+### Fixed
+- Spine bake asmdefs now require the `HUNG_SPINE` define, so consumers without Spine compile.
+
 ## [0.13.0] - 2026-11-14
 ### Changed
 - `Hung.Tool` and `Hung.Tool.Spine` are Editor-only assemblies (`includePlatforms: Editor`). Their components (`UIDOTweenDemo`, Spine sprite-sheet bake setups, UI flow snapshot types) had no runtime consumer and shipped in every player (BUG-261114-9229).

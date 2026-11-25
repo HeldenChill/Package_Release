@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.3] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.10.2] - 2026-11-23
 ### Fixed
 - Removes the orphaned AdsData.asset, whose script reference was stale.

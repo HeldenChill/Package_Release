@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.6] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.7.5] - 2026-11-14
 ### Fixed
 - `BuyIAPComplete` no longer sends event names Firebase refuses. `IAP_packname_{item}_Location_{placement}` reached 57 characters (limit 40), so purchase events for long pack names were lost. Names that fit are unchanged for existing dashboards; longer ones are sent as `IAP_packname_fallback` with `item` and `placement` parameters (BUG-261114-4727, owner picked keep-and-fallback).

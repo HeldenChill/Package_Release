@@ -1,6 +1,6 @@
 {
   "name": "com.hung.ai",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "displayName": "Hung AI",
   "description": "Reusable behavior-tree AI runtime: typed per-agent blackboard, stateful runner with conditional aborts, open node types, and an IAIMover movement abstraction with an optional NavMesh mover. No dependency on Hung.Character.",
   "unity": "2022.3",

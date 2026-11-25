@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.7] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.5.6] - 2026-11-23
 ### Fixed
 - Popup prefabs no longer reference project art (Layer Lab sprites and fonts, template UI) or project data SOs; nested items use com.hung.ui prefabs. Games skin the popups with prefab variants and assign the data SO.

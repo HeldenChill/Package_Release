@@ -43,14 +43,14 @@ namespace Hung.DesignPattern.Tests
         public void Despawn_Deactivates_AndInstanceIsReusedOnNextSpawn()
         {
             var first = SimplePool.Spawn<TestGameUnit>(prefab);
-            var firstId = first.GetInstanceID();
+            var firstId = first;
             first.Despawn();
 
             Assert.IsFalse(first.gameObject.activeSelf, "Despawn should deactivate the GameObject");
 
             var second = SimplePool.Spawn<TestGameUnit>(prefab);
 
-            Assert.AreEqual(firstId, second.GetInstanceID(), "the only inactive instance should be reused rather than instantiating a new one");
+            Assert.AreSame(firstId, second, "the only inactive instance should be reused rather than instantiating a new one");
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace Hung.DesignPattern.Tests
 
             Assert.IsNotNull(a);
             Assert.IsNotNull(b);
-            Assert.AreNotEqual(a.GetInstanceID(), b.GetInstanceID());
+            Assert.AreNotSame(a, b);
         }
 
         [Test]
@@ -98,8 +98,8 @@ namespace Hung.DesignPattern.Tests
 
                 var replacement = pool.Spawn();
 
-                Assert.AreEqual(first.GetInstanceID(), replacement.GetInstanceID());
-                Assert.AreNotEqual(second.GetInstanceID(), replacement.GetInstanceID());
+                Assert.AreSame(first, replacement);
+                Assert.AreNotSame(second, replacement);
             }
             finally
             {

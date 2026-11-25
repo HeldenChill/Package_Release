@@ -1,6 +1,6 @@
 {
   "name": "com.hung.liveops.spinwheel",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "displayName": "Hung LiveOps SpinWheel",
   "description": "SpinWheel LiveOps feature: manager, popup. Contracts live in com.hung.base, data models in com.hung.data.",
   "unity": "2022.3",
@@ -9,11 +9,11 @@
     "liveops"
   ],
   "dependencies": {
-    "com.hung.designpattern": "0.5.3",
-    "com.hung.utilities": "0.2.5",
-    "com.hung.base": "0.32.0",
-    "com.hung.data": "0.15.2",
-    "com.hung.ui": "0.10.3"
+    "com.hung.designpattern": "0.5.4",
+    "com.hung.utilities": "0.2.6",
+    "com.hung.base": "0.32.1",
+    "com.hung.data": "0.15.3",
+    "com.hung.ui": "0.10.4"
   },
   "samples": [
     {

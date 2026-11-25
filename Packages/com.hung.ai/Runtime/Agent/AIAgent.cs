@@ -106,7 +106,7 @@ namespace Hung.AI
             var blackboard = new Blackboard(runtimeGraph.Blackboard, Overrides);
             IAIMover mover = pendingMover;
             if (mover == null && TryGetComponent(out IAIMover found)) mover = found;
-            int seed = randomSeed != 0 ? randomSeed : Environment.TickCount ^ GetInstanceID();
+            int seed = randomSeed != 0 ? randomSeed : Environment.TickCount ^ GetHashCode();
             if (seed == 0) seed = 1;
             runner = new AIGraphRunner(runtimeGraph, new AIContext(blackboard, mover, gameObject, seed));
             return true;

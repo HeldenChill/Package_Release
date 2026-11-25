@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.18] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.4.17] - 2026-11-23
 ### Fixed
 - Popup prefab no longer references project art; nested items use com.hung.ui prefabs. Games skin with variants.

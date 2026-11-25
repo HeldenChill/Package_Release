@@ -57,7 +57,7 @@ namespace Dynamic.WorldInterface.Sensor
             // filter itself is the problem.
             // Attribute to the owning character's root, so an Enemy's samples are not pooled with
             // the Player's in the probe's static counters.
-            int ownerId = transform.root.gameObject.GetInstanceID();
+            int ownerId = transform.root.gameObject.GetHashCode();
             Hung.Base.MotionProbe.GroundSample(rawGrounded, !rawGrounded && coyoteActive, ownerId);
 
             Data.IsGrounded = grounded;

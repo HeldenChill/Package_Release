@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.1] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.32.0] - 2026-11-14
 ### Removed (breaking)
 - `IAdsService.AppOpen` and `UnsupportedAdsService.AppOpen`. App open never worked through the framework: the neutral adapter had empty `Show`/`Load` bodies and no vendor adapter was wired (BUG-261114-1925, owner decision: remove). `AdsRequestKind.AppOpen = 4` stays so request ids keep their values.

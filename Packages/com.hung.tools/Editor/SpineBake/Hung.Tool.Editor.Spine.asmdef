@@ -14,7 +14,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": ["HUNG_SPINE"],
     "versionDefines": [],
     "noEngineReferences": false
 }

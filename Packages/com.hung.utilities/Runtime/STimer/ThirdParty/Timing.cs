@@ -1352,7 +1352,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutine(IEnumerator<float> coroutine, GameObject gameObj)
         {
             return coroutine == null ? new CoroutineHandle() : Instance.RunCoroutineInternal(coroutine, Segment.Update,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, null, new CoroutineHandle(Instance._instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, null, new CoroutineHandle(Instance._instanceID), true);
         }
 
         /// <summary>
@@ -1389,7 +1389,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutine(IEnumerator<float> coroutine, GameObject gameObj, string tag)
         {
             return coroutine == null ? new CoroutineHandle() : Instance.RunCoroutineInternal(coroutine, Segment.Update,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, tag, new CoroutineHandle(Instance._instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, tag, new CoroutineHandle(Instance._instanceID), true);
         }
 
         /// <summary>
@@ -1427,7 +1427,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutine(IEnumerator<float> coroutine, Segment segment, GameObject gameObj)
         {
             return coroutine == null ? new CoroutineHandle() : Instance.RunCoroutineInternal(coroutine, segment,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, null, new CoroutineHandle(Instance._instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, null, new CoroutineHandle(Instance._instanceID), true);
         }
 
         /// <summary>
@@ -1467,7 +1467,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutine(IEnumerator<float> coroutine, Segment segment, GameObject gameObj, string tag)
         {
             return coroutine == null ? new CoroutineHandle() : Instance.RunCoroutineInternal(coroutine, segment,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, tag, new CoroutineHandle(Instance._instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, tag, new CoroutineHandle(Instance._instanceID), true);
         }
 
         /// <summary>
@@ -1504,7 +1504,7 @@ namespace MEC
         public CoroutineHandle RunCoroutineOnInstance(IEnumerator<float> coroutine, GameObject gameObj)
         {
             return coroutine == null ? new CoroutineHandle() : RunCoroutineInternal(coroutine, Segment.Update,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, null, new CoroutineHandle(_instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, null, new CoroutineHandle(_instanceID), true);
         }
 
         /// <summary>
@@ -1541,7 +1541,7 @@ namespace MEC
         public CoroutineHandle RunCoroutineOnInstance(IEnumerator<float> coroutine, GameObject gameObj, string tag)
         {
             return coroutine == null ? new CoroutineHandle() : RunCoroutineInternal(coroutine, Segment.Update,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, tag, new CoroutineHandle(_instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, tag, new CoroutineHandle(_instanceID), true);
         }
 
         /// <summary>
@@ -1579,7 +1579,7 @@ namespace MEC
         public CoroutineHandle RunCoroutineOnInstance(IEnumerator<float> coroutine, Segment segment, GameObject gameObj)
         {
             return coroutine == null ? new CoroutineHandle() : RunCoroutineInternal(coroutine, segment,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, null, new CoroutineHandle(_instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, null, new CoroutineHandle(_instanceID), true);
         }
 
         /// <summary>
@@ -1619,7 +1619,7 @@ namespace MEC
         public CoroutineHandle RunCoroutineOnInstance(IEnumerator<float> coroutine, Segment segment, GameObject gameObj, string tag)
         {
             return coroutine == null ? new CoroutineHandle() : RunCoroutineInternal(coroutine, segment,
-                gameObj == null ? 0 : gameObj.GetInstanceID(), gameObj != null, tag, new CoroutineHandle(_instanceID), true);
+                gameObj == null ? 0 : gameObj.GetHashCode(), gameObj != null, tag, new CoroutineHandle(_instanceID), true);
         }
 
         /// <summary>
@@ -1683,7 +1683,7 @@ namespace MEC
         /// <returns>The newly created or existing handle.</returns>
         public static CoroutineHandle RunCoroutineSingleton(IEnumerator<float> coroutine, GameObject gameObj, SingletonBehavior behaviorOnCollision)
         {
-            return gameObj == null ? RunCoroutine(coroutine) : RunCoroutineSingleton(coroutine, gameObj.GetInstanceID(), behaviorOnCollision);
+            return gameObj == null ? RunCoroutine(coroutine) : RunCoroutineSingleton(coroutine, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -1785,7 +1785,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutineSingleton(IEnumerator<float> coroutine, GameObject gameObj, string tag, SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineSingleton(coroutine, tag, behaviorOnCollision)
-                : RunCoroutineSingleton(coroutine, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : RunCoroutineSingleton(coroutine, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>
@@ -1893,7 +1893,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutineSingleton(IEnumerator<float> coroutine, Segment segment, GameObject gameObj,
             SingletonBehavior behaviorOnCollision)
         {
-            return gameObj == null ? RunCoroutine(coroutine, segment) : RunCoroutineSingleton(coroutine, segment, gameObj.GetInstanceID(), behaviorOnCollision);
+            return gameObj == null ? RunCoroutine(coroutine, segment) : RunCoroutineSingleton(coroutine, segment, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -1999,7 +1999,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineSingleton(coroutine, segment, tag, behaviorOnCollision)
-                : RunCoroutineSingleton(coroutine, segment, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : RunCoroutineSingleton(coroutine, segment, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>
@@ -2104,7 +2104,7 @@ namespace MEC
         public CoroutineHandle RunCoroutineSingletonOnInstance(IEnumerator<float> coroutine, GameObject gameObj, SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineOnInstance(coroutine)
-                : RunCoroutineSingletonOnInstance(coroutine, gameObj.GetInstanceID(), behaviorOnCollision);
+                : RunCoroutineSingletonOnInstance(coroutine, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -2207,7 +2207,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineSingletonOnInstance(coroutine, tag, behaviorOnCollision)
-                : RunCoroutineSingletonOnInstance(coroutine, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : RunCoroutineSingletonOnInstance(coroutine, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>
@@ -2276,7 +2276,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineOnInstance(coroutine, segment)
-                : RunCoroutineSingletonOnInstance(coroutine, segment, gameObj.GetInstanceID(), behaviorOnCollision);
+                : RunCoroutineSingletonOnInstance(coroutine, segment, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -2382,7 +2382,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? RunCoroutineSingletonOnInstance(coroutine, segment, tag, behaviorOnCollision)
-                : RunCoroutineSingletonOnInstance(coroutine, segment, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : RunCoroutineSingletonOnInstance(coroutine, segment, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>
@@ -3147,7 +3147,7 @@ namespace MEC
         /// <returns>The number of coroutines that were found and killed.</returns>
         public static int KillCoroutines(GameObject gameObj)
         {
-            return _instance == null ? 0 : _instance.KillCoroutinesOnInstance(gameObj.GetInstanceID());
+            return _instance == null ? 0 : _instance.KillCoroutinesOnInstance(gameObj.GetHashCode());
         }
 
         /// <summary> 
@@ -3157,7 +3157,7 @@ namespace MEC
         /// <returns>The number of coroutines that were found and killed.</returns>
         public int KillCoroutinesOnInstance(GameObject gameObj)
         {
-            return KillCoroutinesOnInstance(gameObj.GetInstanceID());
+            return KillCoroutinesOnInstance(gameObj.GetHashCode());
         }
 
         /// <summary>
@@ -3261,7 +3261,7 @@ namespace MEC
         /// <returns>The number of coroutines that were found and killed.</returns>
         public static int KillCoroutines(GameObject gameObj, string tag)
         {
-            return _instance == null ? 0 : _instance.KillCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return _instance == null ? 0 : _instance.KillCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary> 
@@ -3272,7 +3272,7 @@ namespace MEC
         /// <returns>The number of coroutines that were found and killed.</returns>
         public int KillCoroutinesOnInstance(GameObject gameObj, string tag)
         {
-            return KillCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return KillCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary>
@@ -3761,7 +3761,7 @@ namespace MEC
         /// <returns>The number of coroutines that were paused.</returns>
         public int PauseCoroutinesOnInstance(GameObject gameObj)
         {
-            return gameObj == null ? 0 : PauseCoroutinesOnInstance(gameObj.GetInstanceID());
+            return gameObj == null ? 0 : PauseCoroutinesOnInstance(gameObj.GetHashCode());
         }
 
         /// <summary>
@@ -3856,7 +3856,7 @@ namespace MEC
         /// <returns>The number of coroutines that were paused.</returns>
         public static int PauseCoroutines(GameObject gameObj, string tag)
         {
-            return _instance == null ? 0 : _instance.PauseCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return _instance == null ? 0 : _instance.PauseCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary>
@@ -3867,7 +3867,7 @@ namespace MEC
         /// <returns>The number of coroutines that were paused.</returns>
         public int PauseCoroutinesOnInstance(GameObject gameObj, string tag)
         {
-            return gameObj == null ? 0 : PauseCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return gameObj == null ? 0 : PauseCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary>
@@ -4104,7 +4104,7 @@ namespace MEC
         /// <returns>The number of coroutines that were resumed.</returns>
         public static int ResumeCoroutines(GameObject gameObj)
         {
-            return _instance == null ? 0 : _instance.ResumeCoroutinesOnInstance(gameObj.GetInstanceID());
+            return _instance == null ? 0 : _instance.ResumeCoroutinesOnInstance(gameObj.GetHashCode());
         }
 
         /// <summary>
@@ -4114,7 +4114,7 @@ namespace MEC
         /// <returns>The number of coroutines that were resumed.</returns>
         public int ResumeCoroutinesOnInstance(GameObject gameObj)
         {
-            return gameObj == null ? 0 : ResumeCoroutinesOnInstance(gameObj.GetInstanceID());
+            return gameObj == null ? 0 : ResumeCoroutinesOnInstance(gameObj.GetHashCode());
         }
 
         /// <summary>
@@ -4213,7 +4213,7 @@ namespace MEC
         /// <returns>The number of coroutines that were resumed.</returns>
         public static int ResumeCoroutines(GameObject gameObj, string tag)
         {
-            return _instance == null ? 0 : _instance.ResumeCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return _instance == null ? 0 : _instance.ResumeCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary>
@@ -4224,7 +4224,7 @@ namespace MEC
         /// <returns>The number of coroutines that were resumed.</returns>
         public int ResumeCoroutinesOnInstance(GameObject gameObj, string tag)
         {
-            return gameObj == null ? 0 : ResumeCoroutinesOnInstance(gameObj.GetInstanceID(), tag);
+            return gameObj == null ? 0 : ResumeCoroutinesOnInstance(gameObj.GetHashCode(), tag);
         }
 
         /// <summary>
@@ -7100,7 +7100,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutineSingleton(this IEnumerator<float> coroutine, GameObject gameObj, SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? Timing.RunCoroutine(coroutine) :
-                Timing.RunCoroutineSingleton(coroutine, gameObj.GetInstanceID(), behaviorOnCollision);
+                Timing.RunCoroutineSingleton(coroutine, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -7142,7 +7142,7 @@ namespace MEC
         public static CoroutineHandle RunCoroutineSingleton(this IEnumerator<float> coroutine, GameObject gameObj, string tag, SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? Timing.RunCoroutineSingleton(coroutine, tag, behaviorOnCollision)
-                : Timing.RunCoroutineSingleton(coroutine, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : Timing.RunCoroutineSingleton(coroutine, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>
@@ -7188,7 +7188,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? Timing.RunCoroutine(coroutine, segment) :
-                Timing.RunCoroutineSingleton(coroutine, segment, gameObj.GetInstanceID(), behaviorOnCollision);
+                Timing.RunCoroutineSingleton(coroutine, segment, gameObj.GetHashCode(), behaviorOnCollision);
         }
 
         /// <summary>
@@ -7235,7 +7235,7 @@ namespace MEC
             SingletonBehavior behaviorOnCollision)
         {
             return gameObj == null ? Timing.RunCoroutineSingleton(coroutine, segment, tag, behaviorOnCollision)
-                : Timing.RunCoroutineSingleton(coroutine, segment, gameObj.GetInstanceID(), tag, behaviorOnCollision);
+                : Timing.RunCoroutineSingleton(coroutine, segment, gameObj.GetHashCode(), tag, behaviorOnCollision);
         }
 
         /// <summary>

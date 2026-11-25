@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2026-11-25
+### Fixed
+- Unity 6.6 compile: replace `Object.GetInstanceID()` (CS0619 in 6.6) with `GetHashCode()` for the random seed.
+
 ## [0.2.0] - 2026-11-14
 ### Added
 - `Blackboard.ResetToDefaults()` restores every key to its graph default or agent override.

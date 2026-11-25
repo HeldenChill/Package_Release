@@ -85,7 +85,7 @@ namespace _Game.Character
         /// Root GameObject id, used to attribute probe readings to one character. The probe's
         /// counters are static, so Player and Enemy samples would otherwise be pooled.
         /// </summary>
-        int OwnerId => transform.root.gameObject.GetInstanceID();
+        int OwnerId => transform.root.gameObject.GetHashCode();
 
         void FixedUpdate()
         {

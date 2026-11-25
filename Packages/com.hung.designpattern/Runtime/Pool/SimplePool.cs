@@ -10,7 +10,7 @@ namespace Hung.DesignPattern
         private const string PATH = "Pool";
         private const int DEFAULT_POOL_SIZE = 3;
 
-        private static readonly Dictionary<int, Pool> Pools = new();
+        private static readonly Dictionary<Object, Pool> Pools = new();
 
         private static readonly Dictionary<PoolType, GameUnit> PoolTypes = new();
 
@@ -19,7 +19,7 @@ namespace Hung.DesignPattern
         private static Transform _root;
 
         // All of our pools
-        private static readonly Dictionary<int, Pool> PoolInstanceID = new();
+        private static readonly Dictionary<Object, Pool> PoolInstanceID = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession()
@@ -46,11 +46,11 @@ namespace Hung.DesignPattern
         private static void Init(GameUnit prefab = null, int qty = DEFAULT_POOL_SIZE, Transform parent = null,
             bool collect = false, bool clamp = false)
         {
-            if (prefab != null && !IsHasPool(prefab.GetInstanceID()))
-                PoolInstanceID.Add(prefab.GetInstanceID(), new Pool(prefab, qty, parent, collect, clamp));
+            if (prefab != null && !IsHasPool(prefab))
+                PoolInstanceID.Add(prefab, new Pool(prefab, qty, parent, collect, clamp));
         }
 
-        private static bool IsHasPool(int instanceID)
+        private static bool IsHasPool(Object instanceID)
         {
             return PoolInstanceID.ContainsKey(instanceID);
         }
@@ -99,7 +99,7 @@ namespace Hung.DesignPattern
         // Note: Only use this function when you are sure that this unit is already in pool
         public static GameUnit SpawnDirectFromPool(GameUnit obj, Vector3 pos, Quaternion rot)
         {
-            if (!Pools.ContainsKey(obj.GetInstanceID()))
+            if (!Pools.ContainsKey(obj))
             {
                 // NOTE: Comment it because we know that this unit is already in pool
                 // Transform newRoot = new GameObject(obj.name).transform;
@@ -107,38 +107,38 @@ namespace Hung.DesignPattern
                 // Preload(obj, 1, newRoot, true); 
                 return null;
             }
-            return Pools[obj.GetInstanceID()].SpawnDirectly(obj, pos, rot);
+            return Pools[obj].SpawnDirectly(obj, pos, rot);
         }
 
         private static GameUnit Spawn(GameUnit obj, Vector3 pos, Quaternion rot)
         {
-            if (!PoolInstanceID.ContainsKey(obj.GetInstanceID()))
+            if (!PoolInstanceID.ContainsKey(obj))
             {
                 Transform newRoot = new GameObject(obj.name).transform;
                 newRoot.SetParent(Root);
                 Preload(obj, 1, newRoot, true);
             }
 
-            return PoolInstanceID[obj.GetInstanceID()].Spawn(pos, rot);
+            return PoolInstanceID[obj].Spawn(pos, rot);
         }
 
         private static GameUnit Spawn(GameUnit obj)
         {
-            if (!PoolInstanceID.ContainsKey(obj.GetInstanceID()))
+            if (!PoolInstanceID.ContainsKey(obj))
             {
                 Transform newRoot = new GameObject(obj.name).transform;
                 newRoot.SetParent(Root);
                 Preload(obj, 1, newRoot, true);
             }
 
-            return PoolInstanceID[obj.GetInstanceID()].Spawn();
+            return PoolInstanceID[obj].Spawn();
         }
         public static void Despawn(this GameUnit obj)
         {
             if (obj.gameObject.activeSelf)
             {
-                if (Pools.ContainsKey(obj.GetInstanceID()))
-                    Pools[obj.GetInstanceID()].DeSpawn(obj);
+                if (Pools.ContainsKey(obj))
+                    Pools[obj].DeSpawn(obj);
                 else
                     Object.Destroy(obj.gameObject);
             }
@@ -146,10 +146,10 @@ namespace Hung.DesignPattern
 
         public static void Release(this GameUnit obj)
         {
-            if (Pools.ContainsKey(obj.GetInstanceID()))
+            if (Pools.ContainsKey(obj))
             {
-                Pools[obj.GetInstanceID()].Release();
-                Pools.Remove(obj.GetInstanceID());
+                Pools[obj].Release();
+                Pools.Remove(obj);
             }
             else
             {
@@ -159,10 +159,10 @@ namespace Hung.DesignPattern
 
         public static void ReleaseImmediate(this GameUnit obj)
         {
-            if (Pools.ContainsKey(obj.GetInstanceID()))
+            if (Pools.ContainsKey(obj))
             {
-                Pools[obj.GetInstanceID()].Release();
-                Pools.Remove(obj.GetInstanceID());
+                Pools[obj].Release();
+                Pools.Remove(obj);
             }
             else
             {
@@ -172,13 +172,13 @@ namespace Hung.DesignPattern
 
         public static void Collect(this GameUnit obj)
         {
-            if (PoolInstanceID.ContainsKey(obj.GetInstanceID()))
-                PoolInstanceID[obj.GetInstanceID()].Collect();
+            if (PoolInstanceID.ContainsKey(obj))
+                PoolInstanceID[obj].Collect();
         }
 
         public static void CollectAll()
         {
-            foreach (KeyValuePair<int, Pool> item in PoolInstanceID)
+            foreach (KeyValuePair<Object, Pool> item in PoolInstanceID)
                 if (item.Value.IsCollect)
                     item.Value.Collect();
         }
@@ -253,8 +253,8 @@ namespace Hung.DesignPattern
                 if (_inactive.Count == 0)
                 {
                     obj = Object.Instantiate(_prefab, _mSRoot);
-                    if (!Pools.ContainsKey(obj.GetInstanceID()))
-                        Pools.Add(obj.GetInstanceID(), this);
+                    if (!Pools.ContainsKey(obj))
+                        Pools.Add(obj, this);
                 }
                 else
                 {
@@ -288,8 +288,8 @@ namespace Hung.DesignPattern
                     // NOTE: Comment it because we know that this unit is already in queue
                     // gameUnit = Object.Instantiate(gameUnit, _mSRoot);
                     //
-                    // if (!Pools.ContainsKey(gameUnit.GetInstanceID()))
-                    //     Pools.Add(gameUnit.GetInstanceID(), this);
+                    // if (!Pools.ContainsKey(gameUnit))
+                    //     Pools.Add(gameUnit, this);
                 }
                 else
                 {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.4] - 2026-11-25
+### Fixed
+- Unity 6.6 compile: replace `Object.GetInstanceID()` (CS0619 in 6.6) with `GetHashCode()` for MotionProbe owner ids.
+
 ## [0.4.3] - 2026-11-23
 ### Changed
 - Dependency declarations re-pinned for release-2026.11.23.2 (package prefab asset-closure fix). No API or behaviour change in this package.

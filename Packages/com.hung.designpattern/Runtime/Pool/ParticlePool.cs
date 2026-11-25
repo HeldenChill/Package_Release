@@ -14,7 +14,7 @@ namespace Hung.DesignPattern
         //--------------------------------------------------------------------------------------------------
 
         // All of our pools
-        private static readonly Dictionary<int, Pool> pools = new();
+        private static readonly Dictionary<Object, Pool> pools = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession()
@@ -43,8 +43,8 @@ namespace Hung.DesignPattern
         /// </summary>
         private static void Init(ParticleSystem prefab = null, int qty = DEFAULT_POOL_SIZE, Transform parent = null)
         {
-            if (prefab != null && !pools.ContainsKey(prefab.GetInstanceID()))
-                pools[prefab.GetInstanceID()] = new Pool(prefab, qty, parent);
+            if (prefab != null && !pools.ContainsKey(prefab))
+                pools[prefab] = new Pool(prefab, qty, parent);
         }
 
         public static void Preload(ParticleSystem prefab, int qty = 1, Transform parent = null)
@@ -60,22 +60,22 @@ namespace Hung.DesignPattern
                 return null;
             }
 
-            if (!pools.ContainsKey(prefab.GetInstanceID()))
+            if (!pools.ContainsKey(prefab))
             {
                 Transform newRoot = new GameObject("VFX_" + prefab.name).transform;
                 newRoot.SetParent(Root);
-                pools[prefab.GetInstanceID()] = new Pool(prefab, 10, newRoot);
+                pools[prefab] = new Pool(prefab, 10, newRoot);
             }
 
-            return pools[prefab.GetInstanceID()].Play(pos, rot);
+            return pools[prefab].Play(pos, rot);
         }
 
         public static void Release(ParticleSystem prefab)
         {
-            if (pools.ContainsKey(prefab.GetInstanceID()))
+            if (pools.ContainsKey(prefab))
             {
-                pools[prefab.GetInstanceID()].Release();
-                pools.Remove(prefab.GetInstanceID());
+                pools[prefab].Release();
+                pools.Remove(prefab);
             }
             // An unpooled prefab is left alone: it may be an asset (BUG-261114-0e6f).
         }

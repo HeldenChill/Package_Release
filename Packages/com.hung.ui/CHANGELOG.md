@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.4] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.10.3] - 2026-11-23
 ### Fixed
 - Adds the shared UIItem and PopupCloseButton prefabs (moved from the template project, GUIDs kept) with art references removed, so package popups no longer depend on project assets.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.15.3] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.15.2] - 2026-11-23
 ### Fixed
 - DataManager prefab no longer references com.hung.services.iap's IAPData or deleted SOs (the game assigns iapData). Sample GameplayData drops project sprites. PoolData drops 5 references to deleted prefabs. GameEventManager prefab loses a missing-script component.

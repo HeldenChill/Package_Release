@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.16] - 2026-11-25
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.2.15] - 2026-11-14
 ### Fixed
 - Clock rollback no longer extends Unlimited Energy. `TryStartRun` and the snapshot compared the expiry with the raw device clock, so setting the clock back kept runs free after the entitlement had run out, against design section 12. The entitlement is now paused during rollback and resumes when the clock catches up (BUG-261114-6f71).
