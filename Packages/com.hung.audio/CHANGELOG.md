@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.9] - 2026-11-26
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.4.8] - 2026-11-26
 ### Changed
 - Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.

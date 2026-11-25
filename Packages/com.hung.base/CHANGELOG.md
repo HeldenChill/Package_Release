@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.4] - 2026-11-26
+### Fixed
+- `SceneHotkey` falls back to any scene under `Assets` with the same file name when the template path `Assets/_Game/_Scenes/...` is missing.
+
 ## [0.32.3] - 2026-11-26
 ### Fixed
 - `SceneHotkey` menu items log a warning instead of throwing `ArgumentException` when the hardcoded scene is missing.

@@ -13,11 +13,21 @@ namespace Hung.Base
         public static void OpenScene(string sceneName)
         {
             string path = "Assets/_Game/_Scenes/" + sceneName + ".unity";
-            // ponytail: paths are product-specific; projects without them get a warning, not an exception.
             if (!System.IO.File.Exists(path))
             {
-                Debug.LogWarning($"[SceneHotkey] Scene not found: {path}");
-                return;
+                // Template layout missing: find a scene with the same file name anywhere under Assets.
+                string fileName = System.IO.Path.GetFileName(sceneName);
+                path = null;
+                foreach (string guid in AssetDatabase.FindAssets(fileName + " t:Scene", new[] { "Assets" }))
+                {
+                    string candidate = AssetDatabase.GUIDToAssetPath(guid);
+                    if (System.IO.Path.GetFileNameWithoutExtension(candidate) == fileName) { path = candidate; break; }
+                }
+                if (path == null)
+                {
+                    Debug.LogWarning($"[SceneHotkey] Scene not found: {fileName}.unity");
+                    return;
+                }
             }
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 EditorSceneManager.OpenScene(path);
