@@ -2,6 +2,10 @@
 ### Fixed
 - Popup prefab no longer references project art, VFX material or data SO, and loses a missing-script component on Fx_Rotate. Games skin with variants and assign data.
 
+## [0.3.20] - 2026-11-26
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.3.19] - 2026-11-26
 ### Changed
 - Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.

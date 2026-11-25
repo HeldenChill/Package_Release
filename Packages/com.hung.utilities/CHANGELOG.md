@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.7] - 2026-11-26
+### Fixed
+- `MainThreadDispatcher` calls `DontDestroyOnLoad` on its root object, so a dispatcher placed in a boot scene survives the first scene load.
+
 ## [0.2.6] - 2026-11-25
 ### Fixed
 - Unity 6.6 compile: replace `Object.GetInstanceID()` (CS0619 in 6.6) with `GetHashCode()` in `Timing` instance layers.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.5] - 2026-11-26
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.32.4] - 2026-11-26
 ### Fixed
 - `SceneHotkey` falls back to any scene under `Assets` with the same file name when the template path `Assets/_Game/_Scenes/...` is missing.

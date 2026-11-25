@@ -15,6 +15,8 @@ namespace Hung.Utilities
             if(_instance == null)
             {
                 _instance = this;
+                // Boot-scene placement (e.g. LoadStart) must survive the first scene load.
+                if (transform.parent == null) DontDestroyOnLoad(gameObject);
             }
             else
             {
