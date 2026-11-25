@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2026-11-26
+### Fixed
+- Unity 6.6: `OnOpenAsset` uses `EntityId` + `EditorUtility.EntityIdToObject` on 6000.6+ (int overload is CS0619).
+
 ## [0.2.1] - 2026-11-25
 ### Fixed
 - Unity 6.6 compile: replace `Object.GetInstanceID()` (CS0619 in 6.6) with `GetHashCode()` for the random seed.

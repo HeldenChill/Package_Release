@@ -50,9 +50,15 @@ namespace Hung.AI.Editor
         }
 
         [OnOpenAsset]
+#if UNITY_6000_6_OR_NEWER
+        static bool OnOpenAsset(EntityId instanceId, int line)
+        {
+            if (!(EditorUtility.EntityIdToObject(instanceId) is AIGraphAsset graph)) return false;
+#else
         static bool OnOpenAsset(int instanceId, int line)
         {
             if (!(EditorUtility.InstanceIDToObject(instanceId) is AIGraphAsset graph)) return false;
+#endif
             Open(graph);
             return true;
         }

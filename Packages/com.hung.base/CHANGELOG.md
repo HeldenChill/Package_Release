@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.2] - 2026-11-26
+### Fixed
+- Removed invalid `[SerializeField]` on `InitCanvas.StartLevel` property (CS0592 in Unity 6.6).
+
 ## [0.32.1] - 2026-11-25
 ### Changed
 - Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.

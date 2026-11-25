@@ -31,7 +31,6 @@ namespace Hung.Base.Init
         Button clearDataButton;
         [SerializeField]
         TMP_InputField levelInputField;
-        [SerializeField]
         public int StartLevel => int.Parse(levelInputField.text);
 
         protected virtual void Start()
