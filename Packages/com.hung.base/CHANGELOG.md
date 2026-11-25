@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.3] - 2026-11-26
+### Fixed
+- `SceneHotkey` menu items log a warning instead of throwing `ArgumentException` when the hardcoded scene is missing.
+
 ## [0.32.2] - 2026-11-26
 ### Fixed
 - Removed invalid `[SerializeField]` on `InitCanvas.StartLevel` property (CS0592 in Unity 6.6).

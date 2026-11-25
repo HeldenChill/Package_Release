@@ -2,6 +2,10 @@
 ### Fixed
 - Popup prefabs no longer reference project art or project data SOs; nested items use com.hung.ui prefabs. Games skin with variants and assign data.
 
+## [0.3.19] - 2026-11-26
+### Changed
+- Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.
+
 ## [0.3.18] - 2026-11-26
 ### Changed
 - Re-pinned `com.hung.*` dependencies for the Unity 6.6 compile fix release.

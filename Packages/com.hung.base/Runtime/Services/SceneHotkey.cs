@@ -12,10 +12,15 @@ namespace Hung.Base
     {
         public static void OpenScene(string sceneName)
         {
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            string path = "Assets/_Game/_Scenes/" + sceneName + ".unity";
+            // ponytail: paths are product-specific; projects without them get a warning, not an exception.
+            if (!System.IO.File.Exists(path))
             {
-                EditorSceneManager.OpenScene("Assets/_Game/_Scenes/" + sceneName + ".unity");
+                Debug.LogWarning($"[SceneHotkey] Scene not found: {path}");
+                return;
             }
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                EditorSceneManager.OpenScene(path);
         }
 
         [MenuItem("Open Scene/GameScene")]
